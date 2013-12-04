@@ -1,6 +1,3 @@
-from wrappers/opengl/opengl import
-  loadExtensions
-
 from pure/collections/tables import
   `[]`,
   `[]=`,
