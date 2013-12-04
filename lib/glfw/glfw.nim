@@ -360,11 +360,12 @@ proc init* =
 
 proc terminate* =
   wrapper.terminate()
+  hasInit = false
 
-proc nilMonitor*: TMonitor =
+proc nilMonitor: TMonitor =
   nil
 
-proc nilWnd*: PWnd =
+proc nilWnd: PWnd =
   new(result)
 
 var
@@ -413,7 +414,7 @@ type
     glesv11 = (glv11, "OpenGL ES 1.1")
     glesv20 = (glv20, "OpenGL ES 2.0")
     glesv30 = (glv30, "OpenGL ES 3.0")
-  TGL_API_type = enum
+  TGL_API_type* = enum
     GL_API_GL,
     GL_API_GL_ES
   TGL_API* = object
@@ -433,7 +434,7 @@ type
     glpAny = wrapper.OPENGL_ANY_PROFILE,
     glpCore = wrapper.OPENGL_CORE_PROFILE,
     glpCompat = wrapper.OPENGL_COMPAT_PROFILE,
-  THints = tuple[
+  THints* = tuple[
     resizable, visible, decorated, stereo, SRGB_capableframebuf: bool,
     bits: TBits,
     accumBufBits: TAccumBufBits,
@@ -669,24 +670,15 @@ proc newWnd*(
     title = "",
     hints = initHints(),
     fullscreen = nilMonitor(),
-    shareResourcesWith = nilWnd(),
-    initLibIfNeeded = true,
-    makeContextCurrent = true):
+    shareResourcesWith = nilWnd()):
       PWnd =
   new(result)
-
-  if initLibIfNeeded:
-    init()
 
   setHints(hints)
   result.handle = wrapper.createWindow(dim.w.cint, dim.h.cint, title,
     fullscreen.handle, shareResourcesWith.handle).failIf(nil)
   wndTable.add result.handle, result
 
-  if makeContextCurrent:
-    result.makeContextCurrent()
-
-  # 
   template get(f: expr): bool =
     var wnd {.inject.} = handleToWnd(handle)
     var cb {.inject.} = if not wnd.isNil: wnd.f else: nil

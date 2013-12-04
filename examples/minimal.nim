@@ -2,6 +2,8 @@ import
   pure/os,
   glfw/glfw
 
+glfw.init()
+
 var
   wnd = newWnd()
 

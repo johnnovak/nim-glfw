@@ -58,6 +58,8 @@ proc keyCb(o: PWnd, key: TKey, scanCode: int, action: TKeyAction,
     if key == keyEscape or key == keyF4 and mkAlt in modKeys:
       o.shouldClose = true
 
+glfw.init()
+
 var
   done = false
   wnd = newWnd()
