@@ -689,7 +689,7 @@ proc newWnd*(
 
   wndSizeCb = proc(handle: PWndHandle, w, h: cint) {.cdecl.} =
     if get(wndSizeCb):
-      cb(wnd, (w.Positive, h. Positive))
+      cb(wnd, (w, h))
   discard wrapper.setWindowSizeCallback(result.handle, wndSizeCb)
 
   wndCloseCb = proc(handle: PWndHandle) {.cdecl.} =
@@ -714,7 +714,7 @@ proc newWnd*(
 
   framebufSizeCb = proc(handle: PWndHandle, w, h: cint) {.cdecl.} =
     if get(framebufSizeCb):
-      cb(wnd, (w.Positive, h.Positive))
+      cb(wnd, (w, h))
   discard wrapper.setframebufferSizeCallback(result.handle, framebufSizeCb)
 
   mouseBtnCb = proc(
