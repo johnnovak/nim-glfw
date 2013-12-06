@@ -659,7 +659,7 @@ proc setHints(o: THints) =
 proc destroy*(o: PWnd) =
   wrapper.destroyWindow(o.handle)
 
-proc makeContextCurrent(o: PWnd) =
+proc makeContextCurrent*(o: PWnd) =
   wrapper.makeContextCurrent(o.handle)
 
 proc newWnd*(
