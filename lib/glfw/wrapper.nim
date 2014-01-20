@@ -5,7 +5,7 @@ when defined(windows):
     GlfwDll* = "glfw.dll"
 elif defined(macosx):
   const 
-    GlfwDll* = "glfw.dylib"
+    GlfwDll* = "libglfw.dylib"
 else:
   const 
     GlfwDll* = "libglfw.so"
