@@ -274,7 +274,7 @@ proc `monitorCb=`*(cb: TMonitorCb) =
 
 proc internalMonitorCb(handle: PMonitorHandle, connected: cint) {.cdecl.} =
   if not gMonitorCb.isNil:
-    gMmonitorCb(TMonitor(handle: handle), connected.bool)
+    gMonitorCb(TMonitor(handle: handle), connected.bool)
 
 proc getMonitors*: seq[TMonitor] =
   var count: cint
