@@ -267,14 +267,14 @@ proc newMonitor*(handle: PMonitorHandle): TMonitor =
 type
   TMonitorCb* = proc(monitor: TMonitor, connected: bool) {.closure.}
 
-var monitorCb: TMonitorCb
+var gMonitorCb: TMonitorCb
 
 proc `monitorCb=`*(cb: TMonitorCb) =
-  monitorCb = cb
+  gMonitorCb = cb
 
 proc internalMonitorCb(handle: PMonitorHandle, connected: cint) {.cdecl.} =
-  if not monitorCb.isNil:
-    monitorCb(TMonitor(handle: handle), connected.bool)
+  if not gMonitorCb.isNil:
+    gMmonitorCb(TMonitor(handle: handle), connected.bool)
 
 proc getMonitors*: seq[TMonitor] =
   var count: cint
