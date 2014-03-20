@@ -8,7 +8,7 @@ elif defined(macosx):
     GlfwDll* = "libglfw3.dylib"
 else:
   const 
-    GlfwDll* = "libglfw.so"
+    GlfwDll* = "libglfw.so.3"
 
 const 
   VERSION_MAJOR* = 3
