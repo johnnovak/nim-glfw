@@ -170,16 +170,16 @@ type
 
 {.push closure.}
 type
-  PWndHandle = wrapper.GLFWwindow
-  TWnd* = object
-    handle: PWndHandle
+  PWinHandle = wrapper.GLFWwindow
+  TWin* = object
+    handle: PWinHandle
 
-    wndPosCb*: TWndPosCb
-    wndSizeCb*: TWndSizeCb
-    wndCloseCb*: TWndCloseCb
-    wndRefreshCb*: TWndRefreshCb
-    wndFocusCb*: TWndFocusCb
-    wndIconifyCb*: TWndIconifyCb
+    winPosCb*: TWinPosCb
+    winSizeCb*: TWinSizeCb
+    winCloseCb*: TWinCloseCb
+    winRefreshCb*: TWinRefreshCb
+    winFocusCb*: TWinFocusCb
+    winIconifyCb*: TWinIconifyCb
     framebufSizeCb*: TframebufSizeCb
     mouseBtnCb*: TMouseBtnCb
     cursorPosCb*: TCursorPosCb
@@ -187,22 +187,22 @@ type
     scrollCb*: TScrollCb
     keyCb*: TKeyCb
     charCb*: TCharCb
-  PWnd* = ref TWnd
-  TWndPosCb* = proc(wnd: PWnd, pos: tuple[x, y: int])
-  TWndSizeCb* = proc(wnd: PWnd, res: tuple[w, h: int])
-  TWndCloseCb* = proc(wnd: PWnd)
-  TWndRefreshCb* = proc(wnd: PWnd)
-  TWndFocusCb* = proc(wnd: PWnd, focus: bool)
-  TWndIconifyCb* = proc(wnd: PWnd, iconified: bool)
-  TFramebufSizeCb* = proc(wnd: PWnd, res: tuple[w, h: int])
-  TMouseBtnCb* = proc(wnd: PWnd, btn: TMouseBtn, pressed: bool,
+  PWin* = ref TWin
+  TWinPosCb* = proc(win: PWin, pos: tuple[x, y: int])
+  TWinSizeCb* = proc(win: PWin, res: tuple[w, h: int])
+  TWinCloseCb* = proc(win: PWin)
+  TWinRefreshCb* = proc(win: PWin)
+  TWinFocusCb* = proc(win: PWin, focus: bool)
+  TWinIconifyCb* = proc(win: PWin, iconified: bool)
+  TFramebufSizeCb* = proc(win: PWin, res: tuple[w, h: int])
+  TMouseBtnCb* = proc(win: PWin, btn: TMouseBtn, pressed: bool,
     modKeys: TModifierKeySet)
-  TCursorPosCb* = proc(wnd: PWnd, pos: tuple[x, y: float64])
-  TCursorEnterCb* = proc(wnd: PWnd, entered: bool)
-  TScrollCb* = proc(wnd: PWnd, offset: tuple[x, y: float64])
-  TKeyCb* = proc(wnd: PWnd, key: TKey, scanCode: int, action: TKeyAction,
+  TCursorPosCb* = proc(win: PWin, pos: tuple[x, y: float64])
+  TCursorEnterCb* = proc(win: PWin, entered: bool)
+  TScrollCb* = proc(win: PWin, offset: tuple[x, y: float64])
+  TKeyCb* = proc(win: PWin, key: TKey, scanCode: int, action: TKeyAction,
     modKeys: TModifierKeySet)
-  TCharCb* = proc(wnd: PWnd, codePoint: TRune)
+  TCharCb* = proc(win: PWin, codePoint: TRune)
   PMonitorHandle = wrapper.GLFWmonitor
   TMonitor* = object
     handle: PMonitorHandle
@@ -362,23 +362,23 @@ proc terminate* =
 proc nilMonitor: TMonitor =
   nil
 
-proc nilWnd: PWnd =
+proc nilWin: PWin =
   new(result)
 
 var
-  wndTable = initTable[PWndHandle, PWnd]()
-wndTable[nil] = nil
+  winTable = initTable[PWinHandle, PWin]()
+winTable[nil] = nil
 
-proc handleToWnd(o: PWndHandle): PWnd =
-  if wndTable.hasKey(o): wndTable[o] else: nilWnd()
+proc handleToWin(o: PWinHandle): PWin =
+  if winTable.hasKey(o): winTable[o] else: nilWin()
 
 var
-  wndPosCb: GLFWwindowposfun
-  wndSizeCb: GLFWwindowsizefun
-  wndCloseCb: GLFWwindowclosefun
-  wndRefreshCb: GLFWwindowrefreshfun
-  wndFocusCb: GLFWwindowfocusfun
-  wndIconifyCb: GLFWwindowiconifyfun
+  winPosCb: GLFWwindowposfun
+  winSizeCb: GLFWwindowsizefun
+  winCloseCb: GLFWwindowclosefun
+  winRefreshCb: GLFWwindowrefreshfun
+  winFocusCb: GLFWwindowfocusfun
+  winIconifyCb: GLFWwindowiconifyfun
   framebufSizeCb: GLFWframebuffersizefun
   mouseBtnCb: GLFWmouseButtonfun
   cursorPosCb: GLFWcursorposfun
@@ -440,85 +440,85 @@ type
   TBits = tuple[r, g, b, a, stencil, depth: int]
   TAccumBufBits = tuple[r, g, b, a: int]
 
-proc shouldClose*(o: PWnd): bool =
+proc shouldClose*(o: PWin): bool =
   wrapper.windowShouldClose(o.handle) != 0
 
-proc `shouldClose=`*(o: PWnd, val: bool) =
+proc `shouldClose=`*(o: PWin, val: bool) =
   wrapper.setWindowShouldClose(o.handle, val.cint)
 
-proc `title=`*(o: PWnd, val: string) =
+proc `title=`*(o: PWin, val: string) =
   wrapper.setWindowTitle(o.handle, val)
 
-proc pos*(o: PWnd): tuple[x, y: int] =
+proc pos*(o: PWin): tuple[x, y: int] =
   var x, y: cint
   wrapper.getWindowPos(o.handle, x.addr, y.addr)
   (x.int, y.int)
 
-proc `pos=`*(o: PWnd, pos: tuple[x, y: int]) =
+proc `pos=`*(o: PWin, pos: tuple[x, y: int]) =
   wrapper.setWindowPos(o.handle, pos.x.cint, pos.y.cint)
 
-proc size*(o: PWnd): tuple[w, h: int] =
+proc size*(o: PWin): tuple[w, h: int] =
   var x, y: cint
   wrapper.getWindowSize(o.handle, x.addr, y.addr)
   (x.int, y.int)
 
-proc `size=`*(o: PWnd, size: tuple[w, h: int]) =
+proc `size=`*(o: PWin, size: tuple[w, h: int]) =
   wrapper.setWindowSize(o.handle, size.w.cint, size.h.cint)
 
-proc framebufSize*(o: PWnd): tuple[w, h: int] =
+proc framebufSize*(o: PWin): tuple[w, h: int] =
   var w, h: cint
   wrapper.getframebufferSize(o.handle, w.addr, h.addr)
   (w.int, h.int)
 
-proc iconify*(o: PWnd) =
+proc iconify*(o: PWin) =
   wrapper.iconifyWindow(o.handle)
 
-proc iconified*(o: PWnd): bool =
+proc iconified*(o: PWin): bool =
   wrapper.getWindowAttrib(o.handle, wrapper.ICONIFIED).bool
 
-proc restore*(o: PWnd) =
+proc restore*(o: PWin) =
   wrapper.restoreWindow(o.handle)
 
-proc show*(o: PWnd) =
+proc show*(o: PWin) =
   wrapper.showWindow(o.handle)
 
-proc hide*(o: PWnd) =
+proc hide*(o: PWin) =
   wrapper.hideWindow(o.handle)
 
-proc visible*(o: PWnd): bool =
+proc visible*(o: PWin): bool =
   wrapper.getWindowAttrib(o.handle, wrapper.VISIBLE).bool
 
-proc focused*(o: PWnd): bool =
+proc focused*(o: PWin): bool =
   wrapper.getWindowAttrib(o.handle, wrapper.FOCUSED).bool
 
-proc resizable*(o: PWnd): bool =
+proc resizable*(o: PWin): bool =
   wrapper.getWindowAttrib(o.handle, wrapper.RESIZABLE).bool
 
-proc decorated*(o: PWnd): bool =
+proc decorated*(o: PWin): bool =
   wrapper.getWindowAttrib(o.handle, wrapper.DECORATED).bool
   
-proc forwardCompat*(o: PWnd): bool =
+proc forwardCompat*(o: PWin): bool =
   wrapper.getWindowAttrib(o.handle, wrapper.OPENGL_FORWARD_COMPAT).bool
 
-proc debugContext*(o: PWnd): bool =
+proc debugContext*(o: PWin): bool =
   wrapper.getWindowAttrib(o.handle, wrapper.OPENGL_DEBUG_CONTEXT).bool
 
-proc profile*(o: PWnd): TGL_profile =
+proc profile*(o: PWin): TGL_profile =
   wrapper.getWindowAttrib(o.handle, wrapper.OPENGL_PROFILE).TGL_profile
 
-proc robustness*(o: PWnd): TGL_robustness =
+proc robustness*(o: PWin): TGL_robustness =
   wrapper.getWindowAttrib(o.handle, wrapper.CONTEXT_ROBUSTNESS).TGL_robustness
 
-proc stickyKeys*(o: PWnd): bool =
+proc stickyKeys*(o: PWin): bool =
   wrapper.getInputMode(o.handle, wrapper.STICKY_KEYS).bool
 
-proc `stickyKeys=`*(o: PWnd, yes: bool) =
+proc `stickyKeys=`*(o: PWin, yes: bool) =
   wrapper.setInputMode(o.handle, wrapper.STICKY_KEYS, yes.cint)
 
-proc stickyMouseBtns*(o: PWnd): bool =
+proc stickyMouseBtns*(o: PWin): bool =
   wrapper.getInputMode(o.handle, wrapper.STICKY_MOUSE_BUTTONS).bool
 
-proc `stickyMouseBtns=`*(o: PWnd, yes: bool) =
+proc `stickyMouseBtns=`*(o: PWin, yes: bool) =
   wrapper.setInputMode(o.handle, wrapper.STICKY_MOUSE_BUTTONS, yes.cint)
 
 type
@@ -527,30 +527,30 @@ type
     cmHidden = wrapper.CURSOR_HIDDEN
     cmDisabled = wrapper.CURSOR_DISABLED
 
-proc cursorMode*(o: PWnd): TCursorMode =
+proc cursorMode*(o: PWin): TCursorMode =
   wrapper.getInputMode(o.handle, wrapper.CURSOR).TCursorMode
 
-proc `cursorMode=`*(o: PWnd, mode: TCursorMode) =
+proc `cursorMode=`*(o: PWin, mode: TCursorMode) =
   wrapper.setInputMode(o.handle, wrapper.CURSOR, mode.cint)
 
-proc monitor*(o: PWnd): TMonitor =
+proc monitor*(o: PWin): TMonitor =
   newMonitor(wrapper.getWindowMonitor(o.handle))
 
-proc isKeyDown*(o: PWnd, key: TKey): bool =
+proc isKeyDown*(o: PWin, key: TKey): bool =
   wrapper.getKey(o.handle, key.cint) == wrapper.PRESS
 
-proc mouseBtnDown*(o: PWnd, btn: TMouseBtn): bool =
+proc mouseBtnDown*(o: PWin, btn: TMouseBtn): bool =
   wrapper.getMouseButton(o.handle, btn.cint) == wrapper.PRESS
 
-proc cursorPos*(o: PWnd): tuple[x, y: float64] =
+proc cursorPos*(o: PWin): tuple[x, y: float64] =
   var x, y: cdouble
   wrapper.getCursorPos(o.handle, x.addr, y.addr)
   (x.float64, y.float64)
 
-proc `cursorPos=`*(o: PWnd, pos: tuple[x, y: float64]) =
+proc `cursorPos=`*(o: PWin, pos: tuple[x, y: float64]) =
   wrapper.setCursorPos(o.handle, pos.x.cdouble, pos.y.cdouble)
 
-proc isJoystickPresent*(o: PWnd, joy: int): bool =
+proc isJoystickPresent*(o: PWin, joy: int): bool =
   wrapper.joystickPresent(joy.cint).bool
 
 proc getJoystickAxes*(joy: int): seq[float32] =
@@ -576,10 +576,10 @@ proc getJoystickBtns*(joy: int): seq[string] =
 proc joystickName*(joy: int): string =
   $wrapper.getJoystickName(joy.cint)
 
-proc `clipboardStr=`*(o: PWnd, str: string) =
+proc `clipboardStr=`*(o: PWin, str: string) =
   wrapper.setClipboardString(o.handle, str)
 
-proc clipboardStr*(o: PWnd): string =
+proc clipboardStr*(o: PWin): string =
   $(wrapper.getClipboardString(o.handle).failIf(nil))
 
 proc major(ver: TGL_version|TGL_ES_version): int =
@@ -656,105 +656,105 @@ proc setHints(o: THints) =
   h(wrapper.OPENGL_PROFILE, o.GL_API.profile)
   h(wrapper.CONTEXT_ROBUSTNESS, o.GL_API.robustness)
 
-proc destroy*(o: PWnd) =
+proc destroy*(o: PWin) =
   wrapper.destroyWindow(o.handle)
 
-proc makeContextCurrent*(o: PWnd) =
+proc makeContextCurrent*(o: PWin) =
   wrapper.makeContextCurrent(o.handle)
 
-proc newWnd*(
+proc newWin*(
     dim = (w: 640, h: 480),
     title = "",
     hints = initHints(),
     fullscreen = nilMonitor(),
-    shareResourcesWith = nilWnd()):
-      PWnd =
+    shareResourcesWith = nilWin()):
+      PWin =
   new(result)
 
   setHints(hints)
   result.handle = wrapper.createWindow(dim.w.cint, dim.h.cint, title,
     fullscreen.handle, shareResourcesWith.handle).failIf(nil)
-  wndTable.add result.handle, result
+  winTable.add result.handle, result
 
   template get(f: expr): bool =
-    var wnd {.inject.} = handleToWnd(handle)
-    var cb {.inject.} = if not wnd.isNil: wnd.f else: nil
+    var win {.inject.} = handleToWin(handle)
+    var cb {.inject.} = if not win.isNil: win.f else: nil
 
-    not wnd.isNil and not cb.isNil
+    not win.isNil and not cb.isNil
 
-  wndPosCb = proc(handle: PWndHandle, x, y: cint) {.cdecl.} =
-    if get(wndPosCb):
-      cb(wnd, (x: x.int, y: y.int))
-  discard wrapper.setWindowPosCallback(result.handle, wndPosCb)
+  winPosCb = proc(handle: PWinHandle, x, y: cint) {.cdecl.} =
+    if get(winPosCb):
+      cb(win, (x: x.int, y: y.int))
+  discard wrapper.setWindowPosCallback(result.handle, winPosCb)
 
-  wndSizeCb = proc(handle: PWndHandle, w, h: cint) {.cdecl.} =
-    if get(wndSizeCb):
-      cb(wnd, (w.int, h.int))
-  discard wrapper.setWindowSizeCallback(result.handle, wndSizeCb)
+  winSizeCb = proc(handle: PWinHandle, w, h: cint) {.cdecl.} =
+    if get(winSizeCb):
+      cb(win, (w.int, h.int))
+  discard wrapper.setWindowSizeCallback(result.handle, winSizeCb)
 
-  wndCloseCb = proc(handle: PWndHandle) {.cdecl.} =
-    if get(wndCloseCb):
-      cb(wnd)
-  discard wrapper.setWindowCloseCallback(result.handle, wndCloseCb)
+  winCloseCb = proc(handle: PWinHandle) {.cdecl.} =
+    if get(winCloseCb):
+      cb(win)
+  discard wrapper.setWindowCloseCallback(result.handle, winCloseCb)
 
-  wndRefreshCb = proc(handle: PWndHandle) {.cdecl.} =
-    if get(wndRefreshCb):
-      cb(wnd)
-  discard wrapper.setWindowRefreshCallback(result.handle, wndRefreshCb)
+  winRefreshCb = proc(handle: PWinHandle) {.cdecl.} =
+    if get(winRefreshCb):
+      cb(win)
+  discard wrapper.setWindowRefreshCallback(result.handle, winRefreshCb)
 
-  wndFocusCb = proc(handle: PWndHandle, focus: cint) {.cdecl.} =
-    if get(wndFocusCb):
-      cb(wnd, focus.bool)
-  discard wrapper.setWindowFocusCallback(result.handle, wndFocusCb)
+  winFocusCb = proc(handle: PWinHandle, focus: cint) {.cdecl.} =
+    if get(winFocusCb):
+      cb(win, focus.bool)
+  discard wrapper.setWindowFocusCallback(result.handle, winFocusCb)
 
-  wndIconifyCb = proc(handle: PWndHandle, iconify: cint) {.cdecl.} =
-    if get(wndIconifyCb):
-      cb(wnd, iconify.bool)
-  discard wrapper.setWindowIconifyCallback(result.handle, wndIconifyCb)
+  winIconifyCb = proc(handle: PWinHandle, iconify: cint) {.cdecl.} =
+    if get(winIconifyCb):
+      cb(win, iconify.bool)
+  discard wrapper.setWindowIconifyCallback(result.handle, winIconifyCb)
 
-  framebufSizeCb = proc(handle: PWndHandle, w, h: cint) {.cdecl.} =
+  framebufSizeCb = proc(handle: PWinHandle, w, h: cint) {.cdecl.} =
     if get(framebufSizeCb):
-      cb(wnd, (w.int, h.int))
+      cb(win, (w.int, h.int))
   discard wrapper.setframebufferSizeCallback(result.handle, framebufSizeCb)
 
   mouseBtnCb = proc(
-      handle: PWndHandle, btn, pressed, modKeys: cint) {.cdecl.} =
+      handle: PWinHandle, btn, pressed, modKeys: cint) {.cdecl.} =
     if get(mouseBtnCb):
-      cb(wnd, TMouseBtn(btn), pressed.bool, initModifierKeySet(modKeys))
+      cb(win, TMouseBtn(btn), pressed.bool, initModifierKeySet(modKeys))
   discard wrapper.setMouseButtonCallback(result.handle, mouseBtnCb)
 
-  cursorPosCb = proc(handle: PWndHandle, x, y: cdouble) {.cdecl.} =
+  cursorPosCb = proc(handle: PWinHandle, x, y: cdouble) {.cdecl.} =
     if get(cursorPosCb):
-      cb(wnd, (x.float64, y.float64))
+      cb(win, (x.float64, y.float64))
   discard wrapper.setCursorPosCallback(result.handle, cursorPosCb)
 
-  cursorEnterCb = proc(handle: PWndHandle, entered: cint) {.cdecl.} =
+  cursorEnterCb = proc(handle: PWinHandle, entered: cint) {.cdecl.} =
     if get(cursorEnterCb):
-      cb(wnd, entered.bool)
+      cb(win, entered.bool)
   discard wrapper.setCursorEnterCallback(result.handle, cursorEnterCb)
 
-  scrollCb = proc(handle: PWndHandle, xOffset, yOffset: cdouble) {.cdecl.} =
+  scrollCb = proc(handle: PWinHandle, xOffset, yOffset: cdouble) {.cdecl.} =
     if get(scrollCb):
-      cb(wnd, (x: xOffset.float64, y: yOffset.float64))
+      cb(win, (x: xOffset.float64, y: yOffset.float64))
   discard wrapper.setScrollCallback(result.handle, scrollCb)
 
   keyCb = proc(
-      handle: PWndHandle, key, scanCode, action, modKeys: cint) {.cdecl.} =
+      handle: PWinHandle, key, scanCode, action, modKeys: cint) {.cdecl.} =
     if get(keyCb):
-      cb(wnd, TKey(key), scanCode.int, action.TKeyAction,
+      cb(win, TKey(key), scanCode.int, action.TKeyAction,
         initModifierKeySet(modKeys))
   discard wrapper.setKeyCallback(result.handle, keyCb)
 
-  charCb = proc(handle: PWndHandle, codePoint: cuint) {.cdecl.} =
+  charCb = proc(handle: PWinHandle, codePoint: cuint) {.cdecl.} =
     if get(charCb):
-      cb(wnd, codePoint.TRune)
+      cb(win, codePoint.TRune)
   discard wrapper.setCharCallback(result.handle, charCb)
 
 proc `$`*(o: TKey): string =
   result = system.`$`(o)[3 .. -1]
   result[0] = result[0].toLower()
 
-proc swapBufs*(o: PWnd) =
+proc swapBufs*(o: PWin) =
   wrapper.swapBuffers(o.handle)
 
 proc version*: tuple[major, minor, rev: int] =
@@ -765,7 +765,7 @@ proc version*: tuple[major, minor, rev: int] =
 proc versionStr*: string =
   $wrapper.getVersionString()
 
-proc update*(o: PWnd) =
+proc update*(o: PWin) =
   o.swapBufs()
   pollEvents()
 
