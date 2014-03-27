@@ -6,14 +6,14 @@ A high-level GLFW 3 wrapper for Nimrod.
 This example displays a window for one second and then terminates:
 ```nimrod
 import
-  pure/os,
+  os,
   glfw/glfw
   
 glfw.init()
 var
-  wnd = newWnd()
+  win = newWin()
 sleep(1000)
-wnd.destroy()
+win.destroy()
 glfw.terminate()
 ```
 To run the examples, simply invoke the compiler as such from the examples directory:
