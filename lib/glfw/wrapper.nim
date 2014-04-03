@@ -5,10 +5,10 @@ when defined(windows):
     GlfwDll* = "glfw3.dll"
 elif defined(macosx):
   const 
-    GlfwDll* = "libglfw.dylib"
+    GlfwDll* = "libglfw3.dylib"
 else:
   const 
-    GlfwDll* = "libglfw.so"
+    GlfwDll* = "libglfw.so.3"
 
 const 
   VERSION_MAJOR* = 3
