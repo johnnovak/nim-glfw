@@ -168,7 +168,6 @@ type
     mkSuper = (wrapper.MOD_SUPER, "super")
   TModifierKeySet* = set[TModifierKey]
 
-{.push closure.}
 type
   PWinHandle = wrapper.GLFWwindow
   TWin* = object
@@ -188,25 +187,24 @@ type
     keyCb*: TKeyCb
     charCb*: TCharCb
   PWin* = ref TWin
-  TWinPosCb* = proc(win: PWin, pos: tuple[x, y: int])
-  TWinSizeCb* = proc(win: PWin, res: tuple[w, h: int])
-  TWinCloseCb* = proc(win: PWin)
-  TWinRefreshCb* = proc(win: PWin)
-  TWinFocusCb* = proc(win: PWin, focus: bool)
-  TWinIconifyCb* = proc(win: PWin, iconified: bool)
-  TFramebufSizeCb* = proc(win: PWin, res: tuple[w, h: int])
+  TWinPosCb* = proc(win: PWin, pos: tuple[x, y: int]) {.closure.}
+  TWinSizeCb* = proc(win: PWin, res: tuple[w, h: int]) {.closure.}
+  TWinCloseCb* = proc(win: PWin) {.closure.}
+  TWinRefreshCb* = proc(win: PWin) {.closure.}
+  TWinFocusCb* = proc(win: PWin, focus: bool) {.closure.}
+  TWinIconifyCb* = proc(win: PWin, iconified: bool) {.closure.}
+  TFramebufSizeCb* = proc(win: PWin, res: tuple[w, h: int]) {.closure.}
   TMouseBtnCb* = proc(win: PWin, btn: TMouseBtn, pressed: bool,
-    modKeys: TModifierKeySet)
-  TCursorPosCb* = proc(win: PWin, pos: tuple[x, y: float64])
-  TCursorEnterCb* = proc(win: PWin, entered: bool)
-  TScrollCb* = proc(win: PWin, offset: tuple[x, y: float64])
+    modKeys: TModifierKeySet) {.closure.}
+  TCursorPosCb* = proc(win: PWin, pos: tuple[x, y: float64]) {.closure.}
+  TCursorEnterCb* = proc(win: PWin, entered: bool) {.closure.}
+  TScrollCb* = proc(win: PWin, offset: tuple[x, y: float64]) {.closure.}
   TKeyCb* = proc(win: PWin, key: TKey, scanCode: int, action: TKeyAction,
-    modKeys: TModifierKeySet)
-  TCharCb* = proc(win: PWin, codePoint: TRune)
+    modKeys: TModifierKeySet) {.closure.}
+  TCharCb* = proc(win: PWin, codePoint: TRune) {.closure.}
   PMonitorHandle = wrapper.GLFWmonitor
   TMonitor* = object
     handle: PMonitorHandle
-{.pop.} # closure.
 
 proc initModifierKeySet(bitfield: int): TModifierKeySet =
   for x in TModifierKey:
@@ -234,6 +232,9 @@ var
 type
   EGLFW* = object of E_Base
     err*: TGLFW_Err
+
+proc getHandle*(o: PWin): PWinHandle =
+  o.handle
 
 proc fail(err = geUnknownErr, msg: string = "", iff = true) =
   if not iff:

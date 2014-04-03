@@ -5,8 +5,8 @@ import
 glfw.init()
 
 var
-  wnd = newWnd()
+  win = newWin()
 
 sleep(1000)
-wnd.destroy()
+win.destroy()
 glfw.terminate()
