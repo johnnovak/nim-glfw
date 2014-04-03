@@ -602,16 +602,6 @@ proc initGL_ES_API*(version = glesv20, profile = glpAny, robustness = glrNone):
   TGL_API(kind: GL_API_GL_ES, GL_ES_version: version, profile: profile,
     robustness: robustness)
 
-proc initHints*(
-    visible, decorated = true,
-    resizable, stereo, SRGB_capableframebuf = false,
-    bits: TBits = (8, 8, 8, 8, 8, 24),
-    accumBufBits: TAccumBufBits = (0, 0, 0, 0),
-    nAuxBufs, nMultiSamples, refreshRate: range[0 .. 1000] = 0,
-    GL_API = initGL_API()): THints =
-  (resizable, visible, decorated, stereo, SRGB_capableframebuf, bits,
-   accumBufBits, nAuxBufs, nMultiSamples, refreshRate, GL_API)
-
 proc setHints(o: THints) =
   proc h(name: cint, val: TOrdinal) =
     wrapper.windowHint(name, val.cint)
@@ -666,13 +656,20 @@ proc makeContextCurrent*(o: PWin) =
 proc newWin*(
     dim = (w: 640, h: 480),
     title = "",
-    hints = initHints(),
     fullscreen = nilMonitor(),
-    shareResourcesWith = nilWin()):
+    shareResourcesWith = nilWin(),
+    visible, decorated = true,
+    resizable, stereo, SRGB_capableframebuf = false,
+    bits: TBits = (8, 8, 8, 8, 8, 24),
+    accumBufBits: TAccumBufBits = (0, 0, 0, 0),
+    nAuxBufs, nMultiSamples, refreshRate: range[0 .. 1000] = 0,
+    GL_API = initGL_API()):
       PWin =
   new(result)
 
-  setHints(hints)
+  setHints((resizable, visible, decorated, stereo, SRGB_capableframebuf, bits,
+   accumBufBits, nAuxBufs, nMultiSamples, refreshRate, GL_API))
+
   result.handle = wrapper.createWindow(dim.w.cint, dim.h.cint, title,
     fullscreen.handle, shareResourcesWith.handle).failIf(nil)
   winTable.add result.handle, result
