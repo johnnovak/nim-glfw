@@ -5,14 +5,13 @@ from pure/collections/tables import
   initTable,
   hasKey
 
-static:
-  when cushort isnot uint16:
-    {.fatal: "cushort != uint16: " &
-             "not binary compatible with glfw; please report this.".}
+when cushort isnot uint16:
+  {.fatal: "cushort != uint16: " &
+           "not binary compatible with glfw; please report this.".}
 
-  when cuint isnot uint32:
-    {.fatal: "cuint != uint32: " &
-             "not binary compatible with glfw; please report this.".}
+when cuint isnot uint32:
+  {.fatal: "cuint != uint32: " &
+           "not binary compatible with glfw; please report this.".}
 
 from pure/strutils import
   toLower
