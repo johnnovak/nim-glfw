@@ -281,7 +281,7 @@ proc getMonitors*: seq[TMonitor] =
   var count: cint
   var handlesPtr = wrapper.getMonitors(count.addr).failIf(nil)
   fail(iff = count <= 0)
-  var handles = cast[ptr array[count.int - 1, PMonitorHandle]](handlesPtr)
+  var handles = cast[ptr array[10_000, PMonitorHandle]](handlesPtr)
 
   result = @[]
   for i in 0 .. <count:
@@ -316,7 +316,7 @@ proc vidModes*(o: TMonitor): seq[TVidMode] =
   var modesPtr = wrapper.getVideoModes(o.handle, count.addr).failIf(nil)
   fail(iff = count <= 0)
 
-  var modes = cast[ptr array[count.int - 1, GLFWvidmode]](modesPtr)
+  var modes = cast[ptr array[10_000, GLFWvidmode]](modesPtr)
   result = @[]
   for i in 0 .. <count:
     result.add((
@@ -558,7 +558,7 @@ proc getJoystickAxes*(joy: int): seq[float32] =
   var count: cint
   var axesPtr = wrapper.getJoystickAxes(joy.cint, count.addr)
   fail(iff = count <= 0)
-  var axes = cast[ptr array[count.int - 1, float32]](axesPtr)
+  var axes = cast[ptr array[10_000, float32]](axesPtr)
 
   result = @[]
   for i in 0 .. <count:
@@ -568,7 +568,7 @@ proc getJoystickBtns*(joy: int): seq[string] =
   var count: cint
   var btnsPtr = wrapper.getJoystickButtons(joy.cint, count.addr)
   fail(iff = count <= 0)
-  var btns = cast[ptr array[count.int - 1, cstring]](btnsPtr)
+  var btns = cast[ptr array[10_000, cstring]](btnsPtr)
 
   result = @[]
   for i in 0 .. <count:
