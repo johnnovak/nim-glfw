@@ -1,10 +1,5 @@
-from pure/strutils import
-  formatFloat,
-  TFloatformat
-
-from pure/unicode import
-  toUTF8
-
+from pure/strutils import formatFloat, TFloatformat
+from pure/unicode import toUTF8
 import glfw/glfw
 
 proc winPosCb(o: PWin, pos: tuple[x, y: int]) =
@@ -64,7 +59,8 @@ var
   done = false
   win = newWin()
 
-setControlCHook(proc() {.noconv.} = done = true)
+setControlCHook do {.noconv.}:
+  done = true
 
 # Set up event handlers.
 win.winPosCb = winPosCb

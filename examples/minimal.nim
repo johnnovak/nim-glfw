@@ -1,12 +1,7 @@
-import
-  pure/os,
-  glfw/glfw
+import os, glfw/glfw
 
 glfw.init()
-
-var
-  win = newWin()
-
+var win = newWin()
 sleep(1000)
 win.destroy()
 glfw.terminate()
