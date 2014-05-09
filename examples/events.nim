@@ -55,9 +55,27 @@ proc keyCb(o: PWin, key: TKey, scanCode: int, action: TKeyAction,
 
 glfw.init()
 
-var
-  done = false
-  win = newWin()
+var done = false
+
+# All arguments are optional.
+#initGL_API optionally takes parameters. for GL ES, use initGL_ES_API.
+var win = newWin(
+  dim = (w: 640, h: 480),
+  title = "Event example",
+  fullscreen = nilMonitor(), # No monitor specified; don't go fullscreen.
+  shareResourcesWith = nilWin(), # Don't share resources.
+  visible = true,
+  decorated = true,
+  resizable = false,
+  stereo = false,
+  SRGB_capableFramebuf = false,
+  bits = (r: 8, g: 8, b: 8, a: 8, stencil: 8, depth: 24),
+  accumBufBits = (r: 0, g: 0, b: 0, a: 0),
+  nAuxBufs = 0,
+  nMultiSamples = 0,
+  refreshRate = 0, # Current refresh rate.
+  GL_API = initGL_API()
+)
 
 setControlCHook do {.noconv.}:
   done = true

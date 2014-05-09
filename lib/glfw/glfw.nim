@@ -350,10 +350,10 @@ proc terminate* =
   wrapper.terminate()
   hasInit = false
 
-proc nilMonitor: TMonitor =
+proc nilMonitor*: TMonitor =
   nil
 
-proc nilWin: PWin =
+proc nilWin*: PWin =
   new(result)
 
 var
@@ -422,14 +422,6 @@ type
     glpAny = wrapper.OPENGL_ANY_PROFILE,
     glpCore = wrapper.OPENGL_CORE_PROFILE,
     glpCompat = wrapper.OPENGL_COMPAT_PROFILE,
-  THints* = tuple[
-    resizable, visible, decorated, stereo, SRGB_capableframebuf: bool,
-    bits: TBits,
-    accumBufBits: TAccumBufBits,
-    nAuxBufs, nMultiSamples, refreshRate: int,
-    GL_API: TGL_API]
-  TBits = tuple[r, g, b, a, stencil, depth: int]
-  TAccumBufBits = tuple[r, g, b, a: int]
 
 proc shouldClose*(o: PWin): bool =
   wrapper.windowShouldClose(o.handle) != 0
@@ -592,50 +584,55 @@ proc initGL_ES_API*(version = glesv20, profile = glpAny, robustness = glrNone):
   TGL_API(kind: GL_API_GL_ES, GL_ES_version: version, profile: profile,
     robustness: robustness)
 
-proc setHints(o: THints) =
-  proc h(name: cint, val: TOrdinal) =
-    wrapper.windowHint(name, val.cint)
+proc setHints(
+      resizable, visible, decorated, stereo, SRGB_capableFramebuf: bool,
+      bits: tuple[r, g, b, a, stencil, depth: int],
+      accumBufBits: tuple[r, g, b, a: int],
+      nAuxBufs, nMultiSamples, refreshRate: range[0 .. 1000],
+      GL_API: TGL_API) =
+  template h(name, val: expr) =
+    wrapper.windowHint(name.cint, val.cint)
 
-  h(wrapper.RESIZABLE, o.resizable)
-  h(wrapper.VISIBLE, o.visible)
-  h(wrapper.DECORATED, o.decorated)
+  h(wrapper.RESIZABLE, resizable)
+  h(wrapper.VISIBLE, visible)
+  h(wrapper.DECORATED, decorated)
 
-  h(wrapper.RED_BITS, o.bits.r)
-  h(wrapper.GREEN_BITS, o.bits.r)
-  h(wrapper.BLUE_BITS, o.bits.r)
-  h(wrapper.ALPHA_BITS, o.bits.r)
-  h(wrapper.DEPTH_BITS, o.bits.depth)
-  h(wrapper.STENCIL_BITS, o.bits.stencil)
+  h(wrapper.RED_BITS, bits.r)
+  h(wrapper.GREEN_BITS, bits.r)
+  h(wrapper.BLUE_BITS, bits.r)
+  h(wrapper.ALPHA_BITS, bits.r)
+  h(wrapper.DEPTH_BITS, bits.depth)
+  h(wrapper.STENCIL_BITS, bits.stencil)
 
-  h(wrapper.ACCUM_RED_BITS, o.accumBufBits.r)
-  h(wrapper.ACCUM_GREEN_BITS, o.accumBufBits.g)
-  h(wrapper.ACCUM_BLUE_BITS, o.accumBufBits.b)
-  h(wrapper.ACCUM_ALPHA_BITS, o.accumBufBits.a)
+  h(wrapper.ACCUM_RED_BITS, accumBufBits.r)
+  h(wrapper.ACCUM_GREEN_BITS, accumBufBits.g)
+  h(wrapper.ACCUM_BLUE_BITS, accumBufBits.b)
+  h(wrapper.ACCUM_ALPHA_BITS, accumBufBits.a)
 
-  h(wrapper.AUX_BUFFERS, o.nAuxBufs)
-  h(wrapper.STEREO, o.stereo)
-  h(wrapper.SAMPLES, o.nMultiSamples)
-  h(wrapper.SRGB_CAPABLE, o.SRGB_capableframebuf)
-  h(wrapper.REFRESH_RATE, o.refreshRate)
+  h(wrapper.AUX_BUFFERS, nAuxBufs)
+  h(wrapper.STEREO, stereo)
+  h(wrapper.SAMPLES, nMultiSamples)
+  h(wrapper.SRGB_CAPABLE, SRGB_capableFramebuf)
+  h(wrapper.REFRESH_RATE, refreshRate)
 
   # OpenGL hints.
 
-  case o.GL_API.kind:
+  case GL_API.kind:
     of GL_API_GL:
-      h(wrapper.CONTEXT_VERSION_MAJOR, o.GL_API.GL_version.major)
-      h(wrapper.CONTEXT_VERSION_MINOR, o.GL_API.GL_version.minor)
+      h(wrapper.CONTEXT_VERSION_MAJOR, GL_API.GL_version.major)
+      h(wrapper.CONTEXT_VERSION_MINOR, GL_API.GL_version.minor)
 
       h(wrapper.CLIENT_API, wrapper.OPENGL_API)
-      h(wrapper.OPENGL_FORWARD_COMPAT, o.GL_API.forwardCompat)
-      h(wrapper.OPENGL_DEBUG_CONTEXT, o.GL_API.debugContext)
+      h(wrapper.OPENGL_FORWARD_COMPAT, GL_API.forwardCompat)
+      h(wrapper.OPENGL_DEBUG_CONTEXT, GL_API.debugContext)
     of GL_API_GL_ES:
-      h(wrapper.CONTEXT_VERSION_MAJOR, o.GL_API.GL_ES_version.major)
-      h(wrapper.CONTEXT_VERSION_MINOR, o.GL_API.GL_ES_version.minor)
+      h(wrapper.CONTEXT_VERSION_MAJOR, GL_API.GL_ES_version.major)
+      h(wrapper.CONTEXT_VERSION_MINOR, GL_API.GL_ES_version.minor)
 
       h(wrapper.CLIENT_API, wrapper.OPENGL_ES_API)
 
-  h(wrapper.OPENGL_PROFILE, o.GL_API.profile)
-  h(wrapper.CONTEXT_ROBUSTNESS, o.GL_API.robustness)
+  h(wrapper.OPENGL_PROFILE, GL_API.profile)
+  h(wrapper.CONTEXT_ROBUSTNESS, GL_API.robustness)
 
 proc destroy*(o: PWin) =
   wrapper.destroyWindow(o.handle)
@@ -649,16 +646,26 @@ proc newWin*(
     fullscreen = nilMonitor(),
     shareResourcesWith = nilWin(),
     visible, decorated = true,
-    resizable, stereo, SRGB_capableframebuf = false,
-    bits: TBits = (8, 8, 8, 8, 8, 24),
-    accumBufBits: TAccumBufBits = (0, 0, 0, 0),
-    nAuxBufs, nMultiSamples, refreshRate: range[0 .. 1000] = 0,
+    resizable, stereo, SRGB_capableFramebuf = false,
+    bits: tuple[r, g, b, a, stencil, depth: int] = (8, 8, 8, 8, 8, 24),
+    accumBufBits: tuple[r, g, b, a: int] = (8, 8, 8, 8),
+    nAuxBufs, nMultiSamples, refreshRate = range[0 .. 1000](0),
     GL_API = initGL_API()):
       PWin =
   new(result)
 
-  setHints((resizable, visible, decorated, stereo, SRGB_capableframebuf, bits,
-   accumBufBits, nAuxBufs, nMultiSamples, refreshRate, GL_API))
+  setHints(
+    resizable = resizable,
+    visible = visible,
+    decorated = decorated,
+    stereo = stereo,
+    SRGB_capableFramebuf = SRGB_capableFramebuf,
+    bits = bits,
+    accumBufBits = accumBufBits,
+    nAuxBufs = nAuxBufs,
+    nMultiSamples = nMultiSamples,
+    refreshRate = refreshRate,
+    GL_API = GL_API)
 
   result.handle = wrapper.createWindow(dim.w.cint, dim.h.cint, title,
     fullscreen.handle, shareResourcesWith.handle).failIf(nil)
