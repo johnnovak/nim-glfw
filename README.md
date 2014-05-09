@@ -5,13 +5,10 @@ A high-level GLFW 3 wrapper for Nimrod.
 
 This example displays a window for one second and then terminates:
 ```nimrod
-import
-  os,
-  glfw/glfw
+import os, glfw/glfw
   
 glfw.init()
-var
-  win = newWin()
+var win = newWin()
 sleep(1000)
 win.destroy()
 glfw.terminate()
