@@ -1,26 +1,17 @@
-from pure/collections/tables import
-  `[]`,
-  `[]=`,
-  add,
-  initTable,
-  hasKey
-
 when cushort isnot uint16:
   {.fatal: "cushort != uint16: " &
-           "not binary compatible with glfw; please report this.".}
+    "not binary compatible with glfw; please report this.".}
 
 when cuint isnot uint32:
   {.fatal: "cuint != uint32: " &
-           "not binary compatible with glfw; please report this.".}
-
-from pure/strutils import
-  toLower
-
-from pure/unicode import
-  TRune
-export TRune
+    "not binary compatible with glfw; please report this.".}
 
 import wrapper
+from tables import `[]`, `[]=`, add, initTable, hasKey
+from strutils import toLower
+from unicode import TRune
+
+export unicode.TRune
 export wrapper.pollEvents
 export wrapper.waitEvents
 
