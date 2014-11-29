@@ -1,5 +1,5 @@
-from strutils import formatFloat, TFloatformat
-from unicode import toUTF8
+from strutils import formatFloat, TFloatformat, ffDecimal
+from unicode import toUTF8, TRune
 import glfw/glfw
 
 proc winPosCb(o: PWin, pos: tuple[x, y: int]) =
