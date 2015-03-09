@@ -9,9 +9,9 @@ when cuint isnot uint32:
 import wrapper
 from tables import `[]`, `[]=`, add, initTable, hasKey
 from strutils import toLower
-from unicode import TRune
+from unicode import Rune
 
-export unicode.TRune
+export unicode.Rune
 export wrapper.pollEvents
 export wrapper.waitEvents
 
@@ -191,7 +191,7 @@ type
   TScrollCb* = proc(win: PWin, offset: tuple[x, y: float64]) {.closure.}
   TKeyCb* = proc(win: PWin, key: TKey, scanCode: int, action: TKeyAction,
     modKeys: TModifierKeySet) {.closure.}
-  TCharCb* = proc(win: PWin, codePoint: TRune) {.closure.}
+  TCharCb* = proc(win: PWin, codePoint: Rune) {.closure.}
   PMonitorHandle = wrapper.GLFWmonitor
   TMonitor* = object
     handle: PMonitorHandle
@@ -220,7 +220,7 @@ var
   gErrMsg = ""
 
 type
-  EGLFW* = object of E_Base
+  GLFWError* = object of Exception
     err*: TGLFW_Err
 
 proc getHandle*(o: PWin): PWinHandle =
@@ -230,7 +230,7 @@ proc fail(err = geUnknownErr, msg: string = "", iff = true) =
   if not iff:
     return
 
-  var e = newException(EGLFW, if msg != "": msg else: $err)
+  var e = newException(GLFWError, if msg != "": msg else: $err)
   gErrCode = geNoErr
   gErrMsg.setLen(0)
   e.err = err
@@ -742,7 +742,7 @@ proc newWin*(
 
   charCb = proc(handle: PWinHandle, codePoint: cuint) {.cdecl.} =
     if get(charCb):
-      cb(win, codePoint.TRune)
+      cb(win, codePoint.Rune)
   discard wrapper.setCharCallback(result.handle, charCb)
 
 proc `$`*(o: TKey): string =
