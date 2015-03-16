@@ -1,52 +1,52 @@
-from strutils import formatFloat, TFloatformat, ffDecimal
-from unicode import toUTF8, TRune
+from strutils import formatFloat, ffDecimal
+from unicode import toUTF8, Rune
 import glfw/glfw
 
-proc winPosCb(o: PWin, pos: tuple[x, y: int]) =
+proc winPosCb(o: Win, pos: tuple[x, y: int]) =
   echo "Window position: ", pos
 
 proc mouseBtnCb(
-    o: PWin, btn: TMouseBtn, pressed: bool, modKeys: TModifierKeySet) =
+    o: Win, btn: MouseBtn, pressed: bool, modKeys: ModifierKeySet) =
   echo($btn, ": ", if pressed: "down" else: "up")
 
-proc winSizeCb(o: PWin not nil, res: tuple[w, h: int]) =
+proc winSizeCb(o: Win not nil, res: tuple[w, h: int]) =
   echo "Window size: ", res
 
-proc winFramebufSizeCb(o: PWin, res: tuple[w, h: int]) =
+proc winFramebufSizeCb(o: Win, res: tuple[w, h: int]) =
   echo "Window framebuffer size: ", res
 
-proc winCloseCb(o: PWin) =
+proc winCloseCb(o: Win) =
   echo "Window close event"
 
 var nWinRefreshes = 0
 
-proc winRefreshCb(o: PWin) =
+proc winRefreshCb(o: Win) =
   nWinRefreshes += 1
 
-proc cursorPosCb(o: PWin, pos: tuple[x, y: float64]) =
+proc cursorPosCb(o: Win, pos: tuple[x, y: float64]) =
   let xy = (x: formatFloat(pos.x, ffDecimal, 2),
             y: formatFloat(pos.y, ffDecimal, 2))
   echo "Cursor pos: ", xy
 
-proc cursorEnterCb(o: PWin, entered: bool) =
+proc cursorEnterCb(o: Win, entered: bool) =
   echo "The cursor ", if entered: "entered" else: "left", " the window area"
 
-proc winFocusCb(o: PWin; focused: bool) =
+proc winFocusCb(o: Win; focused: bool) =
   echo if focused: "Gained" else: "Lost", " window focus"
 
-proc winIconifyCb(o: PWin; iconified: bool) =
+proc winIconifyCb(o: Win; iconified: bool) =
   echo "Window ", if iconified: "iconified" else: "un-iconified"
 
-proc scrollCb(o: PWin, offset: tuple[x, y: float64]) =
+proc scrollCb(o: Win, offset: tuple[x, y: float64]) =
   let xy = (x: formatFloat(offset.x, ffDecimal, 2),
             y: formatFloat(offset.y, ffDecimal, 2))
   echo "Mouse scroll: ", xy
 
-proc charCb(o: PWin, codePoint: TRune) =
+proc charCb(o: Win, codePoint: Rune) =
   echo "Unicode char: ", codePoint.toUTF8()
 
-proc keyCb(o: PWin, key: TKey, scanCode: int, action: TKeyAction,
-    modKeys: TModifierKeySet) =
+proc keyCb(o: Win, key: Key, scanCode: int, action: KeyAction,
+    modKeys: ModifierKeySet) =
   echo("Key: ", key, " (scan code: ", scanCode, "): ", action)
 
   if action != kaUp:
@@ -58,7 +58,7 @@ glfw.init()
 var done = false
 
 # All arguments are optional.
-#initGL_API optionally takes parameters. for GL ES, use initGL_ES_API.
+# initGlApi optionally takes parameters. for GL ES, use initGlEsApi.
 var win = newWin(
   dim = (w: 640, h: 480),
   title = "Event example",
@@ -68,17 +68,17 @@ var win = newWin(
   decorated = true,
   resizable = false,
   stereo = false,
-  SRGB_capableFramebuf = false,
+  srgbCapableFramebuf = false,
   bits = (r: 8, g: 8, b: 8, a: 8, stencil: 8, depth: 24),
   accumBufBits = (r: 0, g: 0, b: 0, a: 0),
   nAuxBufs = 0,
   nMultiSamples = 0,
   refreshRate = 0, # Current refresh rate.
-  GL_API = initGL_API()
+  glApi = initGlApi()
 )
 
-setControlCHook do {.noconv.}:
-  done = true
+when false: # XXX: https://github.com/Araq/Nim/issues/2352
+  setControlCHook(proc() {.noconv.} = done = true)
 
 # Set up event handlers.
 win.winPosCb = winPosCb
