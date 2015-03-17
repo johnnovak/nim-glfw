@@ -1,5 +1,5 @@
 # nim-glfw
-A high-level GLFW 3 wrapper for Nimrod.
+A GLFW 3 wrapper for Nim.
 
 ## examples
 
@@ -21,5 +21,22 @@ nimrod c -r <module>
 ## documentation
 Currently no documentation exists, but a convenient symbol list can be generated simply by invoking this from the root directory:
 ~~~
-nimrod doc2 lib/glfw/glfw.nim
+nim doc2 lib/glfw/glfw.nim
 ~~~
+
+## Version history
+* 0.2
+
+  * renamed symbols
+
+      TGL_API -> GlApi
+      
+      PWin -> Win
+      
+      geNoErr -> glerrNoError
+      
+      TGLFW_Err -> GlfwError
+      
+      TGL_ES_version -> GlEsVersion
+      
+      and so on
