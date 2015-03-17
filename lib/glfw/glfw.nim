@@ -639,7 +639,7 @@ proc destroy*(o: Win) =
 proc makeContextCurrent*(o: Win) =
   wrapper.makeContextCurrent(o.handle)
 
-proc newWin*(
+proc newWinImpl(
     dim = (w: 640, h: 480),
     title = "",
     fullscreen = nilMonitor(),
@@ -742,6 +742,69 @@ proc newWin*(
     if get(charCb):
       cb(win, codePoint.Rune)
   discard wrapper.setCharCallback(result.handle, charCb)
+
+proc newGlWin*(
+    dim = (w: 640, h: 480),
+    title = "GLFW window",
+    fullscreen = nilMonitor(),
+    shareResourcesWith = nilWin(),
+    visible, decorated = true,
+    resizable, stereo, srgbCapableFramebuf = false,
+    bits: tuple[r, g, b, a, stencil, depth: int] = (8, 8, 8, 8, 8, 24),
+    accumBufBits: tuple[r, g, b, a: int] = (8, 8, 8, 8),
+    nAuxBufs, nMultiSamples, refreshRate = range[0 .. 1000](0),
+    version = glv30,
+    forwardCompat, debugContext = false,
+    profile = glpAny,
+    robustness = glrNone): Win =
+  result = newWinImpl(
+    dim,
+    title,
+    fullscreen,
+    shareResourcesWith,
+    visible,
+    decorated,
+    resizable,
+    stereo,
+    srgbCapableFramebuf,
+    bits,
+    accumBufBits,
+    nAuxBufs,
+    nMultiSamples,
+    refreshRate,
+    initGlApi(version, forwardCompat, debugContext, profile, robustness)
+  )
+
+proc newGlEsWin*(
+    dim = (w: 640, h: 480),
+    title = "GLFW window",
+    fullscreen = nilMonitor(),
+    shareResourcesWith = nilWin(),
+    visible, decorated = true,
+    resizable, stereo, srgbCapableFramebuf = false,
+    bits: tuple[r, g, b, a, stencil, depth: int] = (8, 8, 8, 8, 8, 24),
+    accumBufBits: tuple[r, g, b, a: int] = (8, 8, 8, 8),
+    nAuxBufs, nMultiSamples, refreshRate = range[0 .. 1000](0),
+    version = glesv20,
+    profile = glpAny,
+    robustness = glrNone): Win =
+  result = newWinImpl(
+    dim,
+    title,
+    fullscreen,
+    shareResourcesWith,
+    visible,
+    decorated,
+    resizable,
+    stereo,
+    srgbCapableFramebuf,
+    bits,
+    accumBufBits,
+    nAuxBufs,
+    nMultiSamples,
+    refreshRate,
+    initGlEsApi(version, profile, robustness)
+  )
 
 proc `$`*(o: Key): string =
   result = system.`$`(o)[3 .. -1]

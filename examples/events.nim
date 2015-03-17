@@ -57,9 +57,8 @@ glfw.init()
 
 var done = false
 
-# All arguments are optional.
-# initGlApi optionally takes parameters. for GL ES, use initGlEsApi.
-var win = newWin(
+# All arguments are optional. For OpenGL ES, use newGlEsWin.
+var win = newGlWin(
   dim = (w: 640, h: 480),
   title = "Event example",
   fullscreen = nilMonitor(), # No monitor specified; don't go fullscreen.
@@ -73,8 +72,12 @@ var win = newWin(
   accumBufBits = (r: 0, g: 0, b: 0, a: 0),
   nAuxBufs = 0,
   nMultiSamples = 0,
-  refreshRate = 0, # Current refresh rate.
-  glApi = initGlApi()
+  refreshRate = 0, # Use the current refresh rate.
+  version = glv30,
+  forwardCompat = false,
+  debugContext = false,
+  profile = glpAny,
+  robustness = glrNone
 )
 
 setControlCHook(proc() {.noconv.} = done = true)
