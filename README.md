@@ -13,9 +13,9 @@ sleep(1000)
 win.destroy()
 glfw.terminate()
 ```
-To run the examples, simply invoke the compiler as such from the examples directory:
+To run the examples, simply invoke the compiler as such from the root directory:
 ~~~
-nim c -r <module>
+nim c -p:lib -r examples/<source file>
 ~~~
 
 ## documentation
