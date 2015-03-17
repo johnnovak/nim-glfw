@@ -4,7 +4,7 @@ A GLFW 3 wrapper for Nim.
 ## examples
 
 This example displays a window for one second and then terminates:
-```nimrod
+```nim
 import os, glfw/glfw
   
 glfw.init()
@@ -15,7 +15,7 @@ glfw.terminate()
 ```
 To run the examples, simply invoke the compiler as such from the examples directory:
 ~~~
-nimrod c -r <module>
+nim c -r <module>
 ~~~
 
 ## documentation
@@ -26,11 +26,9 @@ nim doc2 lib/glfw/glfw.nim
 
 ## Version history
 * 0.2
-
   * renamed symbols
-
       TGL_API -> GlApi
-      
+
       PWin -> Win
       
       geNoErr -> glerrNoError
@@ -40,3 +38,6 @@ nim doc2 lib/glfw/glfw.nim
       TGL_ES_version -> GlEsVersion
       
       and so on
+      
+  * newWin has been replaced with newGlWin and newGlEsWin
+  
