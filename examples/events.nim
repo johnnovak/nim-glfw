@@ -77,8 +77,7 @@ var win = newWin(
   glApi = initGlApi()
 )
 
-when false: # XXX: https://github.com/Araq/Nim/issues/2352
-  setControlCHook(proc() {.noconv.} = done = true)
+setControlCHook(proc() {.noconv.} = done = true)
 
 # Set up event handlers.
 win.winPosCb = winPosCb
