@@ -807,7 +807,7 @@ proc newGlEsWin*(
   )
 
 proc `$`*(o: Key): string =
-  result = system.`$`(o)[3 .. -1]
+  result = system.`$`(o)[3 .. ^1]
   result[0] = result[0].toLower()
 
 proc swapBufs*(o: Win) =
