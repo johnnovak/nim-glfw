@@ -1,4 +1,4 @@
-import os, glfw/glfw
+import os, glfw
 
 glfw.init()
 var win = newGlWin(title = "Minimal example")
