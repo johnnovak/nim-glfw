@@ -1,14 +1,54 @@
- {.deadCodeElim: on.}
+when defined(glfwDynlib):
+  when defined(windows):
+    const glfwDll = "glfw3.dll"
+  elif defined(macosx):
+    const glfwDll = "libglfw3.dylib"
+  else:
+    const glfwDll = "libglfw.so.3"
+  {.pragma: glfwImport, dynlib: glfwDll.}
+  {.deadCodeElim: on.}
 
-when defined(windows):
-  const
-    GlfwDll* = "glfw3.dll"
-elif defined(macosx):
-  const
-    GlfwDll* = "libglfw3.dylib"
 else:
-  const
-    GlfwDll* = "libglfw.so.3"
+  when defined(arm) or defined(wayland) or defined(mir) or defined(gles):
+    {.passC: "-D_GLFW_USE_GLESV2".}
+  else:
+    {.passC: "-D_GLFW_USE_OPENGL".}
+
+  when defined(windows):
+    {.passC: "-D_GLFW_WIN32 -D_GLFW_WGL", passL: "-opengl32 -lgdi32",
+      compile: "glfw/src/win32_init.c", compile: "glfw/src/win32_monitor.c",
+      compile: "glfw/src/win32_time.c", compile: "glfw/src/win32_tls.c",
+      compile: "glfw/src/win32_window.c", compile: "glfw/src/winmm_joystick.c",
+      compile: "glfw/src/wgl_context.c".}
+  elif defined(macosx):
+    {.passC: "-D_GLFW_COCOA -D_GLFW_NSGL -D_GLFW_USE_CHDIR -D_GLFW_USE_MENUBAR -D_GLFW_USE_RETINA",
+      passL: "-framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo",
+      compile: "glfw/src/mach_time.c", compile: "glfw/src/posix_tls.c".}
+  else:
+    {.passC: "-D_GLFW_HAS_DLOPEN",
+      passL: "-pthread -lGL -lX11 -lXrandr -lXxf86vm -lXi -lXcursor -lm -lXinerama".}
+
+    when defined(wayland):
+      {.passC: "-D_GLFW_WAYLAND -D_GLFW_EGL",
+        compile: "glfw/src/egl_context.c", compile: "glfw/src/wl_init.c",
+        compile: "glfw/src/wl_monitor.c", compile: "glfw/src/wl_window.c".}
+    elif defined(mir):
+      {.passC: "-D_GLFW_MIR -D_GLFW_EGL",
+        compile: "glfw/src/egl_context.c", compile: "glfw/src/mir_init.c",
+        compile: "glfw/src/mir_monitor.c", compile: "glfw/src/mir_window.c".}
+    else:
+      {.passC: "-D_GLFW_X11 -D_GLFW_GLX -D_GLFW_HAS_GLXGETPROCADDRESSARB",
+        compile: "glfw/src/glx_context.c", compile: "glfw/src/x11_init.c",
+        compile: "glfw/src/x11_monitor.c", compile: "glfw/src/x11_window.c".}
+
+    {.compile: "glfw/src/xkb_unicode.c", compile: "glfw/src/linux_joystick.c",
+      compile: "glfw/src/posix_time.c", compile: "glfw/src/posix_tls.c".}
+
+  {.compile: "glfw/src/context.c", compile: "glfw/src/init.c",
+    compile: "glfw/src/input.c", compile: "glfw/src/monitor.c",
+    compile: "glfw/src/window.c".}
+
+  {.pragma: glfwImport.}
 
 const
   VERSION_MAJOR* = 3
@@ -275,146 +315,146 @@ type
     red, green, blue*: ptr cushort
     size*: cuint
 
-proc init*(): cint {.cdecl, importc: "glfwInit", dynlib: GlfwDll.}
-proc terminate*() {.cdecl, importc: "glfwTerminate", dynlib: GlfwDll.}
+proc init*(): cint {.cdecl, importc: "glfwInit", glfwImport.}
+proc terminate*() {.cdecl, importc: "glfwTerminate", glfwImport.}
 proc getVersion*(major: ptr cint; minor: ptr cint; rev: ptr cint) {.cdecl,
-    importc: "glfwGetVersion", dynlib: GlfwDll.}
+    importc: "glfwGetVersion", glfwImport.}
 proc getVersionString*(): cstring {.cdecl, importc: "glfwGetVersionString",
-                                    dynlib: GlfwDll.}
+                                    glfwImport.}
 proc setErrorCallback*(cbfun: GLFWerrorfun): GLFWerrorfun {.cdecl,
-    importc: "glfwSetErrorCallback", dynlib: GlfwDll.}
+    importc: "glfwSetErrorCallback", glfwImport.}
 proc getMonitors*(count: ptr cint): ptr GLFWmonitor {.cdecl,
-    importc: "glfwGetMonitors", dynlib: GlfwDll.}
+    importc: "glfwGetMonitors", glfwImport.}
 proc getPrimaryMonitor*(): GLFWmonitor {.cdecl,
-    importc: "glfwGetPrimaryMonitor", dynlib: GlfwDll.}
+    importc: "glfwGetPrimaryMonitor", glfwImport.}
 proc getMonitorPos*(monitor: GLFWmonitor; xpos: ptr cint; ypos: ptr cint) {.
-    cdecl, importc: "glfwGetMonitorPos", dynlib: GlfwDll.}
+    cdecl, importc: "glfwGetMonitorPos", glfwImport.}
 proc getMonitorPhysicalSize*(monitor: GLFWmonitor; width: ptr cint;
                              height: ptr cint) {.cdecl,
-    importc: "glfwGetMonitorPhysicalSize", dynlib: GlfwDll.}
+    importc: "glfwGetMonitorPhysicalSize", glfwImport.}
 proc getMonitorName*(monitor: GLFWmonitor): cstring {.cdecl,
-    importc: "glfwGetMonitorName", dynlib: GlfwDll.}
+    importc: "glfwGetMonitorName", glfwImport.}
 proc setMonitorCallback*(cbfun: GLFWmonitorfun): GLFWmonitorfun {.cdecl,
-    importc: "glfwSetMonitorCallback", dynlib: GlfwDll.}
+    importc: "glfwSetMonitorCallback", glfwImport.}
 proc getVideoModes*(monitor: GLFWmonitor; count: ptr cint): ptr GLFWvidmode {.
-    cdecl, importc: "glfwGetVideoModes", dynlib: GlfwDll.}
+    cdecl, importc: "glfwGetVideoModes", glfwImport.}
 proc getVideoMode*(monitor: GLFWmonitor): ptr GLFWvidmode {.cdecl,
-    importc: "glfwGetVideoMode", dynlib: GlfwDll.}
+    importc: "glfwGetVideoMode", glfwImport.}
 proc setGamma*(monitor: GLFWmonitor; gamma: cfloat) {.cdecl,
-    importc: "glfwSetGamma", dynlib: GlfwDll.}
+    importc: "glfwSetGamma", glfwImport.}
 proc getGammaRamp*(monitor: GLFWmonitor): ptr GLFWgammaramp {.cdecl,
-    importc: "glfwGetGammaRamp", dynlib: GlfwDll.}
+    importc: "glfwGetGammaRamp", glfwImport.}
 proc setGammaRamp*(monitor: GLFWmonitor; ramp: ptr GLFWgammaramp) {.cdecl,
-    importc: "glfwSetGammaRamp", dynlib: GlfwDll.}
+    importc: "glfwSetGammaRamp", glfwImport.}
 proc defaultWindowHints*() {.cdecl, importc: "glfwDefaultWindowHints",
-                             dynlib: GlfwDll.}
+                             glfwImport.}
 proc windowHint*(target: cint; hint: cint) {.cdecl, importc: "glfwWindowHint",
-    dynlib: GlfwDll.}
+    glfwImport.}
 proc createWindow*(width: cint; height: cint; title: cstring;
                    monitor: GLFWmonitor; share: GLFWwindow): GLFWwindow {.
-    cdecl, importc: "glfwCreateWindow", dynlib: GlfwDll.}
+    cdecl, importc: "glfwCreateWindow", glfwImport.}
 proc destroyWindow*(window: GLFWwindow) {.cdecl,
-    importc: "glfwDestroyWindow", dynlib: GlfwDll.}
+    importc: "glfwDestroyWindow", glfwImport.}
 proc windowShouldClose*(window: GLFWwindow): cint {.cdecl,
-    importc: "glfwWindowShouldClose", dynlib: GlfwDll.}
+    importc: "glfwWindowShouldClose", glfwImport.}
 proc setWindowShouldClose*(window: GLFWwindow; value: cint) {.cdecl,
-    importc: "glfwSetWindowShouldClose", dynlib: GlfwDll.}
+    importc: "glfwSetWindowShouldClose", glfwImport.}
 proc setWindowTitle*(window: GLFWwindow; title: cstring) {.cdecl,
-    importc: "glfwSetWindowTitle", dynlib: GlfwDll.}
+    importc: "glfwSetWindowTitle", glfwImport.}
 proc getWindowPos*(window: GLFWwindow; xpos: ptr cint; ypos: ptr cint) {.
-    cdecl, importc: "glfwGetWindowPos", dynlib: GlfwDll.}
+    cdecl, importc: "glfwGetWindowPos", glfwImport.}
 proc setWindowPos*(window: GLFWwindow; xpos: cint; ypos: cint) {.cdecl,
-    importc: "glfwSetWindowPos", dynlib: GlfwDll.}
+    importc: "glfwSetWindowPos", glfwImport.}
 proc getWindowSize*(window: GLFWwindow; width: ptr cint; height: ptr cint) {.
-    cdecl, importc: "glfwGetWindowSize", dynlib: GlfwDll.}
+    cdecl, importc: "glfwGetWindowSize", glfwImport.}
 proc setWindowSize*(window: GLFWwindow; width: cint; height: cint) {.
-    cdecl, importc: "glfwSetWindowSize", dynlib: GlfwDll.}
+    cdecl, importc: "glfwSetWindowSize", glfwImport.}
 proc getFramebufferSize*(window: GLFWwindow; width: ptr cint;
                          height: ptr cint) {.cdecl,
-    importc: "glfwGetFramebufferSize", dynlib: GlfwDll.}
+    importc: "glfwGetFramebufferSize", glfwImport.}
 proc iconifyWindow*(window: GLFWwindow) {.cdecl,
-    importc: "glfwIconifyWindow", dynlib: GlfwDll.}
+    importc: "glfwIconifyWindow", glfwImport.}
 proc restoreWindow*(window: GLFWwindow) {.cdecl,
-    importc: "glfwRestoreWindow", dynlib: GlfwDll.}
+    importc: "glfwRestoreWindow", glfwImport.}
 proc showWindow*(window: GLFWwindow) {.cdecl, importc: "glfwShowWindow",
-    dynlib: GlfwDll.}
+    glfwImport.}
 proc hideWindow*(window: GLFWwindow) {.cdecl, importc: "glfwHideWindow",
-    dynlib: GlfwDll.}
+    glfwImport.}
 proc getWindowMonitor*(window: GLFWwindow): GLFWmonitor {.cdecl,
-    importc: "glfwGetWindowMonitor", dynlib: GlfwDll.}
+    importc: "glfwGetWindowMonitor", glfwImport.}
 proc getWindowAttrib*(window: GLFWwindow; attrib: cint): cint {.cdecl,
-    importc: "glfwGetWindowAttrib", dynlib: GlfwDll.}
+    importc: "glfwGetWindowAttrib", glfwImport.}
 proc setWindowUserPointer*(window: GLFWwindow; pointer: pointer) {.cdecl,
-    importc: "glfwSetWindowUserPointer", dynlib: GlfwDll.}
+    importc: "glfwSetWindowUserPointer", glfwImport.}
 proc getWindowUserPointer*(window: GLFWwindow): pointer {.cdecl,
-    importc: "glfwGetWindowUserPointer", dynlib: GlfwDll.}
+    importc: "glfwGetWindowUserPointer", glfwImport.}
 proc setWindowPosCallback*(window: GLFWwindow; cbfun: GLFWwindowposfun): GLFWwindowposfun {.
-    cdecl, importc: "glfwSetWindowPosCallback", dynlib: GlfwDll.}
+    cdecl, importc: "glfwSetWindowPosCallback", glfwImport.}
 proc setWindowSizeCallback*(window: GLFWwindow; cbfun: GLFWwindowsizefun): GLFWwindowsizefun {.
-    cdecl, importc: "glfwSetWindowSizeCallback", dynlib: GlfwDll.}
+    cdecl, importc: "glfwSetWindowSizeCallback", glfwImport.}
 proc setWindowCloseCallback*(window: GLFWwindow; cbfun: GLFWwindowclosefun): GLFWwindowclosefun {.
-    cdecl, importc: "glfwSetWindowCloseCallback", dynlib: GlfwDll.}
+    cdecl, importc: "glfwSetWindowCloseCallback", glfwImport.}
 proc setWindowRefreshCallback*(window: GLFWwindow;
                                cbfun: GLFWwindowrefreshfun): GLFWwindowrefreshfun {.
-    cdecl, importc: "glfwSetWindowRefreshCallback", dynlib: GlfwDll.}
+    cdecl, importc: "glfwSetWindowRefreshCallback", glfwImport.}
 proc setWindowFocusCallback*(window: GLFWwindow; cbfun: GLFWwindowfocusfun): GLFWwindowfocusfun {.
-    cdecl, importc: "glfwSetWindowFocusCallback", dynlib: GlfwDll.}
+    cdecl, importc: "glfwSetWindowFocusCallback", glfwImport.}
 proc setWindowIconifyCallback*(window: GLFWwindow;
                                cbfun: GLFWwindowiconifyfun): GLFWwindowiconifyfun {.
-    cdecl, importc: "glfwSetWindowIconifyCallback", dynlib: GlfwDll.}
+    cdecl, importc: "glfwSetWindowIconifyCallback", glfwImport.}
 proc setFramebufferSizeCallback*(window: GLFWwindow;
                                  cbfun: GLFWframebuffersizefun): GLFWframebuffersizefun {.
-    cdecl, importc: "glfwSetFramebufferSizeCallback", dynlib: GlfwDll.}
-proc pollEvents*() {.cdecl, importc: "glfwPollEvents", dynlib: GlfwDll.}
-proc waitEvents*() {.cdecl, importc: "glfwWaitEvents", dynlib: GlfwDll.}
+    cdecl, importc: "glfwSetFramebufferSizeCallback", glfwImport.}
+proc pollEvents*() {.cdecl, importc: "glfwPollEvents", glfwImport.}
+proc waitEvents*() {.cdecl, importc: "glfwWaitEvents", glfwImport.}
 proc getInputMode*(window: GLFWwindow; mode: cint): cint {.cdecl,
-    importc: "glfwGetInputMode", dynlib: GlfwDll.}
+    importc: "glfwGetInputMode", glfwImport.}
 proc setInputMode*(window: GLFWwindow; mode: cint; value: cint) {.cdecl,
-    importc: "glfwSetInputMode", dynlib: GlfwDll.}
+    importc: "glfwSetInputMode", glfwImport.}
 proc getKey*(window: GLFWwindow; key: cint): cint {.cdecl,
-    importc: "glfwGetKey", dynlib: GlfwDll.}
+    importc: "glfwGetKey", glfwImport.}
 proc getMouseButton*(window: GLFWwindow; button: cint): cint {.cdecl,
-    importc: "glfwGetMouseButton", dynlib: GlfwDll.}
+    importc: "glfwGetMouseButton", glfwImport.}
 proc getCursorPos*(window: GLFWwindow; xpos: ptr cdouble;
                    ypos: ptr cdouble) {.cdecl, importc: "glfwGetCursorPos",
-    dynlib: GlfwDll.}
+    glfwImport.}
 proc setCursorPos*(window: GLFWwindow; xpos: cdouble; ypos: cdouble) {.
-    cdecl, importc: "glfwSetCursorPos", dynlib: GlfwDll.}
+    cdecl, importc: "glfwSetCursorPos", glfwImport.}
 proc setKeyCallback*(window: GLFWwindow; cbfun: GLFWkeyfun): GLFWkeyfun {.
-    cdecl, importc: "glfwSetKeyCallback", dynlib: GlfwDll.}
+    cdecl, importc: "glfwSetKeyCallback", glfwImport.}
 proc setCharCallback*(window: GLFWwindow; cbfun: GLFWcharfun): GLFWcharfun {.
-    cdecl, importc: "glfwSetCharCallback", dynlib: GlfwDll.}
+    cdecl, importc: "glfwSetCharCallback", glfwImport.}
 proc setMouseButtonCallback*(window: GLFWwindow; cbfun: GLFWmousebuttonfun): GLFWmousebuttonfun {.
-    cdecl, importc: "glfwSetMouseButtonCallback", dynlib: GlfwDll.}
+    cdecl, importc: "glfwSetMouseButtonCallback", glfwImport.}
 proc setCursorPosCallback*(window: GLFWwindow; cbfun: GLFWcursorposfun): GLFWcursorposfun {.
-    cdecl, importc: "glfwSetCursorPosCallback", dynlib: GlfwDll.}
+    cdecl, importc: "glfwSetCursorPosCallback", glfwImport.}
 proc setCursorEnterCallback*(window: GLFWwindow; cbfun: GLFWcursorenterfun): GLFWcursorenterfun {.
-    cdecl, importc: "glfwSetCursorEnterCallback", dynlib: GlfwDll.}
+    cdecl, importc: "glfwSetCursorEnterCallback", glfwImport.}
 proc setScrollCallback*(window: GLFWwindow; cbfun: GLFWscrollfun): GLFWscrollfun {.
-    cdecl, importc: "glfwSetScrollCallback", dynlib: GlfwDll.}
+    cdecl, importc: "glfwSetScrollCallback", glfwImport.}
 proc joystickPresent*(joy: cint): cint {.cdecl,
-    importc: "glfwJoystickPresent", dynlib: GlfwDll.}
+    importc: "glfwJoystickPresent", glfwImport.}
 proc getJoystickAxes*(joy: cint; count: ptr cint): ptr cfloat {.cdecl,
-    importc: "glfwGetJoystickAxes", dynlib: GlfwDll.}
+    importc: "glfwGetJoystickAxes", glfwImport.}
 proc getJoystickButtons*(joy: cint; count: ptr cint): ptr cuchar {.cdecl,
-    importc: "glfwGetJoystickButtons", dynlib: GlfwDll.}
+    importc: "glfwGetJoystickButtons", glfwImport.}
 proc getJoystickName*(joy: cint): cstring {.cdecl,
-    importc: "glfwGetJoystickName", dynlib: GlfwDll.}
+    importc: "glfwGetJoystickName", glfwImport.}
 proc setClipboardString*(window: GLFWwindow; string: cstring) {.cdecl,
-    importc: "glfwSetClipboardString", dynlib: GlfwDll.}
+    importc: "glfwSetClipboardString", glfwImport.}
 proc getClipboardString*(window: GLFWwindow): cstring {.cdecl,
-    importc: "glfwGetClipboardString", dynlib: GlfwDll.}
-proc getTime*(): cdouble {.cdecl, importc: "glfwGetTime", dynlib: GlfwDll.}
-proc setTime*(time: cdouble) {.cdecl, importc: "glfwSetTime", dynlib: GlfwDll.}
+    importc: "glfwGetClipboardString", glfwImport.}
+proc getTime*(): cdouble {.cdecl, importc: "glfwGetTime", glfwImport.}
+proc setTime*(time: cdouble) {.cdecl, importc: "glfwSetTime", glfwImport.}
 proc makeContextCurrent*(window: GLFWwindow) {.cdecl,
-    importc: "glfwMakeContextCurrent", dynlib: GlfwDll.}
+    importc: "glfwMakeContextCurrent", glfwImport.}
 proc getCurrentContext*(): GLFWwindow {.cdecl,
-    importc: "glfwGetCurrentContext", dynlib: GlfwDll.}
+    importc: "glfwGetCurrentContext", glfwImport.}
 proc swapBuffers*(window: GLFWwindow) {.cdecl, importc: "glfwSwapBuffers",
-    dynlib: GlfwDll.}
+    glfwImport.}
 proc swapInterval*(interval: cint) {.cdecl, importc: "glfwSwapInterval",
-                                     dynlib: GlfwDll.}
+                                     glfwImport.}
 proc extensionSupported*(extension: cstring): cint {.cdecl,
-    importc: "glfwExtensionSupported", dynlib: GlfwDll.}
+    importc: "glfwExtensionSupported", glfwImport.}
 proc getProcAddress*(procname: cstring): GLFWglproc {.cdecl,
-    importc: "glfwGetProcAddress", dynlib: GlfwDll.}
+    importc: "glfwGetProcAddress", glfwImport.}
