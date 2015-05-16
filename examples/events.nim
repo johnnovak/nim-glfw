@@ -1,6 +1,6 @@
 from strutils import formatFloat, ffDecimal
 from unicode import toUTF8, Rune
-import glfw/glfw
+import glfw
 
 proc winPosCb(o: Win, pos: tuple[x, y: int]) =
   echo "Window position: ", pos
