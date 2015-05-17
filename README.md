@@ -5,7 +5,7 @@ A GLFW 3 wrapper for Nim.
 
 This example displays a window for one second and then terminates:
 ```nim
-import os, glfw/glfw
+import os, glfw
   
 glfw.init()
 var win = newWin()
@@ -21,7 +21,7 @@ nim c -p:lib -r examples/<source file>
 ## documentation
 Currently no documentation exists, but a convenient symbol list can be generated simply by invoking this from the root directory:
 ~~~
-nim doc2 lib/glfw/glfw.nim
+nim doc2 lib/glfw.nim
 ~~~
 
 ## Version history
