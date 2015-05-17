@@ -23,7 +23,10 @@ else:
   elif defined(macosx):
     {.passC: "-D_GLFW_COCOA -D_GLFW_NSGL -D_GLFW_USE_CHDIR -D_GLFW_USE_MENUBAR -D_GLFW_USE_RETINA",
       passL: "-framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo",
-      compile: "glfw/src/mach_time.c", compile: "glfw/src/posix_tls.c".}
+      compile: "glfw/src/mach_time.c", compile: "glfw/src/posix_tls.c",
+      compile: "glfw/src/cocoa_init.m", compile: "glfw/src/cocoa_monitor.m",
+      compile: "glfw/src/cocoa_window.m", compile: "glfw/src/iokit_joystick.m",
+      compile: "glfw/src/nsgl_context.m".}
   else:
     {.passC: "-D_GLFW_HAS_DLOPEN",
       passL: "-pthread -lGL -lX11 -lXrandr -lXxf86vm -lXi -lXcursor -lm -lXinerama".}
