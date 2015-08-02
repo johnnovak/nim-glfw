@@ -15,7 +15,7 @@ else:
     {.passC: "-D_GLFW_USE_OPENGL".}
 
   when defined(windows):
-    {.passC: "-D_GLFW_WIN32 -D_GLFW_WGL", passL: "-opengl32 -lgdi32",
+    {.passC: "-D_GLFW_WIN32 -D_GLFW_WGL", passL: "-lopengl32 -lgdi32",
       compile: "glfw/src/win32_init.c", compile: "glfw/src/win32_monitor.c",
       compile: "glfw/src/win32_time.c", compile: "glfw/src/win32_tls.c",
       compile: "glfw/src/win32_window.c", compile: "glfw/src/winmm_joystick.c",
