@@ -239,12 +239,12 @@ proc errCheck =
   if gErrCode != glerrNoErr:
     fail(gErrCode, gErrMsg)
 
-proc failIf(val, equals: expr, msg = ""): expr =
-  let val = val
+proc failIf[T](val, equals: T): T =
+  result = val
+
   errCheck()
-  if val == equals:
-    fail(msg = msg)
-  val
+  if result == equals:
+    fail()
 
 # We can't raise an exception here, because that might mess up the GLFW stack.
 proc errCb(code: cint, msg: cstring) {.cdecl.} =
@@ -589,7 +589,7 @@ proc setHints(
       accumBufBits: tuple[r, g, b, a: int],
       nAuxBufs, nMultiSamples, refreshRate: range[0 .. 1000],
       glApi: GlApi) =
-  template h(name, val: expr) =
+  template h(name, val: untyped) =
     wrapper.windowHint(name.cint, val.cint)
 
   h(wrapper.RESIZABLE, resizable)
@@ -669,7 +669,7 @@ proc newWinImpl(
     fullscreen.handle, shareResourcesWith.handle).failIf(nil)
   winTable.add result.handle, result
 
-  template get(f: expr): bool =
+  template get(f: untyped): bool =
     var win {.inject.} = handleToWin(handle)
     var cb {.inject.} = if not win.isNil: win.f else: nil
 
