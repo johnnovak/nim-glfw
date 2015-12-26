@@ -827,3 +827,9 @@ proc update*(o: Win) =
 
 proc swapInterval*(interval: Natural) =
   wrapper.swapInterval(interval.cint)
+
+template getTime*(): float64 =
+  wrapper.getTime()
+
+template setTime*(time: float64) = 
+  wrapper.setTime(time)
