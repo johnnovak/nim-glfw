@@ -156,8 +156,8 @@ proc gear(innerRadius, outerRadius, width: GLfloat,
     glVertex3f(r1 * cos(angle + 3 * da), r1 * sin(angle + 3 * da), -width * 0.5)
     glNormal3f(cos(angle), sin(angle), 0.0)
 
-  glVertex3f(r1 * cos(0), r1 * sin(0), width * 0.5)
-  glVertex3f(r1 * cos(0), r1 * sin(0), -width * 0.5)
+  glVertex3f(r1 * cos(0.0), r1 * sin(0.0), width * 0.5)
+  glVertex3f(r1 * cos(0.0), r1 * sin(0.0), -width * 0.5)
 
   glEnd()
 
