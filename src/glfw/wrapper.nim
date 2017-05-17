@@ -1,4 +1,4 @@
-when defined(glfwDynlib):
+when not defined(glfwStaticLib):
   when defined(windows):
     const glfwDll = "glfw3.dll"
   elif defined(macosx):
