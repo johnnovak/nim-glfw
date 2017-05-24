@@ -821,9 +821,12 @@ proc version*: tuple[major, minor, rev: int] =
 proc versionStr*: string =
   $wrapper.getVersionString()
 
-proc update*(o: Win) =
-  o.swapBufs()
-  pollEvents()
+proc update*(o: Win, swapBuffers = true, pollEvents = true) =
+  if swapBuffers:
+    o.swapBufs()
+
+  if pollEvents:
+    pollEvents()
 
 proc swapInterval*(interval: Natural) =
   wrapper.swapInterval(interval.cint)
@@ -831,5 +834,5 @@ proc swapInterval*(interval: Natural) =
 template getTime*(): float64 =
   wrapper.getTime()
 
-template setTime*(time: float64) = 
+template setTime*(time: float64) =
   wrapper.setTime(time)
