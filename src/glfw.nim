@@ -743,6 +743,80 @@ proc newWinImpl(
       cb(win, codePoint.Rune)
   discard wrapper.setCharCallback(result.handle, charCb)
 
+type
+  Config = object
+    dim: tuple[w, h: int]
+    title: string
+    fullscreenMonitor: Monitor
+    shareResourcesWith: Win
+    visible, decorated, resizable, stereo, srgbCapableFramebuf: bool
+    bits: tuple[r, g, b, a, stencil, depth: int]
+    accumBufBits: tuple[r, g, b, a: int]
+    nAuxBufs, nMultiSamples, refreshRate: range[0 .. 1000]
+    glApi: GlApi
+
+proc initDefaultOpenglConfig: Config =
+    result = Config(
+      dim: (w: 640, h: 480),
+      title: "nim-GLFW window",
+      fullscreenMonitor: nilMonitor(),
+      shareResourcesWith: nilWin(),
+      visible: true,
+      decorated: true,
+      resizable: false,
+      stereo: false,
+      srgbCapableFramebuf: false,
+      bits: (8, 8, 8, 8, 8, 24),
+      accumBufBits: (8, 8, 8, 8),
+      nAuxBufs: 0,
+      nMultiSamples: 0,
+      refreshRate: 0,
+      glApi: initGlApi(
+        glv30,
+        forwardCompat = false,
+        debugContext = false,
+        glpAny,
+        glrNone))
+
+proc initDefaultOpenglEsConfig: Config =
+    result = Config(
+      dim: (w: 640, h: 480),
+      title: "nim-GLFW window",
+      fullscreenMonitor: nilMonitor(),
+      shareResourcesWith: nilWin(),
+      visible: true,
+      decorated: true,
+      resizable: false,
+      stereo: false,
+      srgbCapableFramebuf: false,
+      bits: (8, 8, 8, 8, 8, 24),
+      accumBufBits: (8, 8, 8, 8),
+      nAuxBufs: 0,
+      nMultiSamples: 0,
+      refreshRate: 0,
+      glApi: initGlEsApi(
+        glesv20,
+        glpAny,
+        glrNone))
+
+proc newWin*(config = initDefaultOpenglConfig()): Win =
+  newWinImpl(
+    config.dim,
+    config.title,
+    config.fullscreenMonitor,
+    config.shareResourcesWith,
+    config.visible,
+    config.decorated,
+    config.resizable,
+    config.stereo,
+    config.srgbCapableFramebuf,
+    config.bits,
+    config.accumBufBits,
+    config.nAuxBufs,
+    config.nMultiSamples,
+    config.refreshRate,
+    config.glApi)
+
 proc newGlWin*(
     dim = (w: 640, h: 480),
     title = "GLFW window",
@@ -821,9 +895,12 @@ proc version*: tuple[major, minor, rev: int] =
 proc versionStr*: string =
   $wrapper.getVersionString()
 
-proc update*(o: Win) =
-  o.swapBufs()
-  pollEvents()
+proc update*(o: Win, swapBuffers = true, pollEvents = true) =
+  if swapBuffers:
+    o.swapBufs()
+
+  if pollEvents:
+    pollEvents()
 
 proc swapInterval*(interval: Natural) =
   wrapper.swapInterval(interval.cint)
@@ -831,5 +908,5 @@ proc swapInterval*(interval: Natural) =
 template getTime*(): float64 =
   wrapper.getTime()
 
-template setTime*(time: float64) = 
+template setTime*(time: float64) =
   wrapper.setTime(time)
