@@ -640,16 +640,15 @@ proc makeContextCurrent*(o: Win) =
   wrapper.makeContextCurrent(o.handle)
 
 proc newWinImpl(
-    dim = (w: 640, h: 480),
-    title = "",
-    fullscreen = nilMonitor(),
-    shareResourcesWith = nilWin(),
-    visible, decorated = true,
-    resizable, stereo, srgbCapableFramebuf = false,
-    bits: tuple[r, g, b, a, stencil, depth: int] = (8, 8, 8, 8, 8, 24),
-    accumBufBits: tuple[r, g, b, a: int] = (8, 8, 8, 8),
-    nAuxBufs, nMultiSamples, refreshRate = range[0 .. 1000](0),
-    glApi = initGlApi()): Win =
+    dim: tuple[w, h: int],
+    title: string,
+    fullscreen: Monitor,
+    shareResourcesWith: Win,
+    visible, decorated, resizable, stereo, srgbCapableFramebuf: bool,
+    bits: tuple[r, g, b, a, stencil, depth: int],
+    accumBufBits: tuple[r, g, b, a: int],
+    nAuxBufs, nMultiSamples, refreshRate: range[0 .. 1000],
+    glApi: GlApi): Win =
   new(result)
 
   setHints(
