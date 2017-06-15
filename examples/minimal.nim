@@ -1,7 +1,9 @@
 import os, glfw
 
-glfw.init()
-var win = newGlWin(title = "Minimal example")
+glfw.initialize()
+var config = initDefaultOpenglWindowConfig()
+config.title = "Minimal example"
+var window = newWindow(config)
 sleep(1000)
-win.destroy()
+window.destroy()
 glfw.terminate()
