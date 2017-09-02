@@ -24,7 +24,6 @@ import math
 import glm
 import glad/gl
 import glfw
-import glfw/wrapper
 
 
 #========================================================================
@@ -377,7 +376,7 @@ proc drawAllViews() =
 # Framebuffer size callback function
 #========================================================================
 
-proc reshape(win: Win, res: tuple[w, h: int]) =
+proc reshape(win: Window, res: tuple[w, h: int32]) =
   width  = res.w
   height = if res.h > 0: res.h else: 1
   doRedraw = true
@@ -387,9 +386,9 @@ proc reshape(win: Win, res: tuple[w, h: int]) =
 # Window refresh callback function
 #========================================================================
 
-proc winRefreshCb(win: Win) =
+proc windowRefreshCb(win: Window) =
   drawAllViews()
-  glfw.swapBufs(win)
+  glfw.swapBuffers(win)
   doRedraw = false
 
 
@@ -397,12 +396,12 @@ proc winRefreshCb(win: Win) =
 # Mouse position callback function
 #========================================================================
 
-proc cursorPosCb(win: Win, pos: tuple[x, y: float64]) =
+proc cursorPositionCb(win: Window, pos: tuple[x, y: float64]) =
   var
     wndWidth, wndHeight, fbWidth, fbHeight: int
 
   (wndWidth, wndHeight) = size(win)
-  (fbWidth, fbHeight) = framebufSize(win)
+  (fbWidth, fbHeight) = framebufferSize(win)
 
   var
     scale = fbWidth / wndWidth
@@ -436,8 +435,8 @@ proc cursorPosCb(win: Win, pos: tuple[x, y: float64]) =
 # Mouse button callback function
 #========================================================================
 
-proc mouseBtnCb(win: Win, btn: MouseBtn, pressed: bool,
-                modKeys: ModifierKeySet) =
+proc mouseButtonCb(win: Window, btn: MouseButton, pressed: bool,
+                modKeys: set[ModifierKey]) =
 
   if btn == mbLeft and pressed:
     # Detect which of the four views was clicked
@@ -454,8 +453,8 @@ proc mouseBtnCb(win: Win, btn: MouseBtn, pressed: bool,
 
   doRedraw = true
 
-proc keyCb(win: Win, key: Key, scanCode: int, action: KeyAction,
-           modKeys: ModifierKeySet) =
+proc keyCb(win: Window, key: Key, scanCode: int32, action: KeyAction,
+           modKeys: set[ModifierKey]) =
 
   if key == keyEscape and action == kaUp:
     win.shouldClose = true
@@ -467,44 +466,41 @@ proc keyCb(win: Win, key: Key, scanCode: int, action: KeyAction,
 
 proc main() =
   # Initialise GLFW
-  glfw.init()
+  glfw.initialize()
 
   # Open OpenGL window
-  var win = newGlWin(
-    dim = (w: 500, h: 500),
-    title = "Split view demo",
-    resizable = true,
-    nMultiSamples = 4,
-    version = glv20
-  )
+  var cfg = DefaultOpenglWindowConfig
+  cfg.size = (w: 500, h: 500)
+  cfg.title = "Split view demo"
+  cfg.resizable = true
+  cfg.nMultiSamples = 4
+  cfg.version = glv20
+  var win = newWindow(cfg)
 
   # Set callback functions
-  win.framebufSizeCb = reshape
-  win.winRefreshCb = winRefreshCb
-  win.cursorPosCb = cursorPosCb
-  win.mouseBtnCb = mouseBtnCb
+  win.framebufferSizeCb = reshape
+  win.windowRefreshCb = windowRefreshCb
+  win.cursorPositionCb = cursorPositionCb
+  win.mouseButtonCb = mouseButtonCb
   win.keyCb = keyCb
-
-  # Enable vsync
-  glfw.makeContextCurrent(win)
 
   if not gladLoadGL(getProcAddress):
     quit "Error initialising OpenGL"
 
+  # Enable vsync
   glfw.swapInterval(1)
 
   if GLAD_GL_ARB_multisample or GLAD_GL_VERSION_1_3:
     glEnable(GL_MULTISAMPLE_ARB)
 
-  var w, h: int
-  (w, h) = framebufSize(win)
+  let (w, h) = framebufferSize(win)
   win.reshape((w, h))
 
   # Main loop
   while true:
     # Only redraw if we need to
     if doRedraw:
-      winRefreshCb(win)
+      windowRefreshCb(win)
 
     # Wait for new events
     glfw.waitEvents()

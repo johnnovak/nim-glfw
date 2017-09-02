@@ -8,11 +8,38 @@ when cuint isnot uint32:
 
 import glfw/wrapper
 import tables
+import options
 from unicode import Rune
 
+discard setWindowUserPointer
+discard getWindowUserPointer
+discard defaultWindowHints
+
+export options
 export unicode.Rune
 export wrapper.pollEvents
 export wrapper.waitEvents
+export wrapper.postEmptyEvent
+export wrapper.createCursor
+export wrapper.createStandardCursor
+export wrapper.setCursor
+export wrapper.destroyCursor
+export wrapper.Cursor
+export wrapper.Image
+export wrapper.MouseButton
+export wrapper.mbLeft
+export wrapper.mbRight
+export wrapper.mbMiddle
+export wrapper.ModifierKey
+export wrapper.Key
+export wrapper.KeyAction
+export wrapper.OpenglProfile
+export wrapper.ContextReleaseBehavior
+export wrapper.ContextCreationApi
+export wrapper.ContextRobustness
+export wrapper.swapBuffers
+export wrapper.getProcAddress
+export wrapper.CursorMode
 
 converter toInt32Tuple*(t: tuple[w, h: int]): tuple[w, h: int32] =
   (t[0].int32, t[1].int32)
@@ -20,152 +47,15 @@ converter toInt32Tuple*(t: tuple[w, h: int]): tuple[w, h: int32] =
 converter toInt32Tuple*(t: tuple[x, y: int]): tuple[x, y: int32] =
   (t[0].int32, t[1].int32)
 
-converter toInt32Tuple*(t: tuple[r, g, b, a: int]): tuple[r, g, b, a: int32] = (t[0].int32, t[1].int32, t[2].int32, t[3].int32)
+converter toInt32Tuple*(t: tuple[r, g, b, a: int]): tuple[r, g, b, a: Option[int32]] =
+  (some(t[0].int32), some(t[1].int32), some(t[2].int32), some(t[3].int32))
 
-converter toInt32Tuple*(t: tuple[r, g, b, a, stencil, depth: int]): tuple[r, g, b, a, stencil, depth: int32] =
-  (t[0].int32, t[1].int32, t[2].int32, t[3].int32, t[4].int32, t[5].int32)
-
-type
-  MouseButton* = enum
-    mbLeft = (0, "left mouse button")
-    mbRight = (1, "right mouse button")
-    mbMiddle = (2, "middle mouse button")
-    mb4 = (3, "mouse button 4")
-    mb5 = (4, "mouse button 5")
-    mb6 = (5, "mouse button 6")
-    mb7 = (6, "mouse button 7")
-    mb8 = (7, "mouse button 8")
-  Key* = enum
-    keyUnknown = (-1, "unknown")
-    keySpace = (32, "space")
-    keyApostrophe = (39, "apostrophe")
-    keyComma = (44, "comma")
-    keyMinus = (45, "minus")
-    keyPeriod = (46, "period")
-    keySlash = (47, "slash")
-    key0 = (48, "0")
-    key1 = (49, "1")
-    key2 = (50, "2")
-    key3 = (51, "3")
-    key4 = (52, "4")
-    key5 = (53, "5")
-    key6 = (54, "6")
-    key7 = (55, "7")
-    key8 = (56, "8")
-    key9 = (57, "9")
-    keySemicolon = (59, "semicolon")
-    keyEqual = (61, "equal")
-    keyA = (65, "a")
-    keyB = (66, "b")
-    keyC = (67, "c")
-    keyD = (68, "d")
-    keyE = (69, "e")
-    keyF = (70, "f")
-    keyG = (71, "g")
-    keyH = (72, "h")
-    keyI = (73, "i")
-    keyJ = (74, "j")
-    keyK = (75, "k")
-    keyl = (76, "L")
-    keyM = (77, "m")
-    keyN = (78, "n")
-    keyO = (79, "o")
-    keyP = (80, "p")
-    keyQ = (81, "q")
-    keyR = (82, "r")
-    keyS = (83, "s")
-    keyT = (84, "t")
-    keyU = (85, "u")
-    keyV = (86, "v")
-    keyW = (87, "w")
-    keyX = (88, "x")
-    keyY = (89, "y")
-    keyZ = (90, "z")
-    keyLeftBracket = (91, "left bracket")
-    keyBackslash = (92, "backslash")
-    keyRightBracket = (93, "right bracket")
-    keyGraveAccent = (96, "grave accent")
-    keyWorld1 = (161, "world1")
-    keyWorld2 = (162, "world2")
-    keyEscape = (256, "escape")
-    keyEnter = (257, "enter")
-    keyTab = (258, "tab")
-    keyBackspace = (259, "backspace")
-    keyInsert = (260, "insert")
-    keyDelete = (261, "delete")
-    keyRight = (262, "right")
-    keyLeft = (263, "left")
-    keyDown = (264, "down")
-    keyUp = (265, "up")
-    keyPageUp = (266, "page up")
-    keyPageDown = (267, "page down")
-    keyHome = (268, "home")
-    keyEnd = (269, "end")
-    keyCapsLock = (280, "caps lock")
-    keyScrollLock = (281, "scroll lock")
-    keyNumLock = (282, "num lock")
-    keyPrintScreen = (283, "print screen")
-    keyPause = (284, "pause")
-    keyF1 = (290, "f1")
-    keyF2 = (291, "f2")
-    keyF3 = (292, "f3")
-    keyF4 = (293, "f4")
-    keyF5 = (294, "f5")
-    keyF6 = (295, "f6")
-    keyF7 = (296, "f7")
-    keyF8 = (297, "f8")
-    keyF9 = (298, "f9")
-    keyF10 = (299, "f10")
-    keyF11 = (300, "f11")
-    keyF12 = (301, "f12")
-    keyF13 = (302, "f13")
-    keyF14 = (303, "f14")
-    keyF15 = (304, "f15")
-    keyF16 = (305, "f16")
-    keyF17 = (306, "f17")
-    keyF18 = (307, "f18")
-    keyF19 = (308, "f19")
-    keyF20 = (309, "f20")
-    keyF21 = (310, "f21")
-    keyF22 = (311, "f22")
-    keyF23 = (312, "f23")
-    keyF24 = (313, "f24")
-    keyF25 = (314, "f25")
-    keyKp0 = (320, "kp0")
-    keyKp1 = (321, "kp1")
-    keyKp2 = (322, "kp2")
-    keyKp3 = (323, "kp3")
-    keyKp4 = (324, "kp4")
-    keyKp5 = (325, "kp5")
-    keyKp6 = (326, "kp6")
-    keyKp7 = (327, "kp7")
-    keyKp8 = (328, "kp8")
-    keyKp9 = (329, "kp9")
-    keyKpDecimal = (330, "kp decimal")
-    keyKpDivide = (331, "kp divide")
-    keyKpMultiply = (332, "kp multiply")
-    keyKpSubtract = (333, "kp subtract")
-    keyKpAdd = (334, "kp add")
-    keyKpEnter = (335, "kp enter")
-    keyKpEqual = (336, "kp equal")
-    keyLeftShift = (340, "left shift")
-    keyLeftControl = (341, "left control")
-    keyLeftAlt = (342, "left alt")
-    keyLeftSuper = (343, "left super")
-    keyRightShift = (344, "right shift")
-    keyRightControl = (345, "right control")
-    keyRightAlt = (346, "right alt")
-    keyRightSuper = (347, "right super")
-    keyMenu = (348, "menu")
-  KeyAction* = enum
-    kaUp = (0, "up")
-    kaDown = (1, "down")
-    kaRepeat = (2, "repeat")
-  ModifierKey* = enum
-    mkShift = (wrapper.MOD_SHIFT, "shift")
-    mkCtrl = (wrapper.MOD_CONTROL, "ctrl")
-    mkAlt = (wrapper.MOD_ALT, "alt")
-    mkSuper = (wrapper.MOD_SUPER, "super")
+converter toInt32Tuple*(t: tuple[r, g, b, a, stencil, depth: int]):
+    tuple[r, g, b, a, stencil, depth: Option[int32]] =
+  (some(t[0].int32), some(t[1].int32), some(t[2].int32), some(t[3].int32), some(t[4].int32), some(t[5].int32))
+  
+converter toInt32(h: wrapper.Hint): int32 =
+  h.int32
 
 type
   WindowHandle = wrapper.Window
@@ -185,6 +75,8 @@ type
     scrollCb*: ScrollCb
     keyCb*: KeyCb
     charCb*: CharCb
+    charModsCb*: CharModsCb
+    dropCb*: DropCb
   Window* = ref WindowObj
   WindowPositionCb* = proc(window: Window, pos: tuple[x, y: int32]) {.closure.}
   WindowSizeCb* = proc(window: Window, size: tuple[w, h: int32]) {.closure.}
@@ -201,9 +93,29 @@ type
   KeyCb* = proc(window: Window, key: Key, scanCode: int32, action: KeyAction,
     modKeys: set[ModifierKey]) {.closure.}
   CharCb* = proc(window: Window, codePoint: Rune) {.closure.}
+  CharModsCb* = proc(
+    window: Window, codepoint: Rune, modkeys: set[ModifierKey]) {.closure.}
+  DropCb* = proc(window: Window, paths: PathDropInfo) {.closure.}
   MonitorHandle = wrapper.Monitor
   Monitor* = object
     handle: MonitorHandle
+  PathDropInfo* = object
+    paths: cstringArray
+    len: int32
+
+proc initPathDropInfo(paths: cstringArray, len: int32): PathDropInfo =
+  PathDropInfo(paths: paths, len: len)
+    
+proc len*(p: PathDropInfo): cint =
+  p.len
+
+iterator items*(p: PathDropInfo): cstring =
+  for i in 0 .. <p.len:
+    yield p.paths[i]
+
+iterator pairs*(p: PathDropInfo): (int32, cstring) =
+  for i in 0 .. <p.len:
+    yield (i, p.paths[i])
 
 converter toHandle(m: Monitor): MonitorHandle = m.handle
 converter toHandle(w: Window): WindowHandle = w.handle
@@ -218,33 +130,32 @@ proc initModifierKeySet(bitfield: int): set[ModifierKey] =
       result.incl(bit.ModifierKey)
 
 type
-  GlfwErrorType* = enum
-    getNoError = (wrapper.NOT_INITIALIZED - 2, "no error")
-    getUnknownError = (wrapper.NOT_INITIALIZED - 1, "unknown error")
-    getNotInitialized = (wrapper.NOT_INITIALIZED, "not initialized")
-    getNoCurrentContext = (wrapper.NO_CURRENT_CONTEXT, "no current context")
-    getInvalidEnum = (wrapper.INVALID_ENUM, "invalid enum")
-    getInvalidValue = (wrapper.INVALID_VALUE, "invalid value")
-    getOutOfMemory = (wrapper.OUT_OF_MEMORY, "out of memory")
-    getApiUnavailable = (wrapper.API_UNAVAILABLE, "API unavailable")
-    getVersionUnavailable = (wrapper.VERSION_UNAVAILABLE, "version unavailable")
-    getPlatformError = (wrapper.PLATFORM_ERROR, "platform error")
-    getFormattUnavailable = (wrapper.FORMAT_UNAVAILABLE, "format unavailable")
-
+  ErrorType* {.size: int32.sizeof.} = enum
+    getNoError = (0, "no error")
+    getUnknownError = (1, "unknown error")
+    getNotInitialized = (0x00010001, "not initialized")
+    getNoCurrentContext = (0x00010002, "no current context")
+    getInvalidEnum = (0x00010003, "invalid enum")
+    getInvalidValue = (0x00010004, "invalid value")
+    getOutOfMemory = (0x00010005, "out of memory")
+    getApiUnavailable = (0x00010006, "API unavailable")
+    getVersionUnavailable = (0x00010007, "version unavailable")
+    getPlatformError = (0x00010008, "platform error")
+    getFormatUnavailable = (0x00010009, "format unavailable")
+    getNoWindowContext = (0x0001000A, "no window context")
+      
 var
   gErrorCode = getNoError
   gErrorMsg = ""
+  hasInitialized = false
 
 type
   GLFWError* = object of Exception
-    error*: GlfwErrorType
+    error*: ErrorType
 
 proc `$`*(e: GLFWError): string = $e.error
 proc getHandle*(w: Window): WindowHandle =
   w.handle
-
-var
-  hasInitialized = false
 
 proc fail(error = getUnknownError, msg: string = "", iff = true) =
   if not iff:
@@ -272,20 +183,35 @@ proc failIf[T](val, equals: T): T =
 
 # We can't raise an exception here, because that might mess up the GLFW stack.
 proc errorCb(code: int32, msg: cstring) {.cdecl.} =
-  gErrorCode = GlfwErrorType(code)
+  gErrorCode = ErrorType(code)
   gErrorMsg = $msg
 
 type
   MonitorCb* = proc(monitor: Monitor, connected: bool) {.closure.}
+  JoystickCb* = proc(joystick: int32, connected: bool) {.closure.}
 
-var gMonitorCb: MonitorCb
+var
+  gMonitorCb: MonitorCb
+  gJoystickCb: JoystickCb
 
-proc `monitorCb=`*(cb: MonitorCb) =
+proc setMonitorCb*(cb: MonitorCb) =
   gMonitorCb = cb
 
-proc internalMonitorCb(handle: MonitorHandle, connected: int32) {.cdecl.} =
+proc setJoystickCb*(cb: JoystickCb) =
+  gJoystickCb = cb
+
+proc internalMonitorCb(handle: MonitorHandle, connection: int32) {.cdecl.} =
   if not gMonitorCb.isNil:
-    gMonitorCb(Monitor(handle: handle), connected.bool)
+    let c = connection.MonitorConnection
+    case c
+    of mcConnected, mcDisconnected:
+        discard
+
+    gMonitorCb(Monitor(handle: handle), c == mcConnected)
+
+proc internalJoystickCb(joy, connected: int32) {.cdecl.} =
+  if not gJoystickCb.isNil:
+    gJoystickCb(joy, connected.bool)
 
 proc initialize* =
   if hasInitialized:
@@ -294,6 +220,7 @@ proc initialize* =
   discard wrapper.setErrorCallback(errorCb)
   discard wrapper.init().failIf(0)
   discard wrapper.setMonitorCallback(internalMonitorCb)
+  discard wrapper.setJoystickCallback(internalJoystickCb)
 
   hasInitialized = true
 
@@ -322,17 +249,18 @@ proc pos*(m: Monitor): tuple[x, y: int32] =
 proc physicalSizeMM*(m: Monitor): tuple[w, h: int32] =
   wrapper.getMonitorPhysicalSize(m, result[0].addr, result[1].addr)
 
-proc name*(m: Monitor): string =
-  $wrapper.getMonitorName(m).failIf(nil)
+proc name*(m: Monitor): cstring =
+  wrapper.getMonitorName(m).failIf(nil)
 
 type
-  VideoMode* = object
+  VideoModeObj* = object
     size*: tuple[w, h: int32]
     bits*: tuple[r, g, b: int32]
     refreshRate*: int32
+  VideoMode* = ptr VideoModeObj
 
 # XXX: should be evaluated at compile time
-assert VideoMode.sizeof == wrapper.VideoMode.sizeof
+assert VideoModeObj.sizeof == wrapper.VideoModeObj.sizeof
 
 iterator videoModes*(m: Monitor): VideoMode =
   var n: int32
@@ -354,19 +282,14 @@ type
   GammaRampPtr* = ptr GammaRamp
 
 proc `gammaRamp=`*(m: Monitor, ramp: GammaRamp) =
-  wrapper.setGammaRamp(m, cast[ptr wrapper.GammaRamp](ramp.unsafeAddr))
+  wrapper.setGammaRamp(m, cast[wrapper.GammaRamp](ramp.unsafeAddr))
 
 proc gammaRamp*(m: Monitor): GammaRampPtr =
   cast[GammaRampPtr](wrapper.getGammaRamp(m).failIf(nil))
 
-proc nilMonitor*: Monitor =
-  discard
-
-proc nilWindow*: Window =
-  new(result)
+const NoMonitor* = Monitor()
 
 var gWindowTable = initTable[WindowHandle, Window]()
-#gWindowTable[nil] = nil
 
 var
   windowPositionCb: wrapper.Windowposfun
@@ -382,51 +305,38 @@ var
   scrollCb: wrapper.Scrollfun
   keyCb: wrapper.Keyfun
   charCb: wrapper.Charfun
+  charModsCb: wrapper.Charmodsfun
+  dropCb: wrapper.Dropfun
 
 type
   OpenglVersion* = enum
-    glv10 = (0x10, "OpenGL 1.0")
-    glv11 = (0x11, "OpenGL 1.1")
-    glv12 = (0x12, "OpenGL 1.2")
-    glv13 = (0x13, "OpenGL 1.3")
-    glv14 = (0x14, "OpenGL 1.4")
-    glv15 = (0x15, "OpenGL 1.5")
-    glv20 = (0x20, "OpenGL 2.0")
-    glv21 = (0x21, "OpenGL 2.1")
-    glv30 = (0x30, "OpenGL 3.0")
-    glv31 = (0x31, "OpenGL 3.1")
-    glv32 = (0x32, "OpenGL 3.2")
-    glv33 = (0x33, "OpenGL 3.3")
-    glv40 = (0x40, "OpenGL 4.0")
-    glv41 = (0x41, "OpenGL 4.1")
-    glv42 = (0x42, "OpenGL 4.2")
-    glv43 = (0x43, "OpenGL 4.3")
-    glv44 = (0x44, "OpenGL 4.4")
+    glv10 = (0x100, "OpenGL 1.0")
+    glv11 = (0x110, "OpenGL 1.1")
+    glv12 = (0x120, "OpenGL 1.2")
+    glv121 = (0x121, "OpenGL 1.2.1")
+    glv13 = (0x130, "OpenGL 1.3")
+    glv14 = (0x140, "OpenGL 1.4")
+    glv15 = (0x150, "OpenGL 1.5")
+    glv20 = (0x200, "OpenGL 2.0")
+    glv21 = (0x210, "OpenGL 2.1")
+    glv30 = (0x300, "OpenGL 3.0")
+    glv31 = (0x310, "OpenGL 3.1")
+    glv32 = (0x320, "OpenGL 3.2")
+    glv33 = (0x330, "OpenGL 3.3")
+    glv40 = (0x400, "OpenGL 4.0")
+    glv41 = (0x410, "OpenGL 4.1")
+    glv42 = (0x420, "OpenGL 4.2")
+    glv43 = (0x430, "OpenGL 4.3")
+    glv44 = (0x440, "OpenGL 4.4")
+    glv45 = (0x450, "OpenGL 4.5")
+    glv46 = (0x460, "OpenGL 4.6")
   OpenglEsVersion* = enum
-    glesv10 = (glv10, "OpenGL ES 1.0")
-    glesv11 = (glv11, "OpenGL ES 1.1")
-    glesv20 = (glv20, "OpenGL ES 2.0")
-    glesv30 = (glv30, "OpenGL ES 3.0")
-  OpenglApiType* = enum
-    apiOpengl,
-    apiOpenglEs
-  OpenglApi* = object
-    case kind*: OpenglApiType
-      of apiOpengl:
-        openglVersion*: OpenglVersion
-        forwardCompat*, debugContext*: bool
-      of apiOpenglEs:
-        openglEsVersion*: OpenglEsVersion
-    profile*: GlProfile
-    robustness*: GlRobustness
-  GlRobustness* = enum
-    glrNone = wrapper.NO_ROBUSTNESS,
-    glrNoResetNotification = wrapper.NO_RESET_NOTIFICATION,
-    glrLoseContextOnReset = wrapper.LOSE_CONTEXT_ON_RESET
-  GlProfile* = enum
-    glpAny = wrapper.OPENGL_ANY_PROFILE,
-    glpCore = wrapper.OPENGL_CORE_PROFILE,
-    glpCompat = wrapper.OPENGL_COMPAT_PROFILE,
+    glesv10 = (0x100, "OpenGL ES 1.0")
+    glesv11 = (0x110, "OpenGL ES 1.1")
+    glesv20 = (0x200, "OpenGL ES 2.0")
+    glesv30 = (0x300, "OpenGL ES 3.0")
+    glesv31 = (0x310, "OpenGL ES 3.1")
+    glesv32 = (0x320, "OpenGL ES 3.2")
 
 proc shouldClose*(w: Window): bool =
   wrapper.windowShouldClose(w).bool
@@ -452,77 +362,64 @@ proc `size=`*(w: Window, size: tuple[w, h: int32]) =
 proc framebufferSize*(w: Window): tuple[w, h: int32] =
   wrapper.getframebufferSize(w, result.w.addr, result.h.addr)
 
-proc iconify*(w: Window) =
-  wrapper.iconifyWindow(w)
+proc windowFrameSize*(w: Window): tuple[left, top, right, bottom: int32] =
+  wrapper.getWindowFrameSize(w, result.left.addr, result.top.addr,
+    result.right.addr, result.bottom.addr)
 
-proc iconified*(w: Window): bool =
-  wrapper.getWindowAttrib(w, wrapper.ICONIFIED).bool
+template windowOp(name: untyped) =
+  proc name*(w: Window) =
+    `name Window`(w)
 
-proc restore*(w: Window) =
-  wrapper.restoreWindow(w)
+windowOp(iconify)
+windowOp(restore)
+windowOp(show)
+windowOp(hide)
+windowOp(focus)
+windowOp(maximize)
 
-proc show*(w: Window) =
-  wrapper.showWindow(w)
+template defWindowAttrib(name: untyped, id: int32, T: typedesc) =
+  proc name*(w: Window): T =
+    wrapper.getWindowAttrib(w, id).T
 
-proc hide*(w: Window) =
-  wrapper.hideWindow(w)
+defWindowAttrib(visible, hVisible, bool)
+defWindowAttrib(focused, hFocused, bool)
+defWindowAttrib(iconified, Iconified, bool)
+defWindowAttrib(maximized, hMaximized, bool)
+defWindowAttrib(resizable, hResizable, bool)
+defWindowAttrib(decorated, hDecorated, bool)
+defWindowAttrib(floating, hFloating, bool)
+defWindowAttrib(clientApi, hClientApi, ClientApi)
+defWindowAttrib(contextCreationApi, hContextCreationApi, ContextCreationApi)
+defWindowAttrib(contextVersionMajor, hContextVersionMajor, int)
+defWindowAttrib(contextVersionMinor, hContextVersionMinor, int)
+defWindowAttrib(contextRevision, hContextRevision, int)
+defWindowAttrib(openglForwardCompat, hOpenglForwardCompat, bool)
+defWindowAttrib(openglDebugContext, hOpenglDebugContext, bool)
+defWindowAttrib(openglProfile, hOpenglProfile, OpenglProfile)
+defWindowAttrib(contextRobustness, hContextRobustness, ContextRobustness)
 
-proc visible*(w: Window): bool =
-  wrapper.getWindowAttrib(w, wrapper.VISIBLE).bool
+template defInputMode(name: untyped, id: int32, T: typedesc) =
+  proc name*(w: Window): T =
+    wrapper.getInputMode(w, id).T
 
-proc focused*(w: Window): bool =
-  wrapper.getWindowAttrib(w, wrapper.FOCUSED).bool
+  proc `name=`*(w: Window, v: T) =
+    wrapper.setInputMode(w, id, v.int32)
 
-proc resizable*(w: Window): bool =
-  wrapper.getWindowAttrib(w, wrapper.RESIZABLE).bool
-
-proc decorated*(w: Window): bool =
-  wrapper.getWindowAttrib(w, wrapper.DECORATED).bool
-
-proc forwardCompat*(w: Window): bool =
-  wrapper.getWindowAttrib(w, wrapper.OPENGL_FORWARD_COMPAT).bool
-
-proc debugContext*(w: Window): bool =
-  wrapper.getWindowAttrib(w, wrapper.OPENGL_DEBUG_CONTEXT).bool
-
-proc profile*(w: Window): GlProfile =
-  wrapper.getWindowAttrib(w, wrapper.OPENGL_PROFILE).GlProfile
-
-proc robustness*(w: Window): GlRobustness =
-  wrapper.getWindowAttrib(w, wrapper.CONTEXT_ROBUSTNESS).GlRobustness
-
-proc stickyKeys*(w: Window): bool =
-  wrapper.getInputMode(w, wrapper.STICKY_KEYS).bool
-
-proc `stickyKeys=`*(w: Window, yes: bool) =
-  wrapper.setInputMode(w, wrapper.STICKY_KEYS, yes.int32)
-
-proc stickyMouseButtons*(w: Window): bool =
-  wrapper.getInputMode(w, wrapper.STICKY_MOUSE_BUTTONS).bool
-
-proc `stickyMouseButtons=`*(w: Window, yes: bool) =
-  wrapper.setInputMode(w, wrapper.STICKY_MOUSE_BUTTONS, yes.int32)
-
-type
-  CursorMode* = enum
-    cmNormal = wrapper.CURSOR_NORMAL
-    cmHidden = wrapper.CURSOR_HIDDEN
-    cmDisabled = wrapper.CURSOR_DISABLED
-
-proc cursorMode*(w: Window): CursorMode =
-  wrapper.getInputMode(w, wrapper.CURSOR).CursorMode
-
-proc `cursorMode=`*(w: Window, mode: CursorMode) =
-  wrapper.setInputMode(w, wrapper.CURSOR, mode.int32)
+defInputMode(stickyKeys, wrapper.StickyKeys, bool)
+defInputMode(stickyMouseButtons, wrapper.StickyMouseButtons, bool)
+defInputMode(cursorMode, wrapper.CursorModeConst, wrapper.CursorMode)
 
 proc monitor*(w: Window): Monitor =
   newMonitor(wrapper.getWindowMonitor(w))
 
+proc `monitor=`*(w: Window, monitor: Monitor; xpos, ypos, width, height, refreshRate: int32) =
+  wrapper.setWindowMonitor(w, monitor, xpos, ypos, width, height, refreshRate)
+
 proc isKeyDown*(w: Window, key: Key): bool =
-  wrapper.getKey(w, key.int32) == wrapper.PRESS
+  wrapper.getKey(w, key.int32).KeyAction == kaDown
 
 proc mouseButtonDown*(w: Window, button: MouseButton): bool =
-  wrapper.getMouseButton(w, button.int32) == wrapper.PRESS
+  wrapper.getMouseButton(w, button.int32).KeyAction == kaDown
 
 proc cursorPos*(w: Window): tuple[x, y: float64] =
   wrapper.getCursorPos(w, result.x.addr, result.y.addr)
@@ -542,89 +439,211 @@ iterator joystickAxes*(joy: int32): float32 =
   for i in 0 .. <count:
     yield axes[i]
 
-iterator getJoystickButtons*(joy: int32): string =
+iterator getJoystickButtons*(joy: int32): cstring =
   var count: int32
   var buttonPtr = wrapper.getJoystickButtons(joy, count.addr)
   fail(iff = count <= 0)
   var buttons = cast[ptr array[10_000, cstring]](buttonPtr)
 
   for i in 0 .. <count:
-    yield $buttons[i]
+    yield buttons[i]
 
-proc joystickName*(joy: int32): string =
-  $wrapper.getJoystickName(joy)
+proc joystickName*(joy: int32): cstring =
+  wrapper.getJoystickName(joy)
 
 proc `clipboardString=`*(w: Window, str: string) =
   wrapper.setClipboardString(w, str)
 
-proc clipboardString*(w: Window): string =
-  $(wrapper.getClipboardString(w).failIf(nil))
+proc clipboardString*(w: Window): cstring =
+  wrapper.getClipboardString(w).failIf(nil)
 
-proc major(ver: OpenglVersion|OpenglEsVersion): int =
+proc major*(ver: OpenglVersion|OpenglEsVersion): int =
+  ver.int shr 8 and 0xf
+
+proc minor*(ver: OpenglVersion|OpenglEsVersion): int =
   ver.int shr 4 and 0xf
 
-proc minor(ver: OpenglVersion|OpenglEsVersion): int =
+proc revision*(ver: OpenglVersion|OpenglEsVersion): int =
   ver.int and 0xf
 
-proc initOpenGlApi*(version = glv20, forwardCompat, debugContext = false,
-    profile = glpAny, robustness = glrNone): OpenglApi =
-  OpenglApi(kind: apiOpengl, openglVersion: version,
-            forwardCompat: forwardCompat, debugContext: debugContext,
-            profile: profile, robustness: robustness)
+type
+  OpenglWindowConfig* = object
+    size*: tuple[w, h: int32]
+    title*: string
+    fullscreenMonitor*: Monitor
+    shareResourcesWith*: Window
+    visible*, focused*, decorated*, resizable*, stereo*,
+      srgbCapableFramebuffer*, floating*, maximized*, autoIconify*,
+      doubleBuffer*, forwardCompat*, debugContext*, makeContextCurrent*: bool
+    bits*: tuple[r, g, b, a, stencil, depth: Option[int32]]
+    accumBufferBits*: tuple[r, g, b, a: Option[int32]]
+    nAuxBuffers*, nMultiSamples*: int32
+    refreshRate*: Option[int32]
+    contextReleaseBehavior*: ContextReleaseBehavior
+    contextRobustness*: ContextRobustness
+    contextCreationApi*: ContextCreationApi
+    version*: OpenglVersion
+    profile*: OpenglProfile
+    contextNoError*: bool
+  OpenglEsWindowConfig* = object
+    size*: tuple[w, h: int32]
+    title*: string
+    fullscreenMonitor*: Monitor
+    shareResourcesWith*: Window
+    visible*, focused*, decorated*, resizable*, stereo*,
+      srgbCapableFramebuffer*, floating*, maximized*, autoIconify*,
+      doubleBuffer*, openglVersion*, makeContextCurrent*: bool
+    bits*: tuple[r, g, b, a, stencil, depth: Option[int32]]
+    accumBufferBits*: tuple[r, g, b, a: Option[int32]]
+    nAuxBuffers*, nMultiSamples*: int32
+    refreshRate*: Option[int32]
+    contextReleaseBehavior*: ContextReleaseBehavior
+    contextRobustness*: ContextRobustness
+    contextCreationApi*: ContextCreationApi
+    version*: OpenglEsVersion
+    contextNoError*: bool
+  SomeOpenglWindowConfigType* = OpenglWindowConfig|OpenglEsWindowConfig
 
-proc initOpenGlEsApi*(version = glesv20, profile = glpAny,
-                      robustness = glrNone): OpenglApi =
-  OpenglApi(kind: apiOpenglEs, openglEsVersion: version, profile: profile,
-            robustness: robustness)
+# XXX: Can this be a constant?
+let DefaultOpenglWindowConfig* = OpenglWindowConfig(
+  size: (w: 640, h: 480),
+  title: "Nim-GLFW window",
+  fullscreenMonitor: NoMonitor,
+  shareResourcesWith: nil.Window,
+  visible: true,
+  decorated: true,
+  resizable: false,
+  stereo: false,
+  srgbCapableFramebuffer: false,
+  bits: (some(8i32), some(8i32), some(8i32), some(8i32), some(8i32), some(24i32)),
+  accumBufferBits: (some(0i32), some(0i32), some(0i32), some(0i32)),
+  nAuxBuffers: 0,
+  nMultiSamples: 0,
+  refreshRate: some(0i32),
+  contextRobustness: crNoRobustness,
+  contextCreationApi: ccaNativeContextApi,
+  contextReleaseBehavior: crbAnyReleaseBehavior,
+  version: glv10,
+  forwardCompat: false,
+  debugContext: false,
+  contextNoError: false,
+  makeContextCurrent: true,
+  doubleBuffer: true,
+)
 
-proc setHints(
-      resizable, visible, decorated, stereo, srgbCapableFramebuffer: bool,
-      bits: tuple[r, g, b, a, stencil, depth: int32],
-      accumBufferBits: tuple[r, g, b, a: int32],
-      nAuxBuffers, nMultiSamples, refreshRate: int32,
-      openglApi: OpenglApi) =
-  template h(name, val: untyped) = wrapper.windowHint(name.int32, val.int32)
+# XXX: Can this be a constant?
+let DefaultOpenglEsWindowConfig* = OpenglEsWindowConfig(
+  size: (w: 640i32, h: 480i32),
+  title: "Nim-GLFW window",
+  fullscreenMonitor: NoMonitor,
+  shareResourcesWith: nil,
+  visible: true,
+  decorated: true,
+  resizable: false,
+  stereo: false,
+  srgbCapableFramebuffer: false,
+  bits: (some(8i32), some(8i32), some(8i32), some(8i32), some(8i32), some(24i32)),
+  accumBufferBits: (some(0i32), some(0i32), some(0i32), some(0i32)),
+  nAuxBuffers: 0,
+  nMultiSamples: 0,
+  refreshRate: some(0i32),
+  contextRobustness: crNoRobustness,
+  contextCreationApi: ccaNativeContextApi,
+  contextReleaseBehavior: crbAnyReleaseBehavior,
+  version: glesv10,
+  contextNoError: false,
+  makeContextCurrent: true,
+  doubleBuffer: true,
+)
 
-  h(wrapper.RESIZABLE, resizable)
-  h(wrapper.VISIBLE, visible)
-  h(wrapper.DECORATED, decorated)
+proc setHints(c: SomeOpenglWindowConfigType) =
+  template h(name, val: untyped) = wrapper.windowHint(name, val.int32)
 
-  h(wrapper.RED_BITS, bits.r)
-  h(wrapper.GREEN_BITS, bits.r)
-  h(wrapper.BLUE_BITS, bits.r)
-  h(wrapper.ALPHA_BITS, bits.r)
-  h(wrapper.DEPTH_BITS, bits.depth)
-  h(wrapper.STENCIL_BITS, bits.stencil)
+  for k, v in c.fieldPairs:
+    when k == "resizable":
+      h(wrapper.hResizable, v)
+    elif k == "visible":
+      h(wrapper.hVisible, v)
+    elif k == "decorated":
+      h(wrapper.hDecorated, v)
+    elif k == "bits":
+      template t(hint: Hint, field: untyped) =
+        const E = "An explicitly requested bit depth must be >= 0"
+        assert field.get(0) >= 0, E
+        h(hint, field.get(wrapper.DontCare))
 
-  h(wrapper.ACCUM_RED_BITS, accumBufferBits.r)
-  h(wrapper.ACCUM_GREEN_BITS, accumBufferBits.g)
-  h(wrapper.ACCUM_BLUE_BITS, accumBufferBits.b)
-  h(wrapper.ACCUM_ALPHA_BITS, accumBufferBits.a)
+      t(wrapper.hRedBits, v.r)
+      t(wrapper.hGreenBits, v.r)
+      t(wrapper.hBlueBits, v.r)
+      t(wrapper.hAlphaBits, v.r)
+      t(wrapper.hDepthBits, v.r)
+      t(wrapper.hStencilBits, v.r)
+    elif k == "accumBufferBits":
+      template t(hint: Hint, field: untyped) =
+        const E = "An explicitly requested bit depth must be >= 0"
+        assert field.get(0) >= 0, E
+        h(hint, field.get(wrapper.DontCare))
 
-  h(wrapper.AUX_BUFFERS, nAuxBuffers)
-  h(wrapper.STEREO, stereo)
-  h(wrapper.SAMPLES, nMultiSamples)
-  h(wrapper.SRGB_CAPABLE, srgbCapableFramebuffer)
-  h(wrapper.REFRESH_RATE, refreshRate)
+      t(wrapper.hAccumRedBits, v.r)
+      t(wrapper.hAccumGreenBits, v.g)
+      t(wrapper.hAccumBlueBits, v.b)
+      t(wrapper.hAccumAlphaBits, v.a)
+    elif k == "nAuxBuffers":
+      h(wrapper.hAuxBuffers, v)
+    elif k == "stereo":
+      h(wrapper.hStereo, v)
+    elif k == "nMultiSamples":
+      h(wrapper.hSamples, v)
+    elif k == "srgbCapableFramebuffer":
+      h(wrapper.hSrgbCapable, v)
+    elif k == "refreshRate":
+      assert v.get(0) >= 0,
+        "An explicitly requested refresh rate must be >= 0"
+      h(wrapper.hRefreshRate, v.get(DontCare))
+    elif k == "version":
+      h(wrapper.hContextVersionMajor, v.major)
+      h(wrapper.hContextVersionMinor, v.minor)
+      h(wrapper.hContextRevision, v.revision)
+    elif k == "hOpenglForwardCompat":
+      h(wrapper.hOpenglForwardCompat, v)
+    elif k == "hOpenglDebugContext":
+      h(wrapper.hOpenglDebugContext, v)
+    elif k == "focused":
+      h(wrapper.hFocused, v)
+    elif k == "floating":
+      h(wrapper.hFloating, v)
+    elif k == "maximized":
+      h(wrapper.hMaximized, v)
+    elif k == "autoIconify":
+      h(wrapper.hAutoIconify, v)
+    elif k == "doubleBuffer":
+      h(wrapper.hDoubleBuffer, v)
+    elif k == "contextReleaseBehavior":
+      h(wrapper.hContextReleaseBehavior, v)
+    elif k == "profile":
+      h(wrapper.hOpenglProfile, v)
+    elif k == "contextRobustness":
+      h(wrapper.hContextRobustness, v)
+    elif k == "contextCreationApi":
+      h(wrapper.hContextCreationApi, v)
+    elif k == "forwardCompat":
+      h(wrapper.hOpenglForwardCompat, v)
+    elif k == "debugContext":
+      h(wrapper.hOpenglDebugContext, v)
+    elif k == "contextNoError":
+      h(wrapper.hContextNoError, v)
+    elif k in ["size", "title", "fullscreenMonitor", "shareResourcesWith",
+        "makeContextCurrent"]:
+      discard
+    else:
+      {.fatal: "unhandled field: " & k.}
 
-  # OpenGL hints.
-
-  case openglApi.kind:
-    of apiOpengl:
-      h(wrapper.CONTEXT_VERSION_MAJOR, openglApi.openglVersion.major)
-      h(wrapper.CONTEXT_VERSION_MINOR, openglApi.openglVersion.minor)
-
-      h(wrapper.CLIENT_API, wrapper.OPENGL_API)
-      h(wrapper.OPENGL_FORWARD_COMPAT, openglApi.forwardCompat)
-      h(wrapper.OPENGL_DEBUG_CONTEXT, openglApi.debugContext)
-    of apiOpenglEs:
-      h(wrapper.CONTEXT_VERSION_MAJOR, openglApi.openglEsVersion.major)
-      h(wrapper.CONTEXT_VERSION_MINOR, openglApi.openglEsVersion.minor)
-
-      h(wrapper.CLIENT_API, wrapper.OPENGL_ES_API)
-
-  h(wrapper.OPENGL_PROFILE, openglApi.profile)
-  h(wrapper.CONTEXT_ROBUSTNESS, openglApi.robustness)
+  when c is OpenglWindowConfig:
+    h(wrapper.hClientApi, wrapper.oaOpenglApi)
+  elif c is OpenglEsWindowConfig:
+    h(wrapper.hClientApi, wrapper.oaOpenglEsApi)
+  else:
+    {.fatal: "unhandled type".}
 
 proc newWindow*(handle: WindowHandle): Window =
   Window(handle: handle)
@@ -639,37 +658,19 @@ proc makeContextCurrent*(w: Window) =
 proc currentContext*(): Window =
   newWindow wrapper.getCurrentContext()
 
-proc newWindowImpl(
-    size: tuple[w, h: int32],
-    title: string,
-    fullscreen: Monitor,
-    shareResourcesWith: Window,
-    visible, decorated, resizable, stereo, srgbCapableFramebuffer: bool,
-    bits: tuple[r, g, b, a, stencil, depth: int32],
-    accumBufferBits: tuple[r, g, b, a: int32],
-    nAuxBuffers, nMultiSamples, refreshRate: int32,
-    openglApi: OpenglApi,
-    shouldMakeContextCurrent: bool): Window =
+# XXX: the template below breaks if 'c' is typed as 'SomeOpenglWindowConfigType'
+proc newWindow*(c = DefaultOpenglWindowConfig): Window =
   new(result)
 
-  setHints(
-    resizable = resizable,
-    visible = visible,
-    decorated = decorated,
-    stereo = stereo,
-    srgbCapableFramebuffer = srgbCapableFramebuffer,
-    bits = bits,
-    accumBufferBits = accumBufferBits,
-    nAuxBuffers = nAuxBuffers,
-    nMultiSamples = nMultiSamples,
-    refreshRate = refreshRate,
-    openglApi = openglApi)
+  setHints(c)
 
-  result.handle = wrapper.createWindow(size.w, size.h, title,
-    fullscreen, shareResourcesWith).failIf(nil)
+  let sharedMonitor = if c.shareResourcesWith.isNil: nil
+                      else: c.shareResourcesWith.handle
+  result.handle = wrapper.createWindow(c.size.w, c.size.h, c.title,
+    c.fullscreenMonitor, sharedMonitor).failIf(nil)
   gWindowTable.add result.handle, result
 
-  if shouldMakeContextCurrent:
+  if c.makeContextCurrent:
     result.makeContextCurrent()
 
   template get(f: untyped): bool =
@@ -741,153 +742,22 @@ proc newWindowImpl(
         initModifierKeySet(modKeys))
   discard wrapper.setKeyCallback(result, keyCb)
 
-  charCb = proc(handle: WindowHandle, codePoint: cuint) {.cdecl.} =
+  charCb = proc(handle: WindowHandle, codePoint: uint32) {.cdecl.} =
     if get(charCb):
       cb(win, codePoint.Rune)
   discard wrapper.setCharCallback(result, charCb)
 
-type
-  WindowConfig* = object
-    size*: tuple[w, h: int32]
-    title*: string
-    fullscreen*: Monitor
-    shareResourcesWith*: Window
-    visible*, decorated*, resizable*, stereo*, srgbCapableFramebuffer*: bool
-    bits*: tuple[r, g, b, a, stencil, depth: int32]
-    accumBufferBits*: tuple[r, g, b, a: int32]
-    nAuxBuffers*, nMultiSamples*, refreshRate*: int32
-    openglApi*: OpenglApi
+  charModsCb = proc(
+      handle: WindowHandle, codePoint: uint32, modKeys: int32) {.cdecl.} =
+    if get(charModsCb):
+      cb(win, codePoint.Rune, initModifierKeySet(modKeys))
+  discard wrapper.setCharModsCallback(result, charModsCb)
 
-proc initDefaultOpenglWindowConfig*: WindowConfig =
-    result = WindowConfig(
-      size: (w: 640'i32, h: 480'i32),
-      title: "nim-GLFW window",
-      fullscreen: nilMonitor(),
-      shareResourcesWith: nilWindow(),
-      visible: true,
-      decorated: true,
-      resizable: false,
-      stereo: false,
-      srgbCapableFramebuffer: false,
-      bits: (8'i32, 8'i32, 8'i32, 8'i32, 8'i32, 24'i32),
-      accumBufferBits: (8'i32, 8'i32, 8'i32, 8'i32),
-      nAuxBuffers: 0,
-      nMultiSamples: 0,
-      refreshRate: 0,
-      openglApi: initOpenGlApi(
-        glv20,
-        forwardCompat = false,
-        debugContext = false,
-        glpAny,
-        glrNone))
-
-proc initDefaultOpenglEsWindowConfig*: WindowConfig =
-    result = WindowConfig(
-      size: (w: 640'i32, h: 480'i32),
-      title: "nim-GLFW window",
-      fullscreen: nilMonitor(),
-      shareResourcesWith: nilWindow(),
-      visible: true,
-      decorated: true,
-      resizable: false,
-      stereo: false,
-      srgbCapableFramebuffer: false,
-      bits: (8'i32, 8'i32, 8'i32, 8'i32, 8'i32, 24'i32),
-      accumBufferBits: (8'i32, 8'i32, 8'i32, 8'i32),
-      nAuxBuffers: 0,
-      nMultiSamples: 0,
-      refreshRate: 0,
-      openglApi: initOpenGlEsApi(
-        glesv20,
-        glpAny,
-        glrNone))
-
-proc newWindow*(config = initDefaultOpenglWindowConfig(),
-                makeContextCurrent = true): Window =
-  newWindowImpl(
-    config.size,
-    config.title,
-    config.fullscreen,
-    config.shareResourcesWith,
-    config.visible,
-    config.decorated,
-    config.resizable,
-    config.stereo,
-    config.srgbCapableFramebuffer,
-    config.bits,
-    config.accumBufferBits,
-    config.nAuxBuffers,
-    config.nMultiSamples,
-    config.refreshRate,
-    config.openglApi,
-    makeContextCurrent)
-
-proc newOpenglWindow*(
-    size = (w: 640'i32, h: 480'i32),
-    title = "GLFW window",
-    fullscreen = nilMonitor(),
-    shareResourcesWith = nilWindow(),
-    visible, decorated = true,
-    resizable, stereo, srgbCapableFramebuffer = false,
-    bits: tuple[r, g, b, a, stencil, depth: int32] = (8'i32, 8'i32, 8'i32, 8'i32, 8'i32, 24'i32),
-    accumBufferBits: tuple[r, g, b, a: int32] = (8'i32, 8'i32, 8'i32, 8'i32),
-    nAuxBuffers, nMultiSamples, refreshRate = 0'i32,
-    version = glv20,
-    forwardCompat, debugContext = false,
-    profile = glpAny,
-    robustness = glrNone,
-    makeContextCurrent = true): Window =
-  result = newWindowImpl(
-    size,
-    title,
-    fullscreen,
-    shareResourcesWith,
-    visible,
-    decorated,
-    resizable,
-    stereo,
-    srgbCapableFramebuffer,
-    bits,
-    accumBufferBits,
-    nAuxBuffers,
-    nMultiSamples,
-    refreshRate,
-    initOpenGlApi(version, forwardCompat, debugContext, profile, robustness),
-    makeContextCurrent,
-  )
-
-proc newOpenglEsWindow*(
-    size = (w: 640'i32, h: 480'i32),
-    title = "GLFW window",
-    fullscreen = nilMonitor(),
-    shareResourcesWith = nilWindow(),
-    visible, decorated = true,
-    resizable, stereo, srgbCapableFramebuffer = false,
-    bits: tuple[r, g, b, a, stencil, depth: int32] = (8'i32, 8'i32, 8'i32, 8'i32, 8'i32, 24'i32),
-    accumBufferBits: tuple[r, g, b, a: int32] = (8'i32, 8'i32, 8'i32, 8'i32),
-    nAuxBuffers, nMultiSamples, refreshRate = 0'i32,
-    version = glesv20,
-    profile = glpAny,
-    robustness = glrNone,
-    makeContextCurrent = true): Window =
-  result = newWindowImpl(
-    size,
-    title,
-    fullscreen,
-    shareResourcesWith,
-    visible,
-    decorated,
-    resizable,
-    stereo,
-    srgbCapableFramebuffer,
-    bits,
-    accumBufferBits,
-    nAuxBuffers,
-    nMultiSamples,
-    refreshRate,
-    initOpenGlEsApi(version, profile, robustness),
-    makeContextCurrent
-  )
+  dropCb = proc(
+      handle: WindowHandle, count: int32, paths: cstringArray) {.cdecl.} =
+    if get(dropCb):
+      cb(win, initPathDropInfo(paths, count))
+  discard wrapper.setDropCallback(result, dropCb)
 
 proc swapBuffers*(w: Window) =
   wrapper.swapBuffers(w)
@@ -895,14 +765,35 @@ proc swapBuffers*(w: Window) =
 proc version*: tuple[major, minor, rev: int32] =
   wrapper.getVersion(result[0].addr, result[1].addr, result[2].addr)
 
-proc versionString*: string =
-  $wrapper.getVersionString()
+proc versionString*: cstring =
+  wrapper.getVersionString()
 
 proc swapInterval*(interval: Natural) =
   wrapper.swapInterval(interval.int32)
 
-template getTime*(): float64 =
+proc getTime*(): float64 =
   wrapper.getTime()
 
-template setTime*(time: float64) =
+proc setTime*(time: float64) =
   wrapper.setTime(time)
+
+proc timerValue*: uint64 =
+  wrapper.getTimerValue()
+
+proc timerFrequency*: uint64 =
+  wrapper.getTimerFrequency()
+
+proc `icon=`*(w: Window, images: openarray[wrapper.ImageObj]) =
+  wrapper.setWindowIcon(w, images.len.int32, images[0].unsafeAddr)
+
+proc keyName*(key: Key): cstring =
+  wrapper.getKeyName(key.int32, 0)
+
+proc keyName*(scanCode: int32): cstring =
+  wrapper.getKeyName(keyUnknown.int32, scanCode)
+
+proc setSizeLimits*(w: Window, minwidth, minheight, maxwidth, maxheight: int32) =
+  wrapper.setWindowSizeLimits(w, minwidth, minheight, maxwidth, maxheight)
+
+proc setAspectRatio*(w: Window, numer, denom: int32) =
+  wrapper.setWindowAspectRatio(w, numer, denom)

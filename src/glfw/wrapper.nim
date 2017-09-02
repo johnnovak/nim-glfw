@@ -1,13 +1,12 @@
 when not defined(glfwStaticLib):
   when defined(windows):
-    const glfwDll = "glfw3.dll"
+    const GlfwDll = "glfw3.dll"
   elif defined(macosx):
-    const glfwDll = "libglfw3.dylib"
+    const GlfwDll = "libglfw3.dylib"
   else:
-    const glfwDll = "libglfw.so.3"
-  {.pragma: glfwImport, dynlib: glfwDll.}
+    const GlfwDll = "libglfw.so.3"
+  {.pragma: glfwImport, dynlib: GlfwDll.}
   {.deadCodeElim: on.}
-
 else:
   when defined(arm) or defined(wayland) or defined(mir) or defined(gles):
     {.passC: "-D_GLFW_USE_GLESV2".}
@@ -53,411 +52,417 @@ else:
 
   {.pragma: glfwImport.}
 
-const
-  VERSION_MAJOR* = 3
-  VERSION_MINOR* = 0
-  VERSION_REVISION* = 4
+type
+  MouseButton* {.size: int32.sizeof.} = enum
+    mb1 = (0, "left mouse button")
+    mb2 = (1, "right mouse button")
+    mb3 = (2, "middle mouse button")
+    mb4 = (3, "mouse button 4")
+    mb5 = (4, "mouse button 5")
+    mb6 = (5, "mouse button 6")
+    mb7 = (6, "mouse button 7")
+    mb8 = (7, "mouse button 8")
+  
+const mbLeft* = mb1
+const mbRight* = mb2
+const mbMiddle* = mb3
+
+type
+  ModifierKey* {.size: int32.sizeof.} = enum
+    mkShift = (0x00000001, "shift")
+    mkCtrl = (0x00000002, "ctrl")
+    mkAlt = (0x00000004, "alt")
+    mkSuper = (0x00000008, "super")
+
+type  
+  Key* {.size: int32.sizeof.} = enum
+    keyUnknown = (-1, "unknown")
+    keySpace = (32, "space")
+    keyApostrophe = (39, "apostrophe")
+    keyComma = (44, "comma")
+    keyMinus = (45, "minus")
+    keyPeriod = (46, "period")
+    keySlash = (47, "slash")
+    key0 = (48, "0")
+    key1 = (49, "1")
+    key2 = (50, "2")
+    key3 = (51, "3")
+    key4 = (52, "4")
+    key5 = (53, "5")
+    key6 = (54, "6")
+    key7 = (55, "7")
+    key8 = (56, "8")
+    key9 = (57, "9")
+    keySemicolon = (59, "semicolon")
+    keyEqual = (61, "equal")
+    keyA = (65, "a")
+    keyB = (66, "b")
+    keyC = (67, "c")
+    keyD = (68, "d")
+    keyE = (69, "e")
+    keyF = (70, "f")
+    keyG = (71, "g")
+    keyH = (72, "h")
+    keyI = (73, "i")
+    keyJ = (74, "j")
+    keyK = (75, "k")
+    keyl = (76, "L")
+    keyM = (77, "m")
+    keyN = (78, "n")
+    keyO = (79, "o")
+    keyP = (80, "p")
+    keyQ = (81, "q")
+    keyR = (82, "r")
+    keyS = (83, "s")
+    keyT = (84, "t")
+    keyU = (85, "u")
+    keyV = (86, "v")
+    keyW = (87, "w")
+    keyX = (88, "x")
+    keyY = (89, "y")
+    keyZ = (90, "z")
+    keyLeftBracket = (91, "left bracket")
+    keyBackslash = (92, "backslash")
+    keyRightBracket = (93, "right bracket")
+    keyGraveAccent = (96, "grave accent")
+    keyWorld1 = (161, "world1")
+    keyWorld2 = (162, "world2")
+    keyEscape = (256, "escape")
+    keyEnter = (257, "enter")
+    keyTab = (258, "tab")
+    keyBackspace = (259, "backspace")
+    keyInsert = (260, "insert")
+    keyDelete = (261, "delete")
+    keyRight = (262, "right")
+    keyLeft = (263, "left")
+    keyDown = (264, "down")
+    keyUp = (265, "up")
+    keyPageUp = (266, "page up")
+    keyPageDown = (267, "page down")
+    keyHome = (268, "home")
+    keyEnd = (269, "end")
+    keyCapsLock = (280, "caps lock")
+    keyScrollLock = (281, "scroll lock")
+    keyNumLock = (282, "num lock")
+    keyPrintScreen = (283, "print screen")
+    keyPause = (284, "pause")
+    keyF1 = (290, "f1")
+    keyF2 = (291, "f2")
+    keyF3 = (292, "f3")
+    keyF4 = (293, "f4")
+    keyF5 = (294, "f5")
+    keyF6 = (295, "f6")
+    keyF7 = (296, "f7")
+    keyF8 = (297, "f8")
+    keyF9 = (298, "f9")
+    keyF10 = (299, "f10")
+    keyF11 = (300, "f11")
+    keyF12 = (301, "f12")
+    keyF13 = (302, "f13")
+    keyF14 = (303, "f14")
+    keyF15 = (304, "f15")
+    keyF16 = (305, "f16")
+    keyF17 = (306, "f17")
+    keyF18 = (307, "f18")
+    keyF19 = (308, "f19")
+    keyF20 = (309, "f20")
+    keyF21 = (310, "f21")
+    keyF22 = (311, "f22")
+    keyF23 = (312, "f23")
+    keyF24 = (313, "f24")
+    keyF25 = (314, "f25")
+    keyKp0 = (320, "kp0")
+    keyKp1 = (321, "kp1")
+    keyKp2 = (322, "kp2")
+    keyKp3 = (323, "kp3")
+    keyKp4 = (324, "kp4")
+    keyKp5 = (325, "kp5")
+    keyKp6 = (326, "kp6")
+    keyKp7 = (327, "kp7")
+    keyKp8 = (328, "kp8")
+    keyKp9 = (329, "kp9")
+    keyKpDecimal = (330, "kp decimal")
+    keyKpDivide = (331, "kp divide")
+    keyKpMultiply = (332, "kp multiply")
+    keyKpSubtract = (333, "kp subtract")
+    keyKpAdd = (334, "kp add")
+    keyKpEnter = (335, "kp enter")
+    keyKpEqual = (336, "kp equal")
+    keyLeftShift = (340, "left shift")
+    keyLeftControl = (341, "left control")
+    keyLeftAlt = (342, "left alt")
+    keyLeftSuper = (343, "left super")
+    keyRightShift = (344, "right shift")
+    keyRightControl = (345, "right control")
+    keyRightAlt = (346, "right alt")
+    keyRightSuper = (347, "right super")
+    keyMenu = (348, "menu")
+  KeyAction* {.size: int32.sizeof.} = enum
+    kaUp = (0, "up")
+    kaDown = (1, "down")
+    kaRepeat = (2, "repeat")
 
 const
-  RELEASE* = 0
-  PRESS* = 1
-  REPEAT* = 2
+  Iconified* = 0x00020002
+
+type
+  Hint* {.size: int32.sizeof.} = enum
+    hFocused = 0x00020001
+    hResizable = 0x00020003
+    hVisible = 0x00020004
+    hDecorated = 0x00020005
+    hAutoIconify = 0x00020006
+    hFloating = 0x00020007
+    hMaximized = 0x00020008
+    hRedBits = 0x00021001
+    hGreenBits = 0x00021002
+    hBlueBits = 0x00021003
+    hAlphaBits = 0x00021004
+    hDepthBits = 0x00021005
+    hStencilBits = 0x00021006
+    hAccumRedBits = 0x00021007
+    hAccumGreenBits = 0x00021008
+    hAccumBlueBits = 0x00021009
+    hAccumAlphaBits = 0x0002100A
+    hAuxBuffers = 0x0002100B
+    hStereo = 0x0002100C
+    hSamples = 0x0002100D
+    hSrgbCapable = 0x0002100E
+    hRefreshRate = 0x0002100F
+    hDoublebuffer = 0x00021010
+    hClientApi = 0x00022001
+    hContextVersionMajor = 0x00022002
+    hContextVersionMinor = 0x00022003
+    hContextRevision = 0x00022004
+    hContextRobustness = 0x00022005
+    hOpenglForwardCompat = 0x00022006
+    hOpenglDebugContext = 0x00022007
+    hOpenglProfile = 0x00022008
+    hContextReleaseBehavior = 0x00022009
+    hContextNoError = 0x0002200A
+    hContextCreationApi = 0x0002200B
+  ContextReleaseBehavior* {.size: int32.sizeof.} = enum
+    crbAnyReleaseBehavior = 0
+    crbReleaseBehaviorFlush = 0x00035001
+    crbReleaseBehaviorNone = 0x00035002
+  ClientApi* {.size: int32.sizeof.} = enum
+    oaNoApi = 0
+    oaOpenglApi = 0x00030001
+    oaOpenglEsApi = 0x00030002
+  ContextCreationApi* {.size: int32.sizeof.} = enum
+    ccaNativeContextApi = 0x00036001
+    ccaEglContextApi = 0x00036002
+  ContextRobustness* {.size: int32.sizeof.} = enum
+    crNoRobustness = 0
+    crNoResetNotification = 0x00031001
+    crLoseContextOnReset = 0x00031002
+  OpenglProfile* {.size: int32.sizeof.} = enum
+    opAnyProfile = 0
+    opCoreProfile = 0x00032001
+    opCompatProfile = 0x00032002
+  MonitorConnection* {.size: int32.sizeof.} = enum
+    mcConnected = 0x00040001
+    mcDisconnected = 0x00040002
+
+converter toBool*(m: MonitorConnection): bool =
+  case m
+  of mcConnected:
+    true
+  of mcDisconnected:
+    false
+
+type
+  CursorMode* {.size: int32.sizeof.} = enum
+    cmNormal = 0x00034001
+    cmHidden = 0x00034002
+    cmDisabled = 0x00034003
 
 const
-  KEY_UNKNOWN* = - 1
-  KEY_SPACE* = 32
-  KEY_APOSTROPHE* = 39
-  KEY_COMMA* = 44
-  KEY_MINUS* = 45
-  KEY_PERIOD* = 46
-  KEY_SLASH* = 47
-  KEY_0* = 48
-  KEY_1* = 49
-  KEY_2* = 50
-  KEY_3* = 51
-  KEY_4* = 52
-  KEY_5* = 53
-  KEY_6* = 54
-  KEY_7* = 55
-  KEY_8* = 56
-  KEY_9* = 57
-  KEY_SEMICOLON* = 59
-  KEY_EQUAL* = 61
-  KEY_A* = 65
-  KEY_B* = 66
-  KEY_C* = 67
-  KEY_D* = 68
-  KEY_E* = 69
-  KEY_F* = 70
-  KEY_G* = 71
-  KEY_H* = 72
-  KEY_I* = 73
-  KEY_J* = 74
-  KEY_K* = 75
-  KEY_L* = 76
-  KEY_M* = 77
-  KEY_N* = 78
-  KEY_O* = 79
-  KEY_P* = 80
-  KEY_Q* = 81
-  KEY_R* = 82
-  KEY_S* = 83
-  KEY_T* = 84
-  KEY_U* = 85
-  KEY_V* = 86
-  KEY_W* = 87
-  KEY_X* = 88
-  KEY_Y* = 89
-  KEY_Z* = 90
-  KEY_LEFT_BRACKET* = 91
-  KEY_BACKSLASH* = 92
-  KEY_RIGHT_BRACKET* = 93
-  KEY_GRAVE_ACCENT* = 96
-  KEY_WORLD_1* = 161
-  KEY_WORLD_2* = 162
-  KEY_ESCAPE* = 256
-  KEY_ENTER* = 257
-  KEY_TAB* = 258
-  KEY_BACKSPACE* = 259
-  KEY_INSERT* = 260
-  KEY_DELETE* = 261
-  KEY_RIGHT* = 262
-  KEY_LEFT* = 263
-  KEY_DOWN* = 264
-  KEY_UP* = 265
-  KEY_PAGE_UP* = 266
-  KEY_PAGE_DOWN* = 267
-  KEY_HOME* = 268
-  KEY_END* = 269
-  KEY_CAPS_LOCK* = 280
-  KEY_SCROLL_LOCK* = 281
-  KEY_NUM_LOCK* = 282
-  KEY_PRINT_SCREEN* = 283
-  KEY_PAUSE* = 284
-  KEY_F1* = 290
-  KEY_F2* = 291
-  KEY_F3* = 292
-  KEY_F4* = 293
-  KEY_F5* = 294
-  KEY_F6* = 295
-  KEY_F7* = 296
-  KEY_F8* = 297
-  KEY_F9* = 298
-  KEY_F10* = 299
-  KEY_F11* = 300
-  KEY_F12* = 301
-  KEY_F13* = 302
-  KEY_F14* = 303
-  KEY_F15* = 304
-  KEY_F16* = 305
-  KEY_F17* = 306
-  KEY_F18* = 307
-  KEY_F19* = 308
-  KEY_F20* = 309
-  KEY_F21* = 310
-  KEY_F22* = 311
-  KEY_F23* = 312
-  KEY_F24* = 313
-  KEY_F25* = 314
-  KEY_KP_0* = 320
-  KEY_KP_1* = 321
-  KEY_KP_2* = 322
-  KEY_KP_3* = 323
-  KEY_KP_4* = 324
-  KEY_KP_5* = 325
-  KEY_KP_6* = 326
-  KEY_KP_7* = 327
-  KEY_KP_8* = 328
-  KEY_KP_9* = 329
-  KEY_KP_DECIMAL* = 330
-  KEY_KP_DIVIDE* = 331
-  KEY_KP_MULTIPLY* = 332
-  KEY_KP_SUBTRACT* = 333
-  KEY_KP_ADD* = 334
-  KEY_KP_ENTER* = 335
-  KEY_KP_EQUAL* = 336
-  KEY_LEFT_SHIFT* = 340
-  KEY_LEFT_CONTROL* = 341
-  KEY_LEFT_ALT* = 342
-  KEY_LEFT_SUPER* = 343
-  KEY_RIGHT_SHIFT* = 344
-  KEY_RIGHT_CONTROL* = 345
-  KEY_RIGHT_ALT* = 346
-  KEY_RIGHT_SUPER* = 347
-  KEY_MENU* = 348
-  KEY_LAST* = KEY_MENU
+  CursorModeConst* = 0x00033001i32 # XXX
+  StickyKeys* = 0x00033002i32
+  StickyMouseButtons* = 0x00033003i32
+  DontCare* = - 1
 
-const
-  MOD_SHIFT* = 0x00000001
-  MOD_CONTROL* = 0x00000002
-  MOD_ALT* = 0x00000004
-  MOD_SUPER* = 0x00000008
-
-const
-  MOUSE_BUTTON_1* = 0
-  MOUSE_BUTTON_2* = 1
-  MOUSE_BUTTON_3* = 2
-  MOUSE_BUTTON_4* = 3
-  MOUSE_BUTTON_5* = 4
-  MOUSE_BUTTON_6* = 5
-  MOUSE_BUTTON_7* = 6
-  MOUSE_BUTTON_8* = 7
-  MOUSE_BUTTON_LAST* = MOUSE_BUTTON_8
-  MOUSE_BUTTON_LEFT* = MOUSE_BUTTON_1
-  MOUSE_BUTTON_RIGHT* = MOUSE_BUTTON_2
-  MOUSE_BUTTON_MIDDLE* = MOUSE_BUTTON_3
-
-const
-  JOYSTICK_1* = 0
-  JOYSTICK_2* = 1
-  JOYSTICK_3* = 2
-  JOYSTICK_4* = 3
-  JOYSTICK_5* = 4
-  JOYSTICK_6* = 5
-  JOYSTICK_7* = 6
-  JOYSTICK_8* = 7
-  JOYSTICK_9* = 8
-  JOYSTICK_10* = 9
-  JOYSTICK_11* = 10
-  JOYSTICK_12* = 11
-  JOYSTICK_13* = 12
-  JOYSTICK_14* = 13
-  JOYSTICK_15* = 14
-  JOYSTICK_16* = 15
-  JOYSTICK_LAST* = JOYSTICK_16
-
-const
-  NOT_INITIALIZED* = 0x00010001
-  NO_CURRENT_CONTEXT* = 0x00010002
-  INVALID_ENUM* = 0x00010003
-  INVALID_VALUE* = 0x00010004
-  OUT_OF_MEMORY* = 0x00010005
-  API_UNAVAILABLE* = 0x00010006
-  VERSION_UNAVAILABLE* = 0x00010007
-  PLATFORM_ERROR* = 0x00010008
-  FORMAT_UNAVAILABLE* = 0x00010009
-
-const
-  FOCUSED* = 0x00020001
-  ICONIFIED* = 0x00020002
-  RESIZABLE* = 0x00020003
-  VISIBLE* = 0x00020004
-  DECORATED* = 0x00020005
-  RED_BITS* = 0x00021001
-  GREEN_BITS* = 0x00021002
-  BLUE_BITS* = 0x00021003
-  ALPHA_BITS* = 0x00021004
-  DEPTH_BITS* = 0x00021005
-  STENCIL_BITS* = 0x00021006
-  ACCUM_RED_BITS* = 0x00021007
-  ACCUM_GREEN_BITS* = 0x00021008
-  ACCUM_BLUE_BITS* = 0x00021009
-  ACCUM_ALPHA_BITS* = 0x0002100A
-  AUX_BUFFERS* = 0x0002100B
-  STEREO* = 0x0002100C
-  SAMPLES* = 0x0002100D
-  SRGB_CAPABLE* = 0x0002100E
-  REFRESH_RATE* = 0x0002100F
-  CLIENT_API* = 0x00022001
-  CONTEXT_VERSION_MAJOR* = 0x00022002
-  CONTEXT_VERSION_MINOR* = 0x00022003
-  CONTEXT_REVISION* = 0x00022004
-  CONTEXT_ROBUSTNESS* = 0x00022005
-  OPENGL_FORWARD_COMPAT* = 0x00022006
-  OPENGL_DEBUG_CONTEXT* = 0x00022007
-  OPENGL_PROFILE* = 0x00022008
-  OPENGL_API* = 0x00030001
-  OPENGL_ES_API* = 0x00030002
-  NO_ROBUSTNESS* = 0
-  NO_RESET_NOTIFICATION* = 0x00031001
-  LOSE_CONTEXT_ON_RESET* = 0x00031002
-  OPENGL_ANY_PROFILE* = 0
-  OPENGL_CORE_PROFILE* = 0x00032001
-  OPENGL_COMPAT_PROFILE* = 0x00032002
-  CURSOR* = 0x00033001
-  STICKY_KEYS* = 0x00033002
-  STICKY_MOUSE_BUTTONS* = 0x00033003
-  CURSOR_NORMAL* = 0x00034001
-  CURSOR_HIDDEN* = 0x00034002
-  CURSOR_DISABLED* = 0x00034003
-  CONNECTED* = 0x00040001
-  DISCONNECTED* = 0x00040002
+type
+  CursorShape* {.size: int32.sizeof.} = enum
+    arrow = 0x00036001
+    ibeam = 0x00036002
+    crosshair = 0x00036003
+    hand = 0x00036004
+    hresize = 0x00036005
+    vresize = 0x00036006
 
 type
   Window* = ptr object
   Monitor* = ptr object
+  Cursor* = ptr object
+  VideoModeObj* {.bycopy.} = object
+    width*: int32
+    height*: int32
+    redBits*: int32
+    greenBits*: int32
+    blueBits*: int32
+    refreshRate*: int32
+  VideoMode* = ptr VideoModeObj
+  GammaRamp* {.bycopy.} = ptr object
+    red*: ptr uint16
+    green*: ptr uint16
+    blue*: ptr uint16
+    size*: cuint
+  ImageObj* {.bycopy.} = object
+    width*: int32
+    height*: int32
+    pixels*: ptr cuchar
+  Image* = ptr ImageObj
 
 type
-  Glproc* = proc () {.cdecl.}
-  Errorfun* = proc (a2: cint; a3: cstring) {.cdecl.}
-  Windowposfun* = proc (a2: Window; a3: cint; a4: cint) {.cdecl.}
-  Windowsizefun* = proc (a2: Window; a3: cint; a4: cint) {.cdecl.}
+  OpenGlProc* = proc () {.cdecl.}
+  Vkproc* = proc () {.cdecl.}
+  Errorfun* = proc (a2: int32; a3: cstring) {.cdecl.}
+  Windowposfun* = proc (a2: Window; a3: int32; a4: int32) {.cdecl.}
+  Windowsizefun* = proc (a2: Window; a3: int32; a4: int32) {.cdecl.}
   Windowclosefun* = proc (a2: Window) {.cdecl.}
   Windowrefreshfun* = proc (a2: Window) {.cdecl.}
-  Windowfocusfun* = proc (a2: Window; a3: cint) {.cdecl.}
-  Windowiconifyfun* = proc (a2: Window; a3: cint) {.cdecl.}
-  Framebuffersizefun* = proc (a2: Window; a3: cint; a4: cint) {.
-      cdecl.}
-  Mousebuttonfun* = proc (a2: Window; a3: cint; a4: cint; a5: cint) {.
-      cdecl.}
-  Cursorposfun* = proc (a2: Window; a3: cdouble; a4: cdouble) {.
-      cdecl.}
-  Cursorenterfun* = proc (a2: Window; a3: cint) {.cdecl.}
+  Windowfocusfun* = proc (a2: Window; a3: int32) {.cdecl.}
+  Windowiconifyfun* = proc (a2: Window; a3: int32) {.cdecl.}
+  Framebuffersizefun* = proc (a2: Window; a3: int32; a4: int32) {.cdecl.}
+  Mousebuttonfun* = proc (a2: Window; a3: int32; a4: int32; a5: int32) {.cdecl.}
+  Cursorposfun* = proc (a2: Window; a3: cdouble; a4: cdouble) {.cdecl.}
+  Cursorenterfun* = proc (a2: Window; a3: int32) {.cdecl.}
   Scrollfun* = proc (a2: Window; a3: cdouble; a4: cdouble) {.cdecl.}
-  Keyfun* = proc (a2: Window; a3: cint; a4: cint; a5: cint;
-                      a6: cint) {.cdecl.}
+  Keyfun* = proc (a2: Window; a3: int32; a4: int32; a5: int32; a6: int32) {.cdecl.}
   Charfun* = proc (a2: Window; a3: cuint) {.cdecl.}
-  Monitorfun* = proc (a2: Monitor; a3: cint) {.cdecl.}
+  Charmodsfun* = proc (a2: Window; a3: cuint; a4: int32) {.cdecl.}
+  Dropfun* = proc (a2: Window; a3: int32; a4: cstringArray) {.cdecl.}
+  Monitorfun* = proc (a2: Monitor; a3: int32) {.cdecl.}
+  Joystickfun* = proc (a2: int32; a3: int32) {.cdecl.}
 
-type
-  VideoMode* {.pure, final.} = object
-    width*, height*, redBits*, greenBits*, blueBits*, refreshRate*: cint
+import macros
+from strutils import toUpperAscii
 
-type
-  GammaRamp* {.pure, final.} = object
-    red, green, blue*: ptr cushort
-    size*: cuint
+proc renameProcs(n: NimNode) {.compileTime.} =
+  template pragmas(n: string) = {.glfwImport, cdecl, importc: n.}
+  for s in n:
+    case s.kind
+    of nnkProcDef:
+      let oldName = $s.name[1]
+      let newName = "glfw" & (oldName[0]).toUpperAscii & oldName[1..^1]
+      s.pragma = getAst(pragmas(newName))[0]
+    else:
+      renameProcs(s)
+ 
+macro generateProcs(): typed =
+  template getProcs {.dirty.} =
+    proc init*(): int32
+    proc terminate*()
+    proc getVersion*(major: ptr int32; minor: ptr int32; rev: ptr int32)
+    proc getVersionString*(): cstring
+    proc setErrorCallback*(cbfun: Errorfun): Errorfun
+    proc getMonitors*(count: ptr int32): Monitor
+    proc getPrimaryMonitor*(): Monitor
+    proc getMonitorPos*(monitor: Monitor; xpos: ptr int32; ypos: ptr int32)
+    proc getMonitorPhysicalSize*(monitor: Monitor; widthMM: ptr int32;
+      heightMM: ptr int32)
+    proc getMonitorName*(monitor: Monitor): cstring
+    proc setMonitorCallback*(cbfun: Monitorfun): Monitorfun
+    proc getVideoModes*(monitor: Monitor; count: ptr int32): VideoMode
+    proc getVideoMode*(monitor: Monitor): VideoMode
+    proc setGamma*(monitor: Monitor; gamma: cfloat)
+    proc getGammaRamp*(monitor: Monitor): Gammaramp
+    proc setGammaRamp*(monitor: Monitor; ramp: Gammaramp)
+    proc defaultWindowHints*()
+    proc windowHint*(hint: int32; value: int32)
+    proc createWindow*(width: int32; height: int32; title: cstring;
+      monitor: Monitor; share: Window): Window
+    proc destroyWindow*(window: Window)
+    proc windowShouldClose*(window: Window): int32
+    proc setWindowShouldClose*(window: Window; value: int32)
+    proc setWindowTitle*(window: Window; title: cstring)
+    proc setWindowIcon*(window: Window; count: int32; images: Image)
+    proc getWindowPos*(window: Window; xpos: ptr int32; ypos: ptr int32)
+    proc setWindowPos*(window: Window; xpos: int32; ypos: int32)
+    proc getWindowSize*(window: Window; width: ptr int32; height: ptr int32)
+    proc setWindowSizeLimits*(window: Window; minwidth: int32; minheight: int32;
+      maxwidth: int32; maxheight: int32)
+    proc setWindowAspectRatio*(window: Window; numer: int32; denom: int32)
+    proc setWindowSize*(window: Window; width: int32; height: int32)
+    proc getFramebufferSize*(window: Window; width: ptr int32; height: ptr int32)
+    proc getWindowFrameSize*(window: Window; left: ptr int32; top: ptr int32;
+      right: ptr int32; bottom: ptr int32)
+    proc iconifyWindow*(window: Window)
+    proc restoreWindow*(window: Window)
+    proc maximizeWindow*(window: Window)
+    proc showWindow*(window: Window)
+    proc hideWindow*(window: Window)
+    proc focusWindow*(window: Window)
+    proc getWindowMonitor*(window: Window): Monitor
+    proc setWindowMonitor*(window: Window; monitor: Monitor;
+      xpos: int32; ypos: int32; width: int32; height: int32;
+      refreshRate: int32)
+    proc getWindowAttrib*(window: Window; attrib: int32): int32
+    proc setWindowUserPointer*(window: Window; pointer: pointer)
+    proc getWindowUserPointer*(window: Window): pointer
+    proc setWindowPosCallback*(window: Window; cbfun: Windowposfun): Windowposfun
+    proc setWindowSizeCallback*(window: Window; cbfun: Windowsizefun): Windowsizefun
+    proc setWindowCloseCallback*(window: Window; cbfun: Windowclosefun): Windowclosefun
+    proc setWindowRefreshCallback*(window: Window;
+      cbfun: Windowrefreshfun): Windowrefreshfun
+    proc setWindowFocusCallback*(window: Window; cbfun: Windowfocusfun): Windowfocusfun
+    proc setWindowIconifyCallback*(window: Window;
+      cbfun: Windowiconifyfun): Windowiconifyfun
+    proc setFramebufferSizeCallback*(window: Window;
+      cbfun: Framebuffersizefun): Framebuffersizefun
+    proc pollEvents*()
+    proc waitEvents*()
+    proc waitEventsTimeout*(timeout: cdouble)
+    proc postEmptyEvent*()
+    proc getInputMode*(window: Window; mode: int32): int32
+    proc setInputMode*(window: Window; mode: int32; value: int32)
+    proc getKeyName*(key: int32; scancode: int32): cstring
+    proc getKey*(window: Window; key: int32): int32
+    proc getMouseButton*(window: Window; button: int32): int32
+    proc getCursorPos*(window: Window; xpos: ptr cdouble; ypos: ptr cdouble)
+    proc setCursorPos*(window: Window; xpos: cdouble; ypos: cdouble)
+    proc createCursor*(image: Image; xhot: int32; yhot: int32): Cursor
+    proc createStandardCursor*(shape: CursorShape): Cursor
+    proc destroyCursor*(cursor: Cursor)
+    proc setCursor*(window: Window; cursor: Cursor)
+    proc setKeyCallback*(window: Window; cbfun: Keyfun): Keyfun
+    proc setCharCallback*(window: Window; cbfun: Charfun): Charfun
+    proc setCharModsCallback*(window: Window; cbfun: Charmodsfun): Charmodsfun
+    proc setMouseButtonCallback*(window: Window; cbfun: Mousebuttonfun): Mousebuttonfun
+    proc setCursorPosCallback*(window: Window; cbfun: Cursorposfun): Cursorposfun
+    proc setCursorEnterCallback*(window: Window; cbfun: Cursorenterfun): Cursorenterfun
+    proc setScrollCallback*(window: Window; cbfun: Scrollfun): Scrollfun
+    proc setDropCallback*(window: Window; cbfun: Dropfun): Dropfun
+    proc joystickPresent*(joy: int32): int32
+    proc getJoystickAxes*(joy: int32; count: ptr int32): ptr cfloat
+    proc getJoystickButtons*(joy: int32; count: ptr int32): ptr cuchar
+    proc getJoystickName*(joy: int32): cstring
+    proc setJoystickCallback*(cbfun: Joystickfun): Joystickfun
+    proc setClipboardString*(window: Window; string: cstring)
+    proc getClipboardString*(window: Window): cstring
+    proc getTime*(): cdouble
+    proc setTime*(time: cdouble)
+    proc getTimerValue*(): uint64
+    proc getTimerFrequency*(): uint64
+    proc makeContextCurrent*(window: Window)
+    proc getCurrentContext*(): Window
+    proc swapBuffers*(window: Window)
+    proc swapInterval*(interval: int32)
+    proc extensionSupported*(extension: cstring): int32
+    proc getProcAddress*(procname: cstring): OpenGlProc
+    proc vulkanSupported*(): int32
+    proc getRequiredInstanceExtensions*(count: ptr uint32): cstringArray
+    when defined(VK_VERSION_1_0):
+      proc getInstanceProcAddress*(instance: VkInstance; procname: cstring): Vkproc
+      proc getPhysicalDevicePresentationSupport*(instance: VkInstance;
+        device: VkPhysicalDevice; queuefamily: uint32): int32
+      proc createWindowSurface*(instance: VkInstance; window: Window;
+        allocator: ptr VkAllocationCallbacks;
+        surface: ptr VkSurfaceKHR): VkResult
 
-proc init*(): cint {.cdecl, importc: "glfwInit", glfwImport.}
-proc terminate*() {.cdecl, importc: "glfwTerminate", glfwImport.}
-proc getVersion*(major: ptr cint; minor: ptr cint; rev: ptr cint) {.cdecl,
-    importc: "glfwGetVersion", glfwImport.}
-proc getVersionString*(): cstring {.cdecl, importc: "glfwGetVersionString",
-                                    glfwImport.}
-proc setErrorCallback*(cbfun: Errorfun): Errorfun {.cdecl,
-    importc: "glfwSetErrorCallback", glfwImport.}
-proc getMonitors*(count: ptr cint): ptr Monitor {.cdecl,
-    importc: "glfwGetMonitors", glfwImport.}
-proc getPrimaryMonitor*(): Monitor {.cdecl,
-    importc: "glfwGetPrimaryMonitor", glfwImport.}
-proc getMonitorPos*(monitor: Monitor; xpos: ptr cint; ypos: ptr cint) {.
-    cdecl, importc: "glfwGetMonitorPos", glfwImport.}
-proc getMonitorPhysicalSize*(monitor: Monitor; width: ptr cint;
-                             height: ptr cint) {.cdecl,
-    importc: "glfwGetMonitorPhysicalSize", glfwImport.}
-proc getMonitorName*(monitor: Monitor): cstring {.cdecl,
-    importc: "glfwGetMonitorName", glfwImport.}
-proc setMonitorCallback*(cbfun: Monitorfun): Monitorfun {.cdecl,
-    importc: "glfwSetMonitorCallback", glfwImport.}
-proc getVideoModes*(monitor: Monitor; count: ptr cint): ptr VideoMode {.
-    cdecl, importc: "glfwGetVideoModes", glfwImport.}
-proc getVideoMode*(monitor: Monitor): ptr VideoMode {.cdecl,
-    importc: "glfwGetVideoMode", glfwImport.}
-proc setGamma*(monitor: Monitor; gamma: cfloat) {.cdecl,
-    importc: "glfwSetGamma", glfwImport.}
-proc getGammaRamp*(monitor: Monitor): ptr GammaRamp {.cdecl,
-    importc: "glfwGetGammaRamp", glfwImport.}
-proc setGammaRamp*(monitor: Monitor; ramp: ptr GammaRamp) {.cdecl,
-    importc: "glfwSetGammaRamp", glfwImport.}
-proc defaultWindowHints*() {.cdecl, importc: "glfwDefaultWindowHints",
-                             glfwImport.}
-proc windowHint*(target: cint; hint: cint) {.cdecl, importc: "glfwWindowHint",
-    glfwImport.}
-proc createWindow*(width: cint; height: cint; title: cstring;
-                   monitor: Monitor; share: Window): Window {.
-    cdecl, importc: "glfwCreateWindow", glfwImport.}
-proc destroyWindow*(window: Window) {.cdecl,
-    importc: "glfwDestroyWindow", glfwImport.}
-proc windowShouldClose*(window: Window): cint {.cdecl,
-    importc: "glfwWindowShouldClose", glfwImport.}
-proc setWindowShouldClose*(window: Window; value: cint) {.cdecl,
-    importc: "glfwSetWindowShouldClose", glfwImport.}
-proc setWindowTitle*(window: Window; title: cstring) {.cdecl,
-    importc: "glfwSetWindowTitle", glfwImport.}
-proc getWindowPos*(window: Window; xpos: ptr cint; ypos: ptr cint) {.
-    cdecl, importc: "glfwGetWindowPos", glfwImport.}
-proc setWindowPos*(window: Window; xpos: cint; ypos: cint) {.cdecl,
-    importc: "glfwSetWindowPos", glfwImport.}
-proc getWindowSize*(window: Window; width: ptr cint; height: ptr cint) {.
-    cdecl, importc: "glfwGetWindowSize", glfwImport.}
-proc setWindowSize*(window: Window; width: cint; height: cint) {.
-    cdecl, importc: "glfwSetWindowSize", glfwImport.}
-proc getFramebufferSize*(window: Window; width: ptr cint;
-                         height: ptr cint) {.cdecl,
-    importc: "glfwGetFramebufferSize", glfwImport.}
-proc iconifyWindow*(window: Window) {.cdecl,
-    importc: "glfwIconifyWindow", glfwImport.}
-proc restoreWindow*(window: Window) {.cdecl,
-    importc: "glfwRestoreWindow", glfwImport.}
-proc showWindow*(window: Window) {.cdecl, importc: "glfwShowWindow",
-    glfwImport.}
-proc hideWindow*(window: Window) {.cdecl, importc: "glfwHideWindow",
-    glfwImport.}
-proc getWindowMonitor*(window: Window): Monitor {.cdecl,
-    importc: "glfwGetWindowMonitor", glfwImport.}
-proc getWindowAttrib*(window: Window; attrib: cint): cint {.cdecl,
-    importc: "glfwGetWindowAttrib", glfwImport.}
-proc setWindowUserPointer*(window: Window; pointer: pointer) {.cdecl,
-    importc: "glfwSetWindowUserPointer", glfwImport.}
-proc getWindowUserPointer*(window: Window): pointer {.cdecl,
-    importc: "glfwGetWindowUserPointer", glfwImport.}
-proc setWindowPosCallback*(window: Window; cbfun: Windowposfun): Windowposfun {.
-    cdecl, importc: "glfwSetWindowPosCallback", glfwImport.}
-proc setWindowSizeCallback*(window: Window; cbfun: Windowsizefun): Windowsizefun {.
-    cdecl, importc: "glfwSetWindowSizeCallback", glfwImport.}
-proc setWindowCloseCallback*(window: Window; cbfun: Windowclosefun): Windowclosefun {.
-    cdecl, importc: "glfwSetWindowCloseCallback", glfwImport.}
-proc setWindowRefreshCallback*(window: Window;
-                               cbfun: Windowrefreshfun): Windowrefreshfun {.
-    cdecl, importc: "glfwSetWindowRefreshCallback", glfwImport.}
-proc setWindowFocusCallback*(window: Window; cbfun: Windowfocusfun): Windowfocusfun {.
-    cdecl, importc: "glfwSetWindowFocusCallback", glfwImport.}
-proc setWindowIconifyCallback*(window: Window;
-                               cbfun: Windowiconifyfun): Windowiconifyfun {.
-    cdecl, importc: "glfwSetWindowIconifyCallback", glfwImport.}
-proc setFramebufferSizeCallback*(window: Window;
-                                 cbfun: Framebuffersizefun): Framebuffersizefun {.
-    cdecl, importc: "glfwSetFramebufferSizeCallback", glfwImport.}
-proc pollEvents*() {.cdecl, importc: "glfwPollEvents", glfwImport.}
-proc waitEvents*() {.cdecl, importc: "glfwWaitEvents", glfwImport.}
-proc getInputMode*(window: Window; mode: cint): cint {.cdecl,
-    importc: "glfwGetInputMode", glfwImport.}
-proc setInputMode*(window: Window; mode: cint; value: cint) {.cdecl,
-    importc: "glfwSetInputMode", glfwImport.}
-proc getKey*(window: Window; key: cint): cint {.cdecl,
-    importc: "glfwGetKey", glfwImport.}
-proc getMouseButton*(window: Window; button: cint): cint {.cdecl,
-    importc: "glfwGetMouseButton", glfwImport.}
-proc getCursorPos*(window: Window; xpos: ptr cdouble;
-                   ypos: ptr cdouble) {.cdecl, importc: "glfwGetCursorPos",
-    glfwImport.}
-proc setCursorPos*(window: Window; xpos: cdouble; ypos: cdouble) {.
-    cdecl, importc: "glfwSetCursorPos", glfwImport.}
-proc setKeyCallback*(window: Window; cbfun: Keyfun): Keyfun {.
-    cdecl, importc: "glfwSetKeyCallback", glfwImport.}
-proc setCharCallback*(window: Window; cbfun: Charfun): Charfun {.
-    cdecl, importc: "glfwSetCharCallback", glfwImport.}
-proc setMouseButtonCallback*(window: Window; cbfun: Mousebuttonfun): Mousebuttonfun {.
-    cdecl, importc: "glfwSetMouseButtonCallback", glfwImport.}
-proc setCursorPosCallback*(window: Window; cbfun: Cursorposfun): Cursorposfun {.
-    cdecl, importc: "glfwSetCursorPosCallback", glfwImport.}
-proc setCursorEnterCallback*(window: Window; cbfun: Cursorenterfun): Cursorenterfun {.
-    cdecl, importc: "glfwSetCursorEnterCallback", glfwImport.}
-proc setScrollCallback*(window: Window; cbfun: Scrollfun): Scrollfun {.
-    cdecl, importc: "glfwSetScrollCallback", glfwImport.}
-proc joystickPresent*(joy: cint): cint {.cdecl,
-    importc: "glfwJoystickPresent", glfwImport.}
-proc getJoystickAxes*(joy: cint; count: ptr cint): ptr cfloat {.cdecl,
-    importc: "glfwGetJoystickAxes", glfwImport.}
-proc getJoystickButtons*(joy: cint; count: ptr cint): ptr cuchar {.cdecl,
-    importc: "glfwGetJoystickButtons", glfwImport.}
-proc getJoystickName*(joy: cint): cstring {.cdecl,
-    importc: "glfwGetJoystickName", glfwImport.}
-proc setClipboardString*(window: Window; string: cstring) {.cdecl,
-    importc: "glfwSetClipboardString", glfwImport.}
-proc getClipboardString*(window: Window): cstring {.cdecl,
-    importc: "glfwGetClipboardString", glfwImport.}
-proc getTime*(): cdouble {.cdecl, importc: "glfwGetTime", glfwImport.}
-proc setTime*(time: cdouble) {.cdecl, importc: "glfwSetTime", glfwImport.}
-proc makeContextCurrent*(window: Window) {.cdecl,
-    importc: "glfwMakeContextCurrent", glfwImport.}
-proc getCurrentContext*(): Window {.cdecl,
-    importc: "glfwGetCurrentContext", glfwImport.}
-proc swapBuffers*(window: Window) {.cdecl, importc: "glfwSwapBuffers",
-    glfwImport.}
-proc swapInterval*(interval: cint) {.cdecl, importc: "glfwSwapInterval",
-                                     glfwImport.}
-proc extensionSupported*(extension: cstring): cint {.cdecl,
-    importc: "glfwExtensionSupported", glfwImport.}
-proc getProcAddress*(procname: cstring): Glproc {.cdecl,
-    importc: "glfwGetProcAddress", glfwImport.}
+  result = getAst(getProcs())
+  renameProcs(result)
+
+generateProcs()

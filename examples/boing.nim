@@ -37,11 +37,11 @@
 #*****************************************************************************
 
 import math
+import random
 
 import glm
 import glad/gl
 import glfw
-import glfw/wrapper
 
 
 #*****************************************************************************
@@ -180,7 +180,7 @@ proc display() =
 #*****************************************************************************
 #* reshape()
 #*****************************************************************************
-proc reshape(win: Win, res: tuple[w, h: int]) =
+proc reshape(win: Window, res: tuple[w, h: int32]) =
    glViewport(0, 0, GLsizei(res.w), GLsizei(res.h))
 
    glMatrixMode(GL_PROJECTION)
@@ -204,8 +204,8 @@ proc reshape(win: Win, res: tuple[w, h: int]) =
    glLoadMatrixf(view.caddr)
 
 
-proc keyCb(win: Win, key: Key, scanCode: int, action: KeyAction,
-           modKeys: ModifierKeySet) =
+proc keyCb(win: Window, key: Key, scanCode: int32, action: KeyAction,
+           modKeys: set[ModifierKey]) =
 
   if key == keyEscape and action == kaUp:
     win.shouldClose = true
@@ -216,8 +216,8 @@ proc setBallPos(x, y: GLfloat) =
   ballY = y - (GLfloat(height) / 2.0)
 
 
-proc mouseBtnCb(win: Win, btn: MouseBtn, pressed: bool,
-                modKeys: ModifierKeySet) =
+proc mouseButtonCb(win: Window, btn: MouseButton, pressed: bool,
+                modKeys: set[ModifierKey]) =
 
    if btn != mbLeft:
       return
@@ -229,7 +229,7 @@ proc mouseBtnCb(win: Win, btn: MouseBtn, pressed: bool,
       overridePos = false
 
 
-proc cursorPosCb(win: Win, pos: tuple[x, y: float64]) =
+proc cursorPosCb(win: Window, pos: tuple[x, y: float64]) =
    cursorX = pos.x
    cursorY = pos.y
 
@@ -477,30 +477,28 @@ proc drawGrid() =
 proc main() =
   randomize()
 
-  glfw.init()
+  glfw.initialize()
 
-  var win = newGlWin(
-    dim = (w: 400, h: 400),
-    title = "Boing (classic Amiga demo)",
-    resizable = true,
-    version = glv20
-  )
+  var cfg = DefaultOpenglWindowConfig
+  cfg.size = (w: 400, h: 400)
+  cfg.title = "Boing (classic Amiga demo)"
+  cfg.resizable = true
+  cfg.version = glv20
+  var win = newWindow(cfg)
 
-  # glfwSetWindowAspectRatio(window, 1, 1)
+  win.setAspectRatio(1, 1)
 
-  win.framebufSizeCb = reshape
+  win.framebufferSizeCb = reshape
   win.keyCb = keyCb
-  win.mouseBtnCb = mouseBtnCb
-  win.cursorPosCb = cursorPosCb
-
-  glfw.makeContextCurrent(win)
+  win.mouseButtonCb = mouseButtonCb
+  win.cursorPositionCb = cursorPosCb
 
   if not gladLoadGL(getProcAddress):
     quit "Error initialising OpenGL"
 
   glfw.swapInterval(1)
 
-  (width, height) = framebufSize(win)
+  (width, height) = framebufferSize(win)
   win.reshape((width, height))
 
   setTime(0)
@@ -518,7 +516,7 @@ proc main() =
     display()
 
     # Swap buffers
-    glfw.swapBufs(win)
+    glfw.swapBuffers(win)
     glfw.pollEvents()
 
     # Check if we are still running

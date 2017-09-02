@@ -22,7 +22,6 @@ import math
 import glm
 import glad/gl
 import glfw
-import glfw/wrapper
 
 
 type Vertex = object
@@ -131,7 +130,7 @@ proc initGrid() =
 # Draw scene
 #========================================================================
 
-proc drawScene(win: Win) =
+proc drawScene(win: Window) =
   # Clear the color and depth buffers
   glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
 
@@ -147,7 +146,7 @@ proc drawScene(win: Win) =
 
   glDrawElements(GL_QUADS, 4 * QUADNUM, GL_UNSIGNED_INT, quad.addr)
 
-  glfw.swapBufs(win)
+  glfw.swapBuffers(win)
 
 
 #========================================================================
@@ -223,8 +222,8 @@ proc calcGrid() =
 # Handle key strokes
 #========================================================================
 
-proc keyCb(win: Win, key: Key, scanCode: int, action: KeyAction,
-           modKeys: ModifierKeySet) =
+proc keyCb(win: Window, key: Key, scanCode: int32, action: KeyAction,
+           modKeys: set[ModifierKey]) =
 
   if action != kaDown: return
 
@@ -246,8 +245,8 @@ proc keyCb(win: Win, key: Key, scanCode: int, action: KeyAction,
 # Callback function for mouse button events
 #========================================================================
 
-proc mouseBtnCb(win: Win, btn: MouseBtn, pressed: bool,
-                modKeys: ModifierKeySet) =
+proc mouseButtonCb(win: Window, btn: MouseButton, pressed: bool,
+                modKeys: set[ModifierKey]) =
 
   if btn != mbLeft:
     return
@@ -263,7 +262,7 @@ proc mouseBtnCb(win: Win, btn: MouseBtn, pressed: bool,
 # Callback function for cursor motion events
 #========================================================================
 
-proc cursorPosCb(win: Win, pos: tuple[x, y: float64]) =
+proc cursorPositionCb(win: Window, pos: tuple[x, y: float64]) =
   if win.cursorMode == cmDisabled:
     alpha += (pos.x - cursorX) / 10
     beta += (pos.y - cursorY) / 10
@@ -275,7 +274,7 @@ proc cursorPosCb(win: Win, pos: tuple[x, y: float64]) =
 # Callback function for scroll events
 #========================================================================
 
-proc scrollCb(win: Win, pos: tuple[x, y: float64]) =
+proc scrollCb(win: Window, pos: tuple[x, y: float64]) =
   zoom += pos.y / 4
   if zoom < 0:
     zoom = 0
@@ -284,7 +283,7 @@ proc scrollCb(win: Win, pos: tuple[x, y: float64]) =
 # Callback function for framebuffer resize events
 #========================================================================
 
-proc reshape(win: Win, res: tuple[w, h: int]) =
+proc reshape(win: Window, res: tuple[w, h: int32]) =
   var ratio = 1.0
   if res.h > 0:
     ratio = res.w / res.h
@@ -309,21 +308,21 @@ proc reshape(win: Win, res: tuple[w, h: int]) =
 
 proc main() =
   # Initialise GLFW
-  glfw.init()
+  glfw.initialize()
 
   # Open OpenGL window
-  var win = newGlWin(
-    dim = (w: 640, h: 480),
-    title = "Wave Simulation",
-    resizable = true,
-    version = glv20
-  )
+  var cfg = DefaultOpenglWindowConfig
+  cfg.size = (w: 640, h: 480)
+  cfg.title = "Wave Simulation"
+  cfg.resizable = true
+  cfg.version = glv20
+  var win = newWindow(cfg)
 
   # Set callback functions
   win.keyCb = keyCb
-  win.framebufSizeCb = reshape
-  win.mouseBtnCb = mouseBtnCb
-  win.cursorPosCb = cursorPosCb
+  win.framebufferSizeCb = reshape
+  win.mouseButtonCb = mouseButtonCb
+  win.cursorPositionCb = cursorPositionCb
   win.scrollCb = scrollCb
 
   glfw.makeContextCurrent(win)
@@ -334,7 +333,7 @@ proc main() =
   glfw.swapInterval(1)
 
   var width, height: int
-  (width, height) = framebufSize(win)
+  (width, height) = framebufferSize(win)
   win.reshape((width, height))
 
   # Initialize OpenGL

@@ -1,9 +1,12 @@
 import os, glfw
 
-glfw.initialize()
-var config = initDefaultOpenglWindowConfig()
-config.title = "Minimal example"
-var window = newWindow(config)
-sleep(1000)
-window.destroy()
-glfw.terminate()
+proc main =
+  glfw.initialize()
+  var c = DefaultOpenglWindowConfig
+  c.title = "Minimal Nim-GLFW example"
+  var w = newWindow(c)
+  sleep(1000)
+  w.destroy()
+  glfw.terminate()
+
+main()

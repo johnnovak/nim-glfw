@@ -35,8 +35,6 @@ import math
 import glm
 import glad/gl
 import glfw
-import glfw/wrapper
-
 
 #  Draw a gear wheel.  You'll probably want to call this function when
 #  building a display list since we do a lot of trig here.
@@ -220,8 +218,8 @@ proc animate() = angle = 100.0 * getTime()
 
 
 # change view angle, exit upon ESC
-proc keyCb(win: Win, key: Key, scanCode: int, action: KeyAction,
-           modKeys: ModifierKeySet) =
+proc keyCb(win: Window, key: Key, scanCode: int32, action: KeyAction,
+           modKeys: set[ModifierKey]) =
 
   if action != kaDown: return
 
@@ -236,7 +234,7 @@ proc keyCb(win: Win, key: Key, scanCode: int, action: KeyAction,
 
 
 # new window size
-proc reshape(win: Win, res: tuple[w, h: int]) =
+proc reshape(win: Window, res: tuple[w, h: int32]) =
   let
     h = res.h / res.w
     zNear = 5.0
@@ -289,21 +287,19 @@ proc init() =
 
 
 proc main() =
-  glfw.init()
+  glfw.initialize()
 
-  var win = newGlWin(
-    dim = (w: 300, h: 300),
-    title = "Gears",
-    resizable = true,
-    bits = (8, 8, 8, 8, 8, 16),
-    version = glv20
-  )
+  var cfg = DefaultOpenglWindowConfig
+  cfg.size = (w: 300, h: 300)
+  cfg.title = "Gears"
+  cfg.resizable = true
+  cfg.bits = (r: 8, g: 8, b: 8, a: 8, stencil: 8, depth: 16)
+  cfg.version = glv20
+  var win = newWindow(cfg)
 
   # Set callback functions
-  win.framebufSizeCb = reshape
+  win.framebufferSizeCb = reshape
   win.keyCb = keyCb
-
-  glfw.makeContextCurrent(win)
 
   if not gladLoadGL(getProcAddress):
     quit "Error initialising OpenGL"
@@ -311,7 +307,7 @@ proc main() =
   glfw.swapInterval(1)
 
   var width, height: int
-  (width, height) = framebufSize(win)
+  (width, height) = framebufferSize(win)
   win.reshape((width, height))
 
   init()
@@ -320,7 +316,7 @@ proc main() =
     draw()
     animate()
 
-    glfw.swapBufs(win)
+    glfw.swapBuffers(win)
     glfw.pollEvents()
 
   glfw.terminate()

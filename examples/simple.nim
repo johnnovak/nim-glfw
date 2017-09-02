@@ -37,7 +37,6 @@ import strutils
 import glm
 import glad/gl
 import glfw
-import glfw/wrapper
 
 type
   Vertex = object
@@ -72,8 +71,8 @@ var
   mvpLocation: GLuint
 
 
-proc keyCb(win: Win, key: Key, scanCode: int, action: KeyAction,
-           modKeys: ModifierKeySet) =
+proc keyCb(win: Window, key: Key, scanCode: int32, action: KeyAction,
+           modKeys: set[ModifierKey]) =
 
   if key == keyEscape and action == kaDown:
     win.shouldClose = true
@@ -118,18 +117,21 @@ proc init() =
                         cast[pointer](sizeof(GLfloat) * 2));
 
 
-proc draw(win: Win) =
+proc draw(win: Window) =
   let normal = vec3[GLfloat](0.0, 0.0, 1.0)
 
   var width, height: int
-  (width, height) = glfw.framebufSize(win)
+  (width, height) = glfw.framebufferSize(win)
 
   var ratio = width / height
 
   glViewport(0, 0, GLsizei(width), GLsizei(height))
   glClear(GL_COLOR_BUFFER_BIT)
 
-  var m = mat4x4[GLfloat](1.0)
+  var m = mat4x4[GLfloat](vec4(1'f32, 0'f32, 0'f32, 0'f32),
+                          vec4(0'f32, 1'f32, 0'f32, 0'f32),
+                          vec4(0'f32, 0'f32, 1'f32, 0'f32),
+                          vec4(0'f32, 0'f32, 0'f32, 1'f32))
   m = m.rotate(normal, getTime())
   var p = ortho[GLfloat](-ratio, ratio, -1.0, 1.0, 1.0, -1.0)
   var mvp = p * m
@@ -140,18 +142,16 @@ proc draw(win: Win) =
 
 
 proc main() =
-  glfw.init()
+  glfw.initialize()
 
-  var win = newGlWin(
-    dim = (w: 640, h: 480),
-    title = "Simple example",
-    resizable = true,
-    version = glv20
-  )
+  var cfg = DefaultOpenglWindowConfig
+  cfg.size = (w: 640, h: 480)
+  cfg.title = "Simple example"
+  cfg.resizable = true
+  cfg.version = glv20
+  var win = newWindow(cfg)
 
   win.keyCb = keyCb
-
-  glfw.makeContextCurrent(win)
 
   if not gladLoadGL(getProcAddress):
     quit "Error initialising OpenGL"
@@ -163,7 +163,7 @@ proc main() =
   while not win.shouldClose:
     draw(win)
 
-    glfw.swapBufs(win)
+    glfw.swapBuffers(win)
     glfw.pollEvents()
 
   glfw.terminate()
