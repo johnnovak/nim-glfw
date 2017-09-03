@@ -68,7 +68,7 @@ type
     mb6 = (5, "mouse button 6")
     mb7 = (6, "mouse button 7")
     mb8 = (7, "mouse button 8")
-  
+
 const mbLeft* = mb1
 const mbRight* = mb2
 const mbMiddle* = mb3
@@ -80,7 +80,7 @@ type
     mkAlt = (0x00000004, "alt")
     mkSuper = (0x00000008, "super")
 
-type  
+type
   Key* {.size: int32.sizeof.} = enum
     keyUnknown = (-1, "unknown")
     keySpace = (32, "space")
@@ -351,12 +351,12 @@ proc renameProcs(n: NimNode) {.compileTime.} =
   for s in n:
     case s.kind
     of nnkProcDef:
-      let oldName = $s.name[1]
+      let oldName = $s.name
       let newName = "glfw" & (oldName[0]).toUpperAscii & oldName[1..^1]
       s.pragma = getAst(pragmas(newName))[0]
     else:
       renameProcs(s)
- 
+
 macro generateProcs(): typed =
   template getProcs {.dirty.} =
     proc init*(): int32
