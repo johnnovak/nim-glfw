@@ -64,6 +64,6 @@ To link statically with GLFW, define the conditional symbol `glfwStaticLib` (`-d
   
 ## Contributors
 
-[johnnovak](http://github.com/johnnovak): Contributed with ports of the examples.
+[johnnovak](http://github.com/johnnovak): Provided ports of some of the [GLFW examples](https://github.com/glfw/glfw/tree/master/examples).
 
 [def-](http://github.com/def-): Added support for static linking.
