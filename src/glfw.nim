@@ -1,11 +1,3 @@
-when cushort isnot uint16:
-  {.fatal: "cushort != uint16: " &
-    "not binary compatible with glfw. Please report this.".}
-
-when cuint isnot uint32:
-  {.fatal: "cuint != uint32: " &
-    "not binary compatible with glfw. Please report this.".}
-
 import glfw/wrapper
 import tables
 import options

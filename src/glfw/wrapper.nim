@@ -1,3 +1,7 @@
+static:
+  assert cshort.sizeof == int16.sizeof and cint.sizeof == int32.sizeof,
+    "not binary compatible with GLFW. Please report this"
+
 when not defined(glfwStaticLib):
   when defined(windows):
     const GlfwDll = "glfw3.dll"
