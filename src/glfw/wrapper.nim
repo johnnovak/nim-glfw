@@ -12,6 +12,8 @@ when not defined(glfwStaticLib):
   {.pragma: glfwImport, dynlib: GlfwDll.}
   {.deadCodeElim: on.}
 else:
+  {.compile: "glfw/src/egl_context.c", compile: "glfw/src/vulkan.c".}
+
   when defined(arm) or defined(wayland) or defined(mir) or defined(gles):
     {.passC: "-D_GLFW_USE_GLESV2".}
   else:
@@ -21,7 +23,7 @@ else:
     {.passC: "-D_GLFW_WIN32 -D_GLFW_WGL", passL: "-lopengl32 -lgdi32",
       compile: "glfw/src/win32_init.c", compile: "glfw/src/win32_monitor.c",
       compile: "glfw/src/win32_time.c", compile: "glfw/src/win32_tls.c",
-      compile: "glfw/src/win32_window.c", compile: "glfw/src/winmm_joystick.c",
+      compile: "glfw/src/win32_window.c", compile: "glfw/src/win32_joystick.c",
       compile: "glfw/src/wgl_context.c".}
   elif defined(macosx):
     {.passC: "-D_GLFW_COCOA -D_GLFW_NSGL -D_GLFW_USE_CHDIR -D_GLFW_USE_MENUBAR -D_GLFW_USE_RETINA",
