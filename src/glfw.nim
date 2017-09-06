@@ -665,7 +665,7 @@ proc newWindow*(c = DefaultOpenglWindowConfig): Window =
   if c.makeContextCurrent:
     result.makeContextCurrent()
 
-  template get(f: untyped): bool =
+  template get(f: untyped): bool {.dirty.} =
     var win {.inject.} = gWindowTable.getOrDefault(handle)
     var cb {.inject.} = if not win.isNil: win.f else: nil
 
