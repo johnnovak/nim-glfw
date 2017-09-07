@@ -12,48 +12,43 @@ when not defined(glfwStaticLib):
   {.pragma: glfwImport, dynlib: GlfwDll.}
   {.deadCodeElim: on.}
 else:
-  {.compile: "glfw/src/egl_context.c", compile: "glfw/src/vulkan.c".}
-
-  when defined(arm) or defined(wayland) or defined(mir) or defined(gles):
-    {.passC: "-D_GLFW_USE_GLESV2".}
-  else:
-    {.passC: "-D_GLFW_USE_OPENGL".}
+  {.compile: "glfw/src/vulkan.c".}
 
   when defined(windows):
-    {.passC: "-D_GLFW_WIN32 -D_GLFW_WGL", passL: "-lopengl32 -lgdi32",
-      compile: "glfw/src/win32_init.c", compile: "glfw/src/win32_monitor.c",
-      compile: "glfw/src/win32_time.c", compile: "glfw/src/win32_tls.c",
+    {.passC: "-D_GLFW_WIN32", passL: "-lopengl32 -lgdi32",
+      compile: "glfw/src/win32_init.c",   compile: "glfw/src/win32_monitor.c",
+      compile: "glfw/src/win32_time.c",   compile: "glfw/src/win32_tls.c",
       compile: "glfw/src/win32_window.c", compile: "glfw/src/win32_joystick.c",
-      compile: "glfw/src/wgl_context.c".}
+      compile: "glfw/src/wgl_context.c",  compile: "glfw/src/egl_context.c".}
   elif defined(macosx):
-    {.passC: "-D_GLFW_COCOA -D_GLFW_NSGL -D_GLFW_USE_CHDIR -D_GLFW_USE_MENUBAR -D_GLFW_USE_RETINA",
+    {.passC: "-D_GLFW_COCOA -D_GLFW_USE_CHDIR -D_GLFW_USE_MENUBAR -D_GLFW_USE_RETINA",
       passL: "-framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo",
-      compile: "glfw/src/mach_time.c", compile: "glfw/src/posix_tls.c",
-      compile: "glfw/src/cocoa_init.m", compile: "glfw/src/cocoa_monitor.m",
-      compile: "glfw/src/cocoa_window.m", compile: "glfw/src/iokit_joystick.m",
+      compile: "glfw/src/cocoa_init.m",   compile: "glfw/src/cocoa_monitor.m",
+      compile: "glfw/src/cocoa_time.c",   compile: "glfw/src/posix_tls.c",
+      compile: "glfw/src/cocoa_window.m", compile: "glfw/src/cocoa_joystick.m",
       compile: "glfw/src/nsgl_context.m".}
   else:
-    {.passC: "-D_GLFW_HAS_DLOPEN",
-      passL: "-pthread -lGL -lX11 -lXrandr -lXxf86vm -lXi -lXcursor -lm -lXinerama".}
+    {.passL: "-pthread -lGL -lX11 -lXrandr -lXxf86vm -lXi -lXcursor -lm -lXinerama".}
 
     when defined(wayland):
-      {.passC: "-D_GLFW_WAYLAND -D_GLFW_EGL",
-        compile: "glfw/src/egl_context.c", compile: "glfw/src/wl_init.c",
-        compile: "glfw/src/wl_monitor.c", compile: "glfw/src/wl_window.c".}
+      {.passC: "-D_GLFW_WAYLAND",
+        compile: "glfw/src/wl_init.c",   compile: "glfw/src/wl_monitor.c",
+        compile: "glfw/src/wl_window.c", compile: "glfw/src/egl_context.c".}
     elif defined(mir):
-      {.passC: "-D_GLFW_MIR -D_GLFW_EGL",
-        compile: "glfw/src/egl_context.c", compile: "glfw/src/mir_init.c",
-        compile: "glfw/src/mir_monitor.c", compile: "glfw/src/mir_window.c".}
+      {.passC: "-D_GLFW_MIR",
+        compile: "glfw/src/mir_init.c",   compile: "glfw/src/mir_monitor.c",
+        compile: "glfw/src/mir_window.c", compile: "glfw/src/egl_context.c".}
     else:
-      {.passC: "-D_GLFW_X11 -D_GLFW_GLX -D_GLFW_HAS_GLXGETPROCADDRESSARB",
-        compile: "glfw/src/glx_context.c", compile: "glfw/src/x11_init.c",
-        compile: "glfw/src/x11_monitor.c", compile: "glfw/src/x11_window.c".}
+      {.passC: "-D_GLFW_X11",
+        compile: "glfw/src/x11_init.c",   compile: "glfw/src/x11_monitor.c",
+        compile: "glfw/src/x11_window.c", compile: "glfw/src/glx_context.c",
+        compile: "glfw/src/egl_context.c".}
 
     {.compile: "glfw/src/xkb_unicode.c", compile: "glfw/src/linux_joystick.c",
-      compile: "glfw/src/posix_time.c", compile: "glfw/src/posix_tls.c".}
+      compile: "glfw/src/posix_time.c",  compile: "glfw/src/posix_tls.c".}
 
   {.compile: "glfw/src/context.c", compile: "glfw/src/init.c",
-    compile: "glfw/src/input.c", compile: "glfw/src/monitor.c",
+    compile: "glfw/src/input.c",   compile: "glfw/src/monitor.c",
     compile: "glfw/src/window.c".}
 
   {.pragma: glfwImport.}
