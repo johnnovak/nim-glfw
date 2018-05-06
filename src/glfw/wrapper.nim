@@ -348,7 +348,7 @@ proc renameProcs(n: NimNode) {.compileTime.} =
     of nnkProcDef:
       let oldName = $s.name
       let newName = "glfw" & (oldName[0]).toUpperAscii & oldName[1..^1]
-      s.pragma = getAst(pragmas(newName))[0]
+      s.pragma = getAst(pragmas(newName))
     else:
       renameProcs(s)
 
