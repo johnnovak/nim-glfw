@@ -102,11 +102,11 @@ proc len*(p: PathDropInfo): cint =
   p.len
 
 iterator items*(p: PathDropInfo): cstring =
-  for i in 0 .. <p.len:
+  for i in 0 .. p.len - 1:
     yield p.paths[i]
 
 iterator pairs*(p: PathDropInfo): (int32, cstring) =
-  for i in 0 .. <p.len:
+  for i in 0 .. p.len - 1:
     yield (i, p.paths[i])
 
 converter toHandle(m: Monitor): MonitorHandle = m.handle
@@ -229,7 +229,7 @@ iterator monitors*: Monitor =
   fail(iff = count <= 0)
   var handles = cast[ptr array[10_000, MonitorHandle]](handlesPtr)
 
-  for i in 0 .. <count:
+  for i in 0 .. count - 1:
     yield newMonitor(handles[i])
 
 proc getPrimaryMonitor*: Monitor =
@@ -260,7 +260,7 @@ iterator videoModes*(m: Monitor): VideoMode =
   fail(iff = n <= 0)
 
   var modes = cast[ptr array[10_000, wrapper.VideoMode]](modesPtr)
-  for i in 0 .. <n:
+  for i in 0 .. n - 1:
     yield cast[VideoMode](modes[i])
 
 proc videoMode*(m: Monitor): VideoMode =
@@ -428,7 +428,7 @@ iterator joystickAxes*(joy: int32): float32 =
   fail(iff = count <= 0)
   var axes = cast[ptr array[10_000, float32]](axesPtr)
 
-  for i in 0 .. <count:
+  for i in 0 .. count - 1:
     yield axes[i]
 
 iterator getJoystickButtons*(joy: int32): cstring =
@@ -437,7 +437,7 @@ iterator getJoystickButtons*(joy: int32): cstring =
   fail(iff = count <= 0)
   var buttons = cast[ptr array[10_000, cstring]](buttonPtr)
 
-  for i in 0 .. <count:
+  for i in 0 .. count - 1:
     yield buttons[i]
 
 proc joystickName*(joy: int32): cstring =
