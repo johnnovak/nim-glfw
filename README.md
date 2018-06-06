@@ -2,7 +2,7 @@
 
 A GLFW 3.x interface for Nim.
 
-## examples
+## Examples
 
 Compile and run any of the examples by invoking the `nim` compiler like this from the `examples` directory:
 ~~~
@@ -39,6 +39,9 @@ nim doc2 src/glfw/wrapper.nim
 To link statically with GLFW, define the conditional symbol `glfwStaticLib` (`-d:glfwStaticLib` or `--define:glfwStaticLib`)
 
 ## Version history
+
+* 0.3
+  * new and improved API
 
 * 0.2.1
   * fix import errors
