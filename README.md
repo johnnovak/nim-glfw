@@ -19,7 +19,7 @@ All the examples except `minimal.nim` and `events.nim` depend on
 You can install `nim-glm` with the following command:
 
 ```
-nimble install nim-glm
+nimble install glm
 ```
 
 Compile and run any of the examples by invoking the `nim` compiler like this from the `examples` directory:
