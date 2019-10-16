@@ -2,6 +2,8 @@ from strutils import formatFloat, ffDecimal, `%`
 from unicode import toUtf8
 import glfw
 
+{.experimental: "notnil".}
+
 var done = false
 
 proc formatFloat(f: float): string =
