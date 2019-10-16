@@ -101,8 +101,8 @@ const
   GL_NONE_OES* = 0
   GL_NO_ERROR* = 0
   GL_ONE* = 1
-  GL_TIMEOUT_IGNORED*: uint64 = uint64(0xFFFFFFFFFFFFFFFF)
-  GL_TIMEOUT_IGNORED_APPLE*: uint64 = uint64(0xFFFFFFFFFFFFFFFF)
+  GL_TIMEOUT_IGNORED*: uint64 = uint64(0xFFFFFFFFFFFFFFFF'u64)
+  GL_TIMEOUT_IGNORED_APPLE*: uint64 = uint64(0xFFFFFFFFFFFFFFFF'u64)
   GL_TRUE* = 1
   GL_VERSION_ES_CL_1_0* = 1
   GL_VERSION_ES_CL_1_1* = 1
@@ -2964,12 +2964,12 @@ var
 
 
 proc hasExt(extname: string): bool =
-  if extname == nil:
+  if extname == "":
     return false
 
   if glVersionMajor < 3:
     var extensions = $cast[cstring](glGetString(GL_EXTENSIONS))
-    if extensions == nil:
+    if extensions == "":
       return false
 
     var
