@@ -3,10 +3,6 @@ import tables
 import options
 from unicode import Rune
 
-discard setWindowUserPointer
-discard getWindowUserPointer
-discard defaultWindowHints
-
 export options
 export unicode.Rune
 export wrapper.pollEvents
