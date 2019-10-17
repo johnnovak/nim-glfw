@@ -232,6 +232,29 @@ type
     kaUp = (0, "up")
     kaDown = (1, "down")
     kaRepeat = (2, "repeat")
+  GamepadButton* {.size: int32.sizeof.} = enum
+    buttonA = 0
+    buttonB = 1
+    buttonX = 2
+    buttonY = 3
+    buttonLeftBumpber = 4
+    buttonRightBumper = 5
+    buttonBack = 6
+    buttonStart = 7
+    buttonGuide = 8
+    buttonLeftThumb = 9
+    buttonRightThumb = 10
+    buttonDpadUp = 11
+    buttonDpadRight = 12
+    buttonDpadDown = 13
+    buttonDpadLeft = 14
+
+const buttonLast* = buttonDpadLeft
+
+type
+  GamepadState* = object
+    buttons: array[15, cuchar]
+    axes: array[6, float]
 
 const
   Iconified* = 0x00020002
@@ -245,6 +268,10 @@ type
     hAutoIconify = 0x00020006
     hFloating = 0x00020007
     hMaximized = 0x00020008
+    hCenterCursor = 0x00020009
+    hTransparentFramebuffer = 0x0002000A
+    hHovered = 0x0002000B
+    hFocusOnShow = 0x0002000C
     hRedBits = 0x00021001
     hGreenBits = 0x00021002
     hBlueBits = 0x00021003
@@ -272,6 +299,17 @@ type
     hContextReleaseBehavior = 0x00022009
     hContextNoError = 0x0002200A
     hContextCreationApi = 0x0002200B
+    hScaleToMonitor = 0x0002200C
+    hCocoaRetinaFrameBuffer = 0x00023001
+    hCocoaFrameName = 0x00023002
+    hCocoaGraphicsSwitching = 0x00023003
+    hX11ClassName = 0x00024001
+    hX11InstanceName = 0x00024002
+  InitHint* {.size: int32.sizeof.} = enum
+    ihJoystickHatButtons = 0x00050001
+    ihCocoaCHDir = 0x00051001
+    ihCocoaMenuBar = 0x00051002
+
   ContextReleaseBehavior* {.size: int32.sizeof.} = enum
     crbAnyReleaseBehavior = 0
     crbReleaseBehaviorFlush = 0x00035001
@@ -283,6 +321,7 @@ type
   ContextCreationApi* {.size: int32.sizeof.} = enum
     ccaNativeContextApi = 0x00036001
     ccaEglContextApi = 0x00036002
+    ccaOSMesaContextApi = 0x00036003
   ContextRobustness* {.size: int32.sizeof.} = enum
     crNoRobustness = 0
     crNoResetNotification = 0x00031001
@@ -309,9 +348,11 @@ type
     cmDisabled = 0x00034003
 
 const
-  CursorModeConst* = 0x00033001i32 # XXX
-  StickyKeys* = 0x00033002i32
-  StickyMouseButtons* = 0x00033003i32
+  CursorModeConst* = 0x00033001'i32 # XXX
+  StickyKeys* = 0x00033002'i32
+  StickyMouseButtons* = 0x00033003'i32
+  LockKeyMods* = 0x00033004'i32
+  RawMouseMotion* = 0x00033005'i32
   DontCare* = - 1
 
 type
@@ -355,8 +396,10 @@ type
   Windowclosefun* = proc (a2: Window) {.cdecl.}
   Windowrefreshfun* = proc (a2: Window) {.cdecl.}
   Windowfocusfun* = proc (a2: Window; a3: int32) {.cdecl.}
+  Windowmaximizefun* = proc(a2: Window, a3: int32) {.cdecl.}
   Windowiconifyfun* = proc (a2: Window; a3: int32) {.cdecl.}
   Framebuffersizefun* = proc (a2: Window; a3: int32; a4: int32) {.cdecl.}
+  Windowcontentscalefun* = proc(a2: Window, a3, a4: float)
   Mousebuttonfun* = proc (a2: Window; a3: int32; a4: int32; a5: int32) {.cdecl.}
   Cursorposfun* = proc (a2: Window; a3: cdouble; a4: cdouble) {.cdecl.}
   Cursorenterfun* = proc (a2: Window; a3: int32) {.cdecl.}
@@ -386,15 +429,21 @@ macro generateProcs() =
   template getProcs {.dirty.} =
     proc init*(): int32
     proc terminate*()
+    proc initHint*(hint, value: int32)
     proc getVersion*(major: ptr int32; minor: ptr int32; rev: ptr int32)
     proc getVersionString*(): cstring
+    proc getError*(description: cstringArray): int32
     proc setErrorCallback*(cbfun: Errorfun): Errorfun
     proc getMonitors*(count: ptr int32): Monitor
     proc getPrimaryMonitor*(): Monitor
     proc getMonitorPos*(monitor: Monitor; xpos: ptr int32; ypos: ptr int32)
+    proc getMonitorWorkarea*(monitor: Monitor, xpos, ypos, width, height: ptr int32)
     proc getMonitorPhysicalSize*(monitor: Monitor; widthMM: ptr int32;
       heightMM: ptr int32)
+    proc getMonitorContentScale*()
     proc getMonitorName*(monitor: Monitor): cstring
+    proc setMonitorUserPointer*(monitor: Monitor, pointerr: pointer)
+    proc getMonitorUserPointer*(monitor: Monitor): pointer
     proc setMonitorCallback*(cbfun: Monitorfun): Monitorfun
     proc getVideoModes*(monitor: Monitor; count: ptr int32): VideoMode
     proc getVideoMode*(monitor: Monitor): VideoMode
@@ -403,6 +452,7 @@ macro generateProcs() =
     proc setGammaRamp*(monitor: Monitor; ramp: Gammaramp)
     proc defaultWindowHints*()
     proc windowHint*(hint: int32; value: int32)
+    proc windowHintString*(hint: int32, value: cstring)
     proc createWindow*(width: int32; height: int32; title: cstring;
       monitor: Monitor; share: Window): Window
     proc destroyWindow*(window: Window)
@@ -420,17 +470,22 @@ macro generateProcs() =
     proc getFramebufferSize*(window: Window; width: ptr int32; height: ptr int32)
     proc getWindowFrameSize*(window: Window; left: ptr int32; top: ptr int32;
       right: ptr int32; bottom: ptr int32)
+    proc getWindowContentScale*(window: Window, xscale, yscale: ptr float)
+    proc getWindowOpacity*(window: Window): float
+    proc setWindowOpacity*(window: Window, opacity: float)
     proc iconifyWindow*(window: Window)
     proc restoreWindow*(window: Window)
     proc maximizeWindow*(window: Window)
     proc showWindow*(window: Window)
     proc hideWindow*(window: Window)
     proc focusWindow*(window: Window)
+    proc requestWindowAttention*(window: Window)
     proc getWindowMonitor*(window: Window): Monitor
     proc setWindowMonitor*(window: Window; monitor: Monitor;
       xpos: int32; ypos: int32; width: int32; height: int32;
       refreshRate: int32)
     proc getWindowAttrib*(window: Window; attrib: int32): int32
+    proc setWindowAttrib*(window: Window, attrib, value: int32)
     proc setWindowUserPointer*(window: Window; pointer: pointer)
     proc getWindowUserPointer*(window: Window): pointer
     proc setWindowPosCallback*(window: Window; cbfun: Windowposfun): Windowposfun
@@ -443,13 +498,16 @@ macro generateProcs() =
       cbfun: Windowiconifyfun): Windowiconifyfun
     proc setFramebufferSizeCallback*(window: Window;
       cbfun: Framebuffersizefun): Framebuffersizefun
+    proc setWindowContentScaleCallback*(window: Window, cbfun: Windowcontentscalefun): Windowcontentscalefun
     proc pollEvents*()
     proc waitEvents*()
     proc waitEventsTimeout*(timeout: cdouble)
     proc postEmptyEvent*()
     proc getInputMode*(window: Window; mode: int32): int32
     proc setInputMode*(window: Window; mode: int32; value: int32)
+    proc rawMouseMotionSupported*(): int32
     proc getKeyName*(key: int32; scancode: int32): cstring
+    proc getKeyScancode*(key: int32): int32
     proc getKey*(window: Window; key: int32): int32
     proc getMouseButton*(window: Window; button: int32): int32
     proc getCursorPos*(window: Window; xpos: ptr cdouble; ypos: ptr cdouble)
@@ -469,8 +527,16 @@ macro generateProcs() =
     proc joystickPresent*(joy: int32): int32
     proc getJoystickAxes*(joy: int32; count: ptr int32): ptr cfloat
     proc getJoystickButtons*(joy: int32; count: ptr int32): ptr cuchar
+    proc getJoystickHats*(jid: int32, count: ptr int32)
     proc getJoystickName*(joy: int32): cstring
+    proc getJoystickGUID*(jid: int32): cstring
+    proc setJoystickUserPointer*(jid: int, pointerr: pointer)
+    proc getJoystickUserPointer*(jid: int32): pointer
+    proc joystickIsGamepad*(jid: int32): int32
     proc setJoystickCallback*(cbfun: Joystickfun): Joystickfun
+    proc updateGamepadMappings*(str: cstring): int32
+    proc getGamepadName*(jid: int32): cstring
+    proc getGamepadState*(jid: int32, state: ptr GamepadState): int32
     proc setClipboardString*(window: Window; string: cstring)
     proc getClipboardString*(window: Window): cstring
     proc getTime*(): cdouble
