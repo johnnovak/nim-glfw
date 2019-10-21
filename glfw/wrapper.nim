@@ -233,23 +233,56 @@ type
     kaDown = (1, "down")
     kaRepeat = (2, "repeat")
   GamepadButton* {.size: int32.sizeof.} = enum
-    buttonA = 0
-    buttonB = 1
-    buttonX = 2
-    buttonY = 3
-    buttonLeftBumpber = 4
-    buttonRightBumper = 5
-    buttonBack = 6
-    buttonStart = 7
-    buttonGuide = 8
-    buttonLeftThumb = 9
-    buttonRightThumb = 10
-    buttonDpadUp = 11
-    buttonDpadRight = 12
-    buttonDpadDown = 13
-    buttonDpadLeft = 14
+    gpbA = 0
+    gpbB = 1
+    gpbX = 2
+    gpbY = 3
+    gpbLeftBumpber = 4
+    gpbRightBumper = 5
+    gpbBack = 6
+    gpbStart = 7
+    gpbGuide = 8
+    gpbLeftThumb = 9
+    gpbRightThumb = 10
+    gpbDpadUp = 11
+    gpbDpadRight = 12
+    gpbDpadDown = 13
+    gpbDpadLeft = 14
 
-const buttonLast* = buttonDpadLeft
+  Joystick* {.size: int32.sizeof} = enum
+    joystick1 = 0
+    joystick2 = 1
+    joystick3 = 2
+    joystick4 = 3
+    joystick5 = 4
+    joystick6 = 5
+    joystick7 = 6
+    joystick8 = 7
+    joystick9 = 8
+    joystick10 = 9
+    joystick11 = 10
+    joystick12 = 11
+    joystick13 = 12
+    joystick14 = 13
+    joystick15 = 14
+    joystick16 = 15
+  JoystickHat* {.size: int32.sizeof} = enum
+    # jhEnum or jhEnum = bitwise or between the values
+    # FIXME: Find more idiomatic way to do or in enum
+    jhCentered = 0
+    jhUp = 1
+    jhRight = 2
+    jhRightUp = 3 # jhRight or jhUp
+    jhDown = 4
+    jhRightDown = 6 # jhRight or jhDown
+    jhLeft = 8
+    jhLeftUp = 9 # jhLeft or jhUp
+    jhLeftDown = 12 # jhLeft or jhDown
+
+const 
+  buttonLast* = gpbDpadLeft
+  joystickLast* = joystick16
+
 
 type
   GamepadState* = object
@@ -527,7 +560,7 @@ macro generateProcs() =
     proc joystickPresent*(joy: int32): int32
     proc getJoystickAxes*(joy: int32; count: ptr int32): ptr cfloat
     proc getJoystickButtons*(joy: int32; count: ptr int32): ptr cuchar
-    proc getJoystickHats*(jid: int32, count: ptr int32)
+    proc getJoystickHats*(jid: int32, count: ptr int32): ptr cuchar
     proc getJoystickName*(joy: int32): cstring
     proc getJoystickGUID*(jid: int32): cstring
     proc setJoystickUserPointer*(jid: int, pointerr: pointer)

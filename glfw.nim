@@ -71,8 +71,10 @@ type
   WindowCloseCb* = proc(window: Window) {.closure.}
   WindowRefreshCb* = proc(window: Window) {.closure.}
   WindowFocusCb* = proc(window: Window, focus: bool) {.closure.}
+  WindowMaximizeCb* = proc(window: Window, iconified: bool)
   WindowIconifyCb* = proc(window: Window, iconified: bool) {.closure.}
   FramebufferSizeCb* = proc(window: Window, res: tuple[w, h: int32]) {.closure.}
+  WindowContentScaleCb* = proc(window: Window, width, height: float)
   MouseButtonCb* = proc(window: Window, button: MouseButton, pressed: bool,
     modKeys: set[ModifierKey]) {.closure.}
   CursorPositionCb* = proc(window: Window, pos: tuple[x, y: float64]) {.closure.}
@@ -373,6 +375,8 @@ defWindowAttrib(visible, hVisible, bool)
 defWindowAttrib(focused, hFocused, bool)
 defWindowAttrib(iconified, Iconified, bool)
 defWindowAttrib(maximized, hMaximized, bool)
+defWindowAttrib(hovered, hHovered, bool)
+defWindowAttrib(focusOnShow, hFocusOnShow, bool)
 defWindowAttrib(resizable, hResizable, bool)
 defWindowAttrib(decorated, hDecorated, bool)
 defWindowAttrib(floating, hFloating, bool)
@@ -396,6 +400,8 @@ template defInputMode(name: untyped, id: int32, T: typedesc) =
 defInputMode(stickyKeys, wrapper.StickyKeys, bool)
 defInputMode(stickyMouseButtons, wrapper.StickyMouseButtons, bool)
 defInputMode(cursorMode, wrapper.CursorModeConst, wrapper.CursorMode)
+defInputMode(lockKeyMods, wrapper.LockKeyMods, bool)
+defInputMode(rawMouseMotion, wrapper.RawMouseMotion, bool)
 
 proc monitor*(w: Window): Monitor =
   newMonitor(wrapper.getWindowMonitor(w))
@@ -435,6 +441,15 @@ iterator getJoystickButtons*(joy: int32): cstring =
 
   for i in 0 .. count - 1:
     yield buttons[i]
+
+iterator joystickHats*(jid: int32): cstring =
+  var count: int32
+  var hatPtr = wrapper.getJoystickHats(jid, count.addr)
+  fail(iff = count <= 0)
+  var hats = cast[ptr array[10_000, cstring]](hatPtr)
+
+  for i in 0 .. count - 1:
+    yield hats[i]
 
 proc joystickName*(joy: int32): cstring =
   wrapper.getJoystickName(joy)
