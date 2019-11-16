@@ -32,8 +32,6 @@
 #
 #========================================================================
 
-import strutils
-
 import glm
 import glad/gl
 import glfw
@@ -132,7 +130,7 @@ proc draw(win: Window) =
                           vec4(0'f32, 1'f32, 0'f32, 0'f32),
                           vec4(0'f32, 0'f32, 1'f32, 0'f32),
                           vec4(0'f32, 0'f32, 0'f32, 1'f32))
-  m = m.rotate(normal, getTime())
+  m = m.rotate(getTime(), normal)
   var p = ortho[GLfloat](-ratio, ratio, -1.0, 1.0, 1.0, -1.0)
   var mvp = p * m
 
