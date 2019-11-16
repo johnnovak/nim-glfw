@@ -91,7 +91,6 @@ type
 
 # Global vars
 var
-  windowedXPos, windowedYPos, windowedWidth, windowedHeight: int
   width, height: int
 
   degRotY     = 0.0
@@ -301,19 +300,19 @@ proc bounceBall(deltaT: float64) =
 
   # Bounce on walls
   if ballX > BOUNCE_WIDTH / 2 + WALL_R_OFFSET:
-     ballXInc = -0.5 - 0.75 * random(1.0)
+     ballXInc = -0.5 - 0.75 * rand(1.0)
      degRotYInc = -degRotYInc
 
   if ballX < -(BOUNCE_HEIGHT / 2 + WALL_L_OFFSET):
-     ballXInc =  0.5 + 0.75 * random(1.0)
+     ballXInc =  0.5 + 0.75 * rand(1.0)
      degRotYInc = -degRotYInc
 
   # Bounce on floor / roof
   if ballY > BOUNCE_HEIGHT / 2:
-     ballYInc = -0.75 - 1.0 * random(1.0)
+     ballYInc = -0.75 - 1.0 * rand(1.0)
 
   if ballY < -BOUNCE_HEIGHT / 2 * 0.85:
-     ballYInc = 0.75 + 1.0 * random(1.0)
+     ballYInc = 0.75 + 1.0 * rand(1.0)
 
   # Update ball position
   ballX += ballXInc * deltaT * ANIMATION_SPEED
