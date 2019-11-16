@@ -228,59 +228,62 @@ type
     keyRightAlt = (346, "right alt")
     keyRightSuper = (347, "right super")
     keyMenu = (348, "menu")
+
   KeyAction* {.size: int32.sizeof.} = enum
     kaUp = (0, "up")
     kaDown = (1, "down")
     kaRepeat = (2, "repeat")
+
   GamepadButton* {.size: int32.sizeof.} = enum
-    gpbA = 0
-    gpbB = 1
-    gpbX = 2
-    gpbY = 3
-    gpbLeftBumpber = 4
-    gpbRightBumper = 5
-    gpbBack = 6
-    gpbStart = 7
-    gpbGuide = 8
-    gpbLeftThumb = 9
-    gpbRightThumb = 10
-    gpbDpadUp = 11
-    gpbDpadRight = 12
-    gpbDpadDown = 13
-    gpbDpadLeft = 14
+    gbA           = (0, "A")
+    gbB           = (1, "B")
+    gbX           = (2, "X")
+    gbY           = (3, "Y")
+    gbLeftBumper  = (4, "left bumper")
+    gbRightBumper = (5, "right bumper")
+    gbBack        = (6, "back")
+    gbStart       = (7, "start")
+    gbGuide       = (8, "guide")
+    gbLeftThumb   = (9, "left thumb")
+    gbRightThumb  = (10, "right thumb")
+    gbDpadUp      = (11, "dpad up")
+    gbDpadRight   = (12, "dpad right")
+    gbDpadDown    = (13, "dpad down")
+    gbDpadLeft    = (14, "dpad left")
 
   Joystick* {.size: int32.sizeof} = enum
-    joystick1 = 0
-    joystick2 = 1
-    joystick3 = 2
-    joystick4 = 3
-    joystick5 = 4
-    joystick6 = 5
-    joystick7 = 6
-    joystick8 = 7
-    joystick9 = 8
-    joystick10 = 9
-    joystick11 = 10
-    joystick12 = 11
-    joystick13 = 12
-    joystick14 = 13
-    joystick15 = 14
-    joystick16 = 15
+    joystick1 = (0, "joystick 0")
+    joystick2 = (1, "joystick 1")
+    joystick3 = (2, "joystick 2")
+    joystick4 = (3, "joystick 3")
+    joystick5 = (4, "joystick 4")
+    joystick6 = (5, "joystick 5")
+    joystick7 = (6, "joystick 6")
+    joystick8 = (7, "joystick 6")
+    joystick9 = (8, "joystick 7")
+    joystick10 = (9, "joystick 9")
+    joystick11 = (10, "joystick 10")
+    joystick12 = (11, "joystick 11")
+    joystick13 = (12, "joystick 12")
+    joystick14 = (13, "joystick 13")
+    joystick15 = (14, "joystick 14")
+    joystick16 = (15, "joystick 15")
+
   JoystickHat* {.size: int32.sizeof} = enum
     # jhEnum or jhEnum = bitwise or between the values
     # FIXME: Find more idiomatic way to do or in enum
-    jhCentered = 0
-    jhUp = 1
-    jhRight = 2
-    jhRightUp = 3 # jhRight or jhUp
-    jhDown = 4
-    jhRightDown = 6 # jhRight or jhDown
-    jhLeft = 8
-    jhLeftUp = 9 # jhLeft or jhUp
-    jhLeftDown = 12 # jhLeft or jhDown
+    jhCentered  = (0, "centered")
+    jhUp        = (1, "up")
+    jhRight     = (2, "right")
+    jhRightUp   = (3, "right up")    # jhRight or jhUp
+    jhDown      = (4, "down")
+    jhRightDown = (6, "right down")  # jhRight or jhDown
+    jhLeft      = (8, "left")
+    jhLeftUp    = (9, "left up")     # jhLeft or jhUp
+    jhLeftDown  = (12, "left down")  # jhLeft or jhDown
 
 const 
-  buttonLast* = gpbDpadLeft
+  buttonLast* = gbDpadLeft
   joystickLast* = joystick16
 
 
