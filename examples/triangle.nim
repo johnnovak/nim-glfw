@@ -8,8 +8,8 @@
 #------------------------------------------------------------------------
 
 #========================================================================
-# Simple GLFW example
-# Copyright (c) Camilla Berglund <elmindreda@elmindreda.org>
+# OpenGL triangle example
+# Copyright (c) Camilla Löwy <elmindreda@glfw.org>
 #
 # This software is provided 'as-is', without any express or implied
 # warranty. In no event will the authors be held liable for any damages
@@ -46,27 +46,35 @@ var vertices: array[0..2, Vertex] =
     Vertex(x:  0.6, y: -0.4, r: 0.0, g: 1.0, b: 0.0),
     Vertex(x:  0.0, y:  0.6, r: 0.0, g: 0.0, b: 1.0) ]
 
-let vertexShaderText = """uniform mat4 MVP;
-attribute vec3 vCol;
-attribute vec2 vPos;
-varying vec3 color;
+let vertexShaderText = """
+#version 330
+uniform mat4 MVP;
+in vec3 vCol;
+in vec2 vPos;
+out vec3 color;
+
 void main()
 {
-    gl_Position = MVP * vec4(vPos, 0.0, 1.0);
-    color = vCol;
+  gl_Position = MVP * vec4(vPos, 0.0, 1.0);
+  color = vCol;
 }
 """
 
-let fragmentShaderText = """varying vec3 color;
+let fragmentShaderText = """
+#version 330
+in vec3 color;
+out vec4 fragment;
+
 void main()
 {
-    gl_FragColor = vec4(color, 1.0);
+  fragment = vec4(color, 1.0);
 }
 """
 
 var
   program: GLuint
   mvpLocation: GLuint
+  vertexArray: GLuint
 
 
 proc keyCb(win: Window, key: Key, scanCode: int32, action: KeyAction,
@@ -105,6 +113,8 @@ proc init() =
   var vposLocation = cast[GLuint](glGetAttribLocation(program, "vPos"))
   var vcolLocation = cast[GLuint](glGetAttribLocation(program, "vCol"))
 
+  glGenVertexArrays(1, vertexArray.addr);
+  glBindVertexArray(vertexArray);
   glEnableVertexAttribArray(vposLocation);
   glVertexAttribPointer(vposLocation, 2, cGL_FLOAT, false,
                         GLsizei(sizeof(Vertex)), cast[pointer](0))
@@ -136,6 +146,7 @@ proc draw(win: Window) =
 
   glUseProgram(program)
   glUniformMatrix4fv(GLint(mvpLocation), 1, false, mvp.caddr);
+  glBindVertexArray(vertexArray)
   glDrawArrays(GL_TRIANGLES, 0, 3)
 
 
@@ -146,7 +157,10 @@ proc main() =
   cfg.size = (w: 640, h: 480)
   cfg.title = "Simple example"
   cfg.resizable = true
-  cfg.version = glv20
+  cfg.version = glv33
+  cfg.forwardCompat = true
+  cfg.profile = opCoreProfile
+
   var win = newWindow(cfg)
 
   win.keyCb = keyCb
