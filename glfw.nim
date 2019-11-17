@@ -406,8 +406,11 @@ defInputMode(rawMouseMotion, wrapper.RawMouseMotion, bool)
 proc monitor*(w: Window): Monitor =
   newMonitor(wrapper.getWindowMonitor(w))
 
-proc `monitor=`*(w: Window, monitor: Monitor; xpos, ypos, width, height, refreshRate: int32) =
-  wrapper.setWindowMonitor(w, monitor, xpos, ypos, width, height, refreshRate)
+proc `monitor=`*(w: Window, args: tuple[monitor: Monitor;
+                                        xpos, ypos, width, height: int32;
+                                        refreshRate: int32]) =
+  wrapper.setWindowMonitor(w, args.monitor, args.xpos, args.ypos,
+                           args.width, args.height, args.refreshRate)
 
 proc isKeyDown*(w: Window, key: Key): bool =
   wrapper.getKey(w, key.int32).KeyAction == kaDown

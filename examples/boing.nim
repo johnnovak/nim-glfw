@@ -91,6 +91,7 @@ type
 
 # Global vars
 var
+  windowedXPos, windowedYPos, windowedWidth, windowedHeight: int32
   width, height: int
 
   degRotY     = 0.0
@@ -103,7 +104,6 @@ var
   ballXInc    = 1.0
   ballYInc    = 2.0
   drawBallHow: DrawBallEnum
-  colorToggle = false
   t, dt: float64
   tOld = 0.0
 
@@ -133,18 +133,18 @@ proc cosDeg(deg: float64): float64 = cos(degToRad(deg))
 # c = a x b
 #*****************************************************************************
 proc crossProduct(a, b, c: Vertex, n: var Vertex) =
-   var
-     u1 = b.x - a.x
-     u2 = b.y - a.y
-     u3 = b.y - a.z
+  let
+    u1 = b.x - a.x
+    u2 = b.y - a.y
+    u3 = b.y - a.z
 
-     v1 = c.x - a.x
-     v2 = c.y - a.y
-     v3 = c.z - a.z
+    v1 = c.x - a.x
+    v2 = c.y - a.y
+    v3 = c.z - a.z
 
-   n.x = u2 * v3 - v2 * v3
-   n.y = u3 * v1 - v3 * u1
-   n.z = u1 * v2 - v1 * u2
+  n.x = u2 * v3 - v2 * v3
+  n.y = u3 * v1 - v3 * u1
+  n.z = u1 * v2 - v1 * u2
 
 
 #*****************************************************************************
@@ -206,8 +206,38 @@ proc reshape(win: Window, res: tuple[w, h: int32]) =
 proc keyCb(win: Window, key: Key, scanCode: int32, action: KeyAction,
            modKeys: set[ModifierKey]) =
 
-  if key == keyEscape and action == kaUp:
+  if action != kaDown: return
+
+  if key == keyEscape and modKeys == {}:
     win.shouldClose = true
+
+  if (key == keyEnter and modKeys == {mkAlt}) or
+     (key == keyF11   and modKeys == {mkAlt}):
+
+    if win.monitor == NoMonitor:
+      let monitor = getPrimaryMonitor()
+      if monitor != NoMonitor:
+          let mode = monitor.videoMode
+          (windowedXPos, windowedYPos) = win.pos
+          (windowedWidth, windowedHeight) = win.size
+
+          win.monitor = (
+            monitor:     monitor,
+            xpos:        0'i32,
+            ypos:        0'i32,
+            width:       mode.size.w,
+            height:      mode.size.h,
+            refreshRate: mode.refreshRate
+          )
+    else:
+      win.monitor = (
+        monitor:     NoMonitor,
+        xpos:        windowedXPos,
+        ypos:        windowedYPos,
+        width:       windowedWidth,
+        height:      windowedHeight,
+        refreshRate: 0'i32
+      )
 
 
 proc setBallPos(x, y: GLfloat) =
@@ -334,6 +364,8 @@ proc bounceBall(deltaT: float64) =
 #* Parms:   longLo, longHi
 #*          Low and high longitudes of slice, resp.
 #*****************************************************************************
+var colorToggle = false
+
 proc drawBoingBallBand(longLo, longHi: GLfloat) =
   # "ne" means south-east, and so on
   var
@@ -349,12 +381,6 @@ proc drawBoingBallBand(longLo, longHi: GLfloat) =
        glColor3f(0.8, 0.1, 0.1)
     else:
        glColor3f(0.95, 0.95, 0.95)
-
-#    if latDeg >= 180:
-#       if colorToggle:
-#          glColor3f(0.1, 0.8, 0.1)
-#       else:
-#          glColor3f(0.5, 0.5, 0.95)
 
     colorToggle = not colorToggle
 
@@ -425,7 +451,7 @@ proc drawGrid() =
   glDisable(GL_CULL_FACE)
 
   # Another relative Z translation to separate objects.
-  glTranslatef(0.0, 0.0, DIST_BALL)
+  glTranslatef(0, 0, DIST_BALL)
 
   # Draw vertical lines (as skinny 3D rectangles).
   for col in 0..colTotal:
