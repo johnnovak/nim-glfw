@@ -14,8 +14,8 @@ task examples, "Compiles the examples with dynamic linking":
   exec "nim c examples/events"
   exec "nim c examples/gears"
   exec "nim c examples/minimal"
-  exec "nim c examples/simple"
   exec "nim c examples/splitview"
+  exec "nim c examples/triangle"
   exec "nim c examples/wave"
 
 task examplesStatic, "Compiles the examples with static linking":
@@ -23,6 +23,6 @@ task examplesStatic, "Compiles the examples with static linking":
   exec "nim c -d:glfwStaticLib examples/events"
   exec "nim c -d:glfwStaticLib examples/gears"
   exec "nim c -d:glfwStaticLib examples/minimal"
-  exec "nim c -d:glfwStaticLib examples/simple"
   exec "nim c -d:glfwStaticLib examples/splitview"
+  exec "nim c -d:glfwStaticLib examples/triangle"
   exec "nim c -d:glfwStaticLib examples/wave"
