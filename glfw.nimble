@@ -1,8 +1,8 @@
 #[ Package ]#
 
-version     = "0.3.3"
+version     = "0.3.3.0"
 author      = "Erik Johansson Andersson"
-description = "A GLFW 3 wrapper"
+description = "GLFW 3 wrapper for Nim"
 license     = "BSD"
 
 skipDirs = @["examples"]
