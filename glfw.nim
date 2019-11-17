@@ -667,7 +667,11 @@ proc detachCurrentContext*() =
   wrapper.makeContextCurrent(nil)
 
 proc currentContext*(): Window =
-  newWindow wrapper.getCurrentContext()
+  let handle = wrapper.getCurrentContext()
+  if gWindowTable.hasKey(handle):
+    gWindowTable[handle]
+  else:
+    newWindow(handle)
 
 # XXX: the template below breaks if 'c' is typed as 'SomeOpenglWindowConfigType'
 proc newWindow*(c = DefaultOpenglWindowConfig): Window =
