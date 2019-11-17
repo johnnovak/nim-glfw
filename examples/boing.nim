@@ -180,27 +180,28 @@ proc display() =
 #* reshape()
 #*****************************************************************************
 proc reshape(win: Window, res: tuple[w, h: int32]) =
-   glViewport(0, 0, GLsizei(res.w), GLsizei(res.h))
+  glViewport(0, 0, GLsizei(res.w), GLsizei(res.h))
 
-   glMatrixMode(GL_PROJECTION)
+  glMatrixMode(GL_PROJECTION)
 
-   var projection = perspective[GLfloat](
-     fovy = 2.0 * arctan2(RADIUS, 200.0),
-     aspect = res.w / res.h,
-     zNear = 1.0,
-     zFar = VIEW_SCENE_DIST)
+  var projection = perspective[GLfloat](
+    fovy = 2.0 * arctan2(RADIUS, 200.0),
+    aspect = res.w / res.h,
+    zNear = 1.0,
+    zFar = VIEW_SCENE_DIST)
 
-   glLoadMatrixf(projection.caddr)
+  glLoadMatrixf(projection.caddr)
 
-   glMatrixMode(GL_MODELVIEW)
+  glMatrixMode(GL_MODELVIEW)
 
-   var
-     eye = vec3[GLfloat](0.0, 0.0, VIEW_SCENE_DIST)
-     center = vec3[GLfloat](0.0, 0.0, 0.0)
-     up = vec3[GLfloat](0.0, -1.0, 0.0)
-     view = lookAt[GLfloat](eye, center, up)
+  let
+    eye = vec3[GLfloat](0.0, 0.0, VIEW_SCENE_DIST)
+    center = vec3[GLfloat](0.0, 0.0, 0.0)
+    up = vec3[GLfloat](0.0, -1.0, 0.0)
 
-   glLoadMatrixf(view.caddr)
+  var view = lookAt[GLfloat](eye, center, up)
+
+  glLoadMatrixf(view.caddr)
 
 
 proc keyCb(win: Window, key: Key, scanCode: int32, action: KeyAction,
@@ -246,24 +247,23 @@ proc setBallPos(x, y: GLfloat) =
 
 
 proc mouseButtonCb(win: Window, btn: MouseButton, pressed: bool,
-                modKeys: set[ModifierKey]) =
+                   modKeys: set[ModifierKey]) =
 
-   if btn != mbLeft:
-      return
+  if btn != mbLeft: return
 
-   if pressed:
-      overridePos = true
-      setBallPos(cursorX, cursorY)
-   else:
-      overridePos = false
+  if pressed:
+    overridePos = true
+    setBallPos(cursorX, cursorY)
+  else:
+    overridePos = false
 
 
 proc cursorPosCb(win: Window, pos: tuple[x, y: float64]) =
-   cursorX = pos.x
-   cursorY = pos.y
+  cursorX = pos.x
+  cursorY = pos.y
 
-   if overridePos:
-      setBallPos(cursorX, cursorY)
+  if overridePos:
+    setBallPos(cursorX, cursorY)
 
 
 #*****************************************************************************
@@ -275,50 +275,50 @@ proc cursorPosCb(win: Window, pos: tuple[x, y: float64]) =
 # of a widely-separated set of points, so that each facet is noticably large.
 #*****************************************************************************
 proc drawBoingBall() =
-   glPushMatrix()
-   glMatrixMode(GL_MODELVIEW)
+  glPushMatrix()
+  glMatrixMode(GL_MODELVIEW)
 
-   # Another relative Z translation to separate objects.
-   glTranslatef(0.0, 0.0, DIST_BALL)
+  # Another relative Z translation to separate objects.
+  glTranslatef(0.0, 0.0, DIST_BALL)
 
-   # Update ball position and rotation (iterate if necessary)
-   var dtTotal, dt2: float64
+  # Update ball position and rotation (iterate if necessary)
+  var dtTotal, dt2: float64
 
-   dtTotal = dt
-   while dtTotal > 0.0:
-     dt2 = if dtTotal > MAX_DELTA_T: MAX_DELTA_T else: dtTotal
-     dtTotal -= dt2
-     bounceBall(dt2)
-     degRotY = truncateDeg(degRotY + degRotYInc * (dt2 * ANIMATION_SPEED))
+  dtTotal = dt
+  while dtTotal > 0.0:
+    dt2 = if dtTotal > MAX_DELTA_T: MAX_DELTA_T else: dtTotal
+    dtTotal -= dt2
+    bounceBall(dt2)
+    degRotY = truncateDeg(degRotY + degRotYInc * (dt2 * ANIMATION_SPEED))
 
-   # Set ball position
-   glTranslatef(ballX, ballY, 0.0)
+  # Set ball position
+  glTranslatef(ballX, ballY, 0.0)
 
-   # Offset the shadow.
-   if drawBallHow == dbShadow:
-     glTranslatef(SHADOW_OFFSET_X, SHADOW_OFFSET_Y, SHADOW_OFFSET_Z)
+  # Offset the shadow.
+  if drawBallHow == dbShadow:
+    glTranslatef(SHADOW_OFFSET_X, SHADOW_OFFSET_Y, SHADOW_OFFSET_Z)
 
-   # Tilt the ball.
-   glRotatef(-20.0, 0.0, 0.0, 1.0)
+  # Tilt the ball.
+  glRotatef(-20.0, 0.0, 0.0, 1.0)
 
-   # Continually rotate ball around Y axis.
-   glRotatef(degRotY, 0.0, 1.0, 0.0)
+  # Continually rotate ball around Y axis.
+  glRotatef(degRotY, 0.0, 1.0, 0.0)
 
-   # Set OpenGL state for Boing ball.
-   glCullFace(GL_FRONT)
-   glEnable(GL_CULL_FACE)
-   glEnable(GL_NORMALIZE)
+  # Set OpenGL state for Boing ball.
+  glCullFace(GL_FRONT)
+  glEnable(GL_CULL_FACE)
+  glEnable(GL_NORMALIZE)
 
-   # Build a faceted latitude slice of the Boing ball,
-   # stepping same-sized vertical bands of the sphere.
-   var lonDeg = 0.0    # degree of longitudeD
+  # Build a faceted latitude slice of the Boing ball,
+  # stepping same-sized vertical bands of the sphere.
+  var lonDeg = 0.0    # degree of longitudeD
 
-   while lonDeg < 180:
-      # Draw a latitude circle at this longitude.
-      drawBoingBallBand(lonDeg, lonDeg + STEP_LONGITUDE)
-      lonDeg += STEP_LONGITUDE
+  while lonDeg < 180:
+    # Draw a latitude circle at this longitude.
+    drawBoingBallBand(lonDeg, lonDeg + STEP_LONGITUDE)
+    lonDeg += STEP_LONGITUDE
 
-   glPopMatrix()
+  glPopMatrix()
 
 
 #*****************************************************************************
@@ -349,13 +349,11 @@ proc bounceBall(deltaT: float64) =
   ballY += ballYInc * deltaT * ANIMATION_SPEED
 
   # Simulate the effects of gravity on Y movement.
-  var sign = if ballYInc < 0: -1.0 else: 1.0
-
   var deg = (ballY + BOUNCE_HEIGHT / 2) * 90 / BOUNCE_HEIGHT
   if deg > 80: deg = 80
   if deg < 10: deg = 10
 
-  ballYInc = sign * 4 * sinDeg(deg)
+  ballYInc = sgn(ballYInc).float * 4 * sinDeg(deg)
 
 
 #*****************************************************************************
@@ -509,7 +507,8 @@ proc main() =
   cfg.title = "Boing (classic Amiga demo)"
   cfg.resizable = true
   cfg.version = glv20
-  var win = newWindow(cfg)
+
+  let win = newWindow(cfg)
 
   win.setAspectRatio(1, 1)
 
