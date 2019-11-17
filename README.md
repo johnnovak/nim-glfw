@@ -1,11 +1,15 @@
 # nim-glfw
 
-This library provides a nice idiomatic Nim API to
-[GLFW](https://www.glfw.org/). Not all functionality is available through the
-Nim API yet; in those cases you can either just use the native C bindings
-directly (by importing `glfw/wrapper`) or raise a ticket about the missing
-functionality (or even better yet, give a shot at implementing it yourself and
-raise a PR!).
+`nim-glfw` provides a nice idiomatic Nim API to [GLFW](https://www.glfw.org/),
+the cross-platform OpenGL, OpenGL ES & Vulkan library.
+
+Not all functionality is available through the Nim API yet; in those cases you
+can either just use the native C bindings directly (by importing
+`glfw/wrapper`). Please also raise a ticket about the missing functionality so
+we can add it, or even better yet, give a shot at implementing it yourself and
+raise a PR! :smile:
+
+## Versioning
 
 Versioning follows the `x.y.z.w` scheme, where `x.y.z` corresponds to the GLFW
 version being wrapper (e.g. `3.3.0`) and `w` to the patch version of the Nim
