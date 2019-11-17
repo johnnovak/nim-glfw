@@ -1,18 +1,18 @@
 # nim-glfw
 
-`nim-glfw` provides a nice idiomatic Nim API to [GLFW](https://www.glfw.org/),
+**nim-glfw** provides a nice idiomatic Nim API to [GLFW](https://www.glfw.org/),
 the cross-platform OpenGL, OpenGL ES & Vulkan library.
 
 Not all functionality is available through the Nim API yet; in those cases you
-can either just use the native C bindings directly (by importing
-`glfw/wrapper`). Please also raise a ticket about the missing functionality so
-we can add it, or even better yet, give a shot at implementing it yourself and
-raise a PR! :smile:
+can just use the native C bindings directly (by importing `glfw/wrapper`).
+Please also raise a ticket about the missing functionality so we can add it,
+or even better yet, give a shot at implementing it yourself and raise a PR!
+:smile:
 
 ## Versioning
 
 Versioning follows the `x.y.z.w` scheme, where `x.y.z` corresponds to the GLFW
-version being wrapper (e.g. `3.3.0`) and `w` to the patch version of the Nim
+version being wrapped (e.g. `3.3.0`) and `w` to the patch version of the Nim
 wrapper (e.g.  `3.3.0.2`).
 
 ## Installation
@@ -49,23 +49,30 @@ nimble examplesStatic
 
 ## Usage
 
-This code from `examples/minimal.nim` displays a window for one second and
-then terminates:
+A [minimal example](/examples/minimal.nim) to display a window for one second
+and then terminate:
 
 ```nim
 import os, glfw
 
 proc main =
   glfw.initialize()
+
   var c = DefaultOpenglWindowConfig
   c.title = "Minimal Nim-GLFW example"
+
   var w = newWindow(c)
+
   sleep(1000)
+
   w.destroy()
   glfw.terminate()
 
 main()
 ```
+
+Check out the [examples](/examples) directory for more complex examples!
+
 
 ### Statically linking to GLFW
 
@@ -83,10 +90,10 @@ nim doc glfw.nim
 nim doc glfw/wrapper.nim
 ```
 
-Checking out the examples is probably the best way to get started with
-the library. If you have some familiarity with GLFW, the official GLFW
-documentation in conjunction with reading the Nim sources should make
-everything clear.
+Checking out the examples is probably the best way to get started with the
+library. If you have some familiarity with GLFW, reading the official GLFW
+documentation in conjunction with the Nim sources should make everything
+clear.
 
 Creating high-quality documentation is a lot of work, so if you would like to
 help the project, writing documentation would be a great way to contribute!
