@@ -41,7 +41,7 @@ converter toInt32Tuple*(t: tuple[r, g, b, a: int]): tuple[r, g, b, a: Option[int
 converter toInt32Tuple*(t: tuple[r, g, b, a, stencil, depth: int]):
     tuple[r, g, b, a, stencil, depth: Option[int32]] =
   (some(t[0].int32), some(t[1].int32), some(t[2].int32), some(t[3].int32), some(t[4].int32), some(t[5].int32))
-  
+
 converter toInt32(h: wrapper.Hint): int32 =
   h.int32
 
@@ -95,7 +95,7 @@ type
 
 proc initPathDropInfo(paths: cstringArray, len: int32): PathDropInfo =
   PathDropInfo(paths: paths, len: len)
-    
+
 proc len*(p: PathDropInfo): cint =
   p.len
 
@@ -133,7 +133,7 @@ type
     getPlatformError = (0x00010008, "platform error")
     getFormatUnavailable = (0x00010009, "format unavailable")
     getNoWindowContext = (0x0001000A, "no window context")
-      
+
 var
   gErrorCode = getNoError
   gErrorMsg = ""
@@ -662,6 +662,9 @@ proc destroy*(w: Window) =
 
 proc makeContextCurrent*(w: Window) =
   wrapper.makeContextCurrent(w)
+
+proc detachCurrentContext*() =
+  wrapper.makeContextCurrent(nil)
 
 proc currentContext*(): Window =
   newWindow wrapper.getCurrentContext()
