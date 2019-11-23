@@ -807,6 +807,9 @@ proc keyName*(key: Key): cstring =
 proc keyName*(scanCode: int32): cstring =
   wrapper.getKeyName(keyUnknown.int32, scanCode)
 
+proc scanCode*(key: Key): int32 =
+  wrapper.getKeyScancode(key.int32)
+
 proc setSizeLimits*(w: Window, minwidth, minheight, maxwidth, maxheight: int32) =
   wrapper.setWindowSizeLimits(w, minwidth, minheight, maxwidth, maxheight)
 
