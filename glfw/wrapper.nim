@@ -341,6 +341,7 @@ type
     hCocoaGraphicsSwitching = 0x00023003
     hX11ClassName = 0x00024001
     hX11InstanceName = 0x00024002
+
   InitHint* {.size: int32.sizeof.} = enum
     ihJoystickHatButtons = 0x00050001
     ihCocoaCHDir = 0x00051001
@@ -350,22 +351,27 @@ type
     crbAnyReleaseBehavior = 0
     crbReleaseBehaviorFlush = 0x00035001
     crbReleaseBehaviorNone = 0x00035002
+
   ClientApi* {.size: int32.sizeof.} = enum
     oaNoApi = 0
     oaOpenglApi = 0x00030001
     oaOpenglEsApi = 0x00030002
+
   ContextCreationApi* {.size: int32.sizeof.} = enum
     ccaNativeContextApi = 0x00036001
     ccaEglContextApi = 0x00036002
     ccaOSMesaContextApi = 0x00036003
+
   ContextRobustness* {.size: int32.sizeof.} = enum
     crNoRobustness = 0
     crNoResetNotification = 0x00031001
     crLoseContextOnReset = 0x00031002
+
   OpenglProfile* {.size: int32.sizeof.} = enum
     opAnyProfile = 0
     opCoreProfile = 0x00032001
     opCompatProfile = 0x00032002
+
   MonitorConnection* {.size: int32.sizeof.} = enum
     mcConnected = 0x00040001
     mcDisconnected = 0x00040002
@@ -393,12 +399,12 @@ const
 
 type
   CursorShape* {.size: int32.sizeof.} = enum
-    arrow = 0x00036001
-    ibeam = 0x00036002
-    crosshair = 0x00036003
-    hand = 0x00036004
-    hresize = 0x00036005
-    vresize = 0x00036006
+    csArrow = 0x00036001
+    csIBeam = 0x00036002
+    csCrosshair = 0x00036003
+    csHand = 0x00036004
+    csHorizResize = 0x00036005
+    csVertResize = 0x00036006
 
 type
   Window* = ptr object

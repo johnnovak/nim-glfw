@@ -320,6 +320,7 @@ type
     glv44 = (0x440, "OpenGL 4.4")
     glv45 = (0x450, "OpenGL 4.5")
     glv46 = (0x460, "OpenGL 4.6")
+
   OpenglEsVersion* = enum
     glesv10 = (0x100, "OpenGL ES 1.0")
     glesv11 = (0x110, "OpenGL ES 1.1")
