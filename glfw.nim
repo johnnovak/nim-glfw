@@ -113,7 +113,9 @@ converter toHandle(w: Window): WindowHandle = w.handle
 proc initModifierKeySet(bitfield: int): set[ModifierKey] =
   # XXX: This should not be necessary just because the enum type has
   # non-consecutive elements.
-  let mods = [ModifierKey.mkShift, ModifierKey.mkCtrl, ModifierKey.mkAlt, ModifierKey.mkSuper]
+  let mods = [ModifierKey.mkShift, ModifierKey.mkCtrl, ModifierKey.mkAlt,
+              ModifierKey.mkSuper, ModifierKey.mkCapsLock,
+              ModifierKey.mkNumLock]
   for m in mods:
     let bit = (bitfield.int and m.int)
     if bit != 0:
