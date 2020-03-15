@@ -55,6 +55,7 @@ type
     windowCloseCb*: WindowCloseCb
     windowRefreshCb*: WindowRefreshCb
     windowFocusCb*: WindowFocusCb
+    windowMaximizeCb*: WindowMaximizeCb
     windowIconifyCb*: WindowIconifyCb
     framebufferSizeCb*: FramebufferSizeCb
     mouseButtonCb*: MouseButtonCb
@@ -238,6 +239,10 @@ proc getPrimaryMonitor*: Monitor =
 proc pos*(m: Monitor): tuple[x, y: int32] =
   wrapper.getMonitorPos(m, result[0].addr, result[1].addr)
 
+proc workArea*(m: Monitor): tuple[x, y, w, h: int32] =
+  wrapper.getMonitorWorkarea(m, result[0].addr, result[1].addr,
+                                result[2].addr, result[3].addr)
+
 proc physicalSizeMM*(m: Monitor): tuple[w, h: int32] =
   wrapper.getMonitorPhysicalSize(m, result[0].addr, result[1].addr)
 
@@ -289,6 +294,7 @@ var
   windowCloseCb: wrapper.Windowclosefun
   windowRefreshCb: wrapper.Windowrefreshfun
   windowFocusCb: wrapper.Windowfocusfun
+  windowMaximizeCb: wrapper.Windowmaximizefun
   windowIconifyCb: wrapper.Windowiconifyfun
   framebufferSizeCb: wrapper.Framebuffersizefun
   mouseButtonCb: wrapper.MouseButtonfun
@@ -721,6 +727,11 @@ proc newWindow*(c = DefaultOpenglWindowConfig): Window =
     if get(windowFocusCb):
       cb(win, focus.bool)
   discard wrapper.setWindowFocusCallback(result, windowFocusCb)
+
+  windowMaximizeCb = proc(handle: WindowHandle, maximize: int32) {.cdecl.} =
+    if get(windowMaximizeCb):
+      cb(win, maximize.bool)
+  discard wrapper.setWindowMaximizeCallback(result, windowMaximizeCb)
 
   windowIconifyCb = proc(handle: WindowHandle, iconify: int32) {.cdecl.} =
     if get(windowIconifyCb):

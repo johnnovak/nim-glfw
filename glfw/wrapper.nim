@@ -538,6 +538,8 @@ macro generateProcs() =
     proc setWindowRefreshCallback*(window: Window;
       cbfun: Windowrefreshfun): Windowrefreshfun
     proc setWindowFocusCallback*(window: Window; cbfun: Windowfocusfun): Windowfocusfun
+    proc setWindowMaximizeCallback*(window: Window;
+      cbfun: Windowmaximizefun): Windowmaximizefun
     proc setWindowIconifyCallback*(window: Window;
       cbfun: Windowiconifyfun): Windowiconifyfun
     proc setFramebufferSizeCallback*(window: Window;
