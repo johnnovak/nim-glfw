@@ -425,11 +425,11 @@ type
     green*: ptr uint16
     blue*: ptr uint16
     size*: cuint
-  ImageObj* {.bycopy.} = object
+  IconImageObj* {.bycopy.} = object
     width*: int32
     height*: int32
     pixels*: ptr cuchar
-  Image* = ptr ImageObj
+  IconImage* = ptr IconImageObj
 
 type
   OpenGlProc* = proc () {.cdecl.}
@@ -503,7 +503,7 @@ macro generateProcs() =
     proc windowShouldClose*(window: Window): int32
     proc setWindowShouldClose*(window: Window; value: int32)
     proc setWindowTitle*(window: Window; title: cstring)
-    proc setWindowIcon*(window: Window; count: int32; images: Image)
+    proc setWindowIcon*(window: Window; count: int32; images: IconImage)
     proc getWindowPos*(window: Window; xpos: ptr int32; ypos: ptr int32)
     proc setWindowPos*(window: Window; xpos: int32; ypos: int32)
     proc getWindowSize*(window: Window; width: ptr int32; height: ptr int32)
@@ -556,7 +556,7 @@ macro generateProcs() =
     proc getMouseButton*(window: Window; button: int32): int32
     proc getCursorPos*(window: Window; xpos: ptr cdouble; ypos: ptr cdouble)
     proc setCursorPos*(window: Window; xpos: cdouble; ypos: cdouble)
-    proc createCursor*(image: Image; xhot: int32; yhot: int32): Cursor
+    proc createCursor*(image: IconImage; xhot: int32; yhot: int32): Cursor
     proc createStandardCursor*(shape: CursorShape): Cursor
     proc destroyCursor*(cursor: Cursor)
     proc setCursor*(window: Window; cursor: Cursor)

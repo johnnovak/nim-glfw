@@ -13,7 +13,7 @@ export wrapper.createStandardCursor
 export wrapper.setCursor
 export wrapper.destroyCursor
 export wrapper.Cursor
-export wrapper.Image
+export wrapper.IconImage
 export wrapper.MouseButton
 export wrapper.mbLeft
 export wrapper.mbRight
@@ -801,7 +801,7 @@ proc timerValue*: uint64 =
 proc timerFrequency*: uint64 =
   wrapper.getTimerFrequency()
 
-proc `icon=`*(w: Window, images: openarray[wrapper.ImageObj]) =
+proc `icon=`*(w: Window, images: openarray[wrapper.IconImageObj]) =
   wrapper.setWindowIcon(w, images.len.int32, images[0].unsafeAddr)
 
 proc keyName*(key: Key): cstring =
