@@ -143,7 +143,7 @@ var
   hasInitialized = false
 
 type
-  GLFWError* = object of Exception
+  GLFWError* = object of CatchableError
     error*: ErrorType
 
 proc `$`*(e: GLFWError): string = $e.error
@@ -701,7 +701,7 @@ proc newWindow*(c = DefaultOpenglWindowConfig): Window =
                       else: c.shareResourcesWith.handle
   result.handle = wrapper.createWindow(c.size.w, c.size.h, c.title,
     c.fullscreenMonitor, sharedMonitor).failIf(nil)
-  gWindowTable.add result.handle, result
+  gWindowTable[result.handle] = result
 
   if c.makeContextCurrent:
     result.makeContextCurrent()
