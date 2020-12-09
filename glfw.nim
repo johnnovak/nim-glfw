@@ -488,7 +488,8 @@ type
     fullscreenMonitor*: Monitor
     shareResourcesWith*: Window
     visible*, focused*, decorated*, resizable*, stereo*,
-      srgbCapableFramebuffer*, floating*, maximized*, autoIconify*,
+      srgbCapableFramebuffer*, floating*, maximized*, centerCursor*,
+      transparentFramebuffer*, focusOnShow*, scaleToMonitor*, autoIconify*,
       doubleBuffer*, forwardCompat*, debugContext*, makeContextCurrent*: bool
     bits*: tuple[r, g, b, a, stencil, depth: Option[int32]]
     accumBufferBits*: tuple[r, g, b, a: Option[int32]]
@@ -631,6 +632,14 @@ proc setHints(c: SomeOpenglWindowConfigType) =
       h(wrapper.hFloating, v)
     elif k == "maximized":
       h(wrapper.hMaximized, v)
+    elif k == "centerCursor":
+      h(wrapper.hCenterCursor, v)
+    elif k == "transparentFramebuffer":
+      h(wrapper.hTransparentFramebuffer, v)
+    elif k == "focusOnShow":
+      h(wrapper.hFocusOnShow, v)
+    elif k == "scaleToMonitor":
+      h(wrapper.hScaleToMonitor, v)
     elif k == "autoIconify":
       h(wrapper.hAutoIconify, v)
     elif k == "doubleBuffer":

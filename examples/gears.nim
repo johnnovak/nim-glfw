@@ -294,6 +294,7 @@ proc main() =
   cfg.title = "Gears"
   cfg.resizable = true
   cfg.bits = (r: 8, g: 8, b: 8, a: 8, stencil: 8, depth: 16)
+  cfg.transparentFramebuffer = true
   cfg.version = glv20
   var win = newWindow(cfg)
 
