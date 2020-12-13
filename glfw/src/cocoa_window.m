@@ -888,6 +888,11 @@ static GLFWbool createNativeWindow(_GLFWwindow* window,
     [window->ns.object setAcceptsMouseMovedEvents:YES];
     [window->ns.object setRestorable:NO];
 
+    if (wndconfig->hideFromTaskbar)
+        [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory];
+    else
+        [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
+
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= 101200
     if ([window->ns.object respondsToSelector:@selector(setTabbingMode:)])
         [window->ns.object setTabbingMode:NSWindowTabbingModeDisallowed];

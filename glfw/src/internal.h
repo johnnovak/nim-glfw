@@ -406,6 +406,7 @@ struct _GLFWwndconfig
     GLFWbool      mousePassthrough;
     GLFWbool      scaleToMonitor;
     GLFWbool      scaleFramebuffer;
+    GLFWbool      hideFromTaskbar;
     struct {
         char      frameName[256];
     } ns;
@@ -529,6 +530,7 @@ struct _GLFWwindow
     GLFWbool            floating;
     GLFWbool            focusOnShow;
     GLFWbool            mousePassthrough;
+    GLFWbool            hideFromTaskbar;
     GLFWbool            shouldClose;
     void*               userPointer;
     GLFWbool            doublebuffer;

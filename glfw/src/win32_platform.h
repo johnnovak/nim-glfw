@@ -425,6 +425,7 @@ typedef struct _GLFWwindowWin32
     GLFWbool            scaleToMonitor;
     GLFWbool            keymenu;
     GLFWbool            showDefault;
+    GLFWbool            hideFromTaskbar;
 
     // Cached size used to filter out duplicate events
     int                 width, height;
@@ -538,7 +539,7 @@ void _glfwInputErrorWin32(int error, const char* description);
 void _glfwUpdateKeyNamesWin32(void);
 
 void _glfwPollMonitorsWin32(void);
-void _glfwSetVideoModeWin32(_GLFWmonitor* monitor, const GLFWvidmode* desired);
+void _glfwSetVideoModeWin32(_GLFWmonitor* monitor, const GLFWvidmode* desired, GLFWbool permanent);
 void _glfwRestoreVideoModeWin32(_GLFWmonitor* monitor);
 void _glfwGetHMONITORContentScaleWin32(HMONITOR handle, float* xscale, float* yscale);
 

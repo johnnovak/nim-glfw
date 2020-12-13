@@ -545,6 +545,7 @@ type
     hovered*:                bool
     focusOnShow*:            bool
     mousePassthrough*:       bool
+    hideFromTaskbar*:        bool
     stereo*:                 bool
     srgbCapableFramebuffer*: bool
     doubleBuffer*:           bool
@@ -617,6 +618,7 @@ let DefaultOpenglWindowConfig* = OpenglWindowConfig(
   hovered:                 false,
   focusOnShow:             true,
   mousePassthrough:        false,
+  hideFromTaskbar:         false,
   stereo:                  false,
   srgbCapableFramebuffer:  false,
   doubleBuffer:            true,
@@ -710,6 +712,9 @@ proc setHints(c: SomeOpenglWindowConfigType) =
 
     elif k == "mousePassthrough":
       h(wrapper.hMousePassthrough, v)
+
+    elif k == "hideFromTaskbar":
+      h(wrapper.hHideFromTaskbar, v)
 
     elif k == "bits":
       template t(hint: Hint, field: untyped) =

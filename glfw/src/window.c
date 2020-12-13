@@ -232,6 +232,7 @@ GLFWAPI GLFWwindow* glfwCreateWindow(int width, int height,
     window->floating         = wndconfig.floating;
     window->focusOnShow      = wndconfig.focusOnShow;
     window->mousePassthrough = wndconfig.mousePassthrough;
+    window->hideFromTaskbar  = wndconfig.hideFromTaskbar;
     window->cursorMode       = GLFW_CURSOR_NORMAL;
 
     window->doublebuffer = fbconfig.doublebuffer;
@@ -276,6 +277,7 @@ void glfwDefaultWindowHints(void)
     _glfw.hints.window.xpos         = GLFW_ANY_POSITION;
     _glfw.hints.window.ypos         = GLFW_ANY_POSITION;
     _glfw.hints.window.scaleFramebuffer = GLFW_TRUE;
+    _glfw.hints.window.hideFromTaskbar = GLFW_FALSE;
 
     // The default is 24 bits of color, 24 bits of depth and 8 bits of stencil,
     // double buffered
@@ -391,6 +393,9 @@ GLFWAPI void glfwWindowHint(int hint, int value)
             return;
         case GLFW_CENTER_CURSOR:
             _glfw.hints.window.centerCursor = value ? GLFW_TRUE : GLFW_FALSE;
+            return;
+        case GLFW_HIDE_FROM_TASKBAR:
+            _glfw.hints.window.hideFromTaskbar = value ? GLFW_TRUE : GLFW_FALSE;
             return;
         case GLFW_FOCUS_ON_SHOW:
             _glfw.hints.window.focusOnShow = value ? GLFW_TRUE : GLFW_FALSE;
@@ -885,6 +890,8 @@ GLFWAPI int glfwGetWindowAttrib(GLFWwindow* handle, int attrib)
             return window->focusOnShow;
         case GLFW_MOUSE_PASSTHROUGH:
             return window->mousePassthrough;
+        case GLFW_HIDE_FROM_TASKBAR:
+            return window->hideFromTaskbar;
         case GLFW_TRANSPARENT_FRAMEBUFFER:
             return _glfw.platform.framebufferTransparent(window);
         case GLFW_RESIZABLE:

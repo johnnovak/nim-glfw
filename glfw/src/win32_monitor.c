@@ -245,7 +245,7 @@ void _glfwPollMonitorsWin32(void)
 
 // Change the current video mode
 //
-void _glfwSetVideoModeWin32(_GLFWmonitor* monitor, const GLFWvidmode* desired)
+void _glfwSetVideoModeWin32(_GLFWmonitor* monitor, const GLFWvidmode* desired, GLFWbool permanent)
 {
     GLFWvidmode current;
     const GLFWvidmode* best;
@@ -272,7 +272,7 @@ void _glfwSetVideoModeWin32(_GLFWmonitor* monitor, const GLFWvidmode* desired)
     result = ChangeDisplaySettingsExW(monitor->win32.adapterName,
                                       &dm,
                                       NULL,
-                                      CDS_FULLSCREEN,
+                                      ((permanent ? CDS_UPDATEREGISTRY : 0) | CDS_FULLSCREEN),
                                       NULL);
     if (result == DISP_CHANGE_SUCCESSFUL)
         monitor->win32.modeChanged = GLFW_TRUE;

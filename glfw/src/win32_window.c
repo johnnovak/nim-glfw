@@ -66,6 +66,10 @@ static DWORD getWindowStyle(const _GLFWwindow* window)
 static DWORD getWindowExStyle(const _GLFWwindow* window)
 {
     DWORD style = WS_EX_APPWINDOW;
+    if (window->hideFromTaskbar)
+    {
+        style = WS_EX_NOACTIVATE;
+    }
 
     if (window->monitor || window->floating)
         style |= WS_EX_TOPMOST;
@@ -454,7 +458,7 @@ static void acquireMonitor(_GLFWwindow* window)
     if (!window->monitor->window)
         _glfw.win32.acquiredMonitorCount++;
 
-    _glfwSetVideoModeWin32(window->monitor, &window->videoMode);
+    _glfwSetVideoModeWin32(window->monitor, &window->videoMode, GLFW_FALSE);
     _glfwInputMonitorWindow(window->monitor, window);
 }
 

@@ -334,6 +334,7 @@ type
     hMousePassthrough       = 0x0002000D
     hPositionX              = 0x0002000E
     hPositionY              = 0x0002000F
+    hHideFromTaskbar        = 0x00020010
     hRedBits                = 0x00021001
     hGreenBits              = 0x00021002
     hBlueBits               = 0x00021003
