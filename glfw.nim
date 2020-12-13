@@ -493,8 +493,9 @@ type
     shareResourcesWith*: Window
     visible*, focused*, decorated*, resizable*, stereo*,
       srgbCapableFramebuffer*, floating*, maximized*, centerCursor*,
-      transparentFramebuffer*, focusOnShow*, scaleToMonitor*, autoIconify*,
-      doubleBuffer*, forwardCompat*, debugContext*, makeContextCurrent*: bool
+      transparentFramebuffer*, focusOnShow*, hideFromTaskbar*, mousePassthru*,
+      scaleToMonitor*, autoIconify*, doubleBuffer*, forwardCompat*,
+      debugContext*, makeContextCurrent*: bool
     bits*: tuple[r, g, b, a, stencil, depth: Option[int32]]
     accumBufferBits*: tuple[r, g, b, a: Option[int32]]
     nAuxBuffers*, nMultiSamples*: int32
@@ -540,6 +541,8 @@ let DefaultOpenglWindowConfig* = OpenglWindowConfig(
   centerCursor: true,
   transparentFramebuffer: false,
   focusOnShow: true,
+  hideFromTaskbar: false,
+  mousePassthru: false,
   scaleToMonitor: false,
   stereo: false,
   srgbCapableFramebuffer: false,
@@ -649,6 +652,10 @@ proc setHints(c: SomeOpenglWindowConfigType) =
       h(wrapper.hTransparentFramebuffer, v)
     elif k == "focusOnShow":
       h(wrapper.hFocusOnShow, v)
+    elif k == "hideFromTaskbar":
+      h(wrapper.hHideFromTaskbar, v)
+    elif k == "mousePassthru":
+      h(wrapper.hMousePassthru , v)
     elif k == "scaleToMonitor":
       h(wrapper.hScaleToMonitor, v)
     elif k == "autoIconify":

@@ -310,6 +310,8 @@ type
     hTransparentFramebuffer = 0x0002000A
     hHovered = 0x0002000B
     hFocusOnShow = 0x0002000C
+    hHideFromTaskbar = 0x0002000D
+    hMousePassthru = 0x0002000E
     hRedBits = 0x00021001
     hGreenBits = 0x00021002
     hBlueBits = 0x00021003
