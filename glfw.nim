@@ -13,6 +13,7 @@ export wrapper.createStandardCursor
 export wrapper.setCursor
 export wrapper.destroyCursor
 export wrapper.Cursor
+export wrapper.CursorShape
 export wrapper.IconImage
 export wrapper.MouseButton
 export wrapper.mbLeft
@@ -364,6 +365,9 @@ proc framebufferSize*(w: Window): tuple[w, h: int32] =
 proc windowFrameSize*(w: Window): tuple[left, top, right, bottom: int32] =
   wrapper.getWindowFrameSize(w, result.left.addr, result.top.addr,
     result.right.addr, result.bottom.addr)
+
+proc `cursor=`*(w: Window, c: Cursor) =
+  wrapper.setCursor(w, c)
 
 template windowOp(name: untyped) =
   proc name*(w: Window) =

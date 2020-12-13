@@ -405,8 +405,11 @@ type
     csIBeam = 0x00036002
     csCrosshair = 0x00036003
     csHand = 0x00036004
-    csHorizResize = 0x00036005
-    csVertResize = 0x00036006
+    csResizeEW = 0x00036005
+    csResizeNS = 0x00036006
+    csResizeNWSE = 0x00036007
+    csResizeNESW = 0x00036008
+    csResizeAll = 0x00036009
 
 type
   Window* = ptr object

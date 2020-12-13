@@ -645,11 +645,35 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
 
         case WM_CHAR:
         case WM_SYSCHAR:
+        {
+            if (wParam >= 0xd800 && wParam <= 0xdbff)
+                window->win32.highSurrogate = (WCHAR) wParam;
+            else
+            {
+                unsigned int codepoint = 0;
+
+                if (wParam >= 0xdc00 && wParam <= 0xdfff)
+                {
+                    if (window->win32.highSurrogate)
+                    {
+                        codepoint += (window->win32.highSurrogate - 0xd800) << 10;
+                        codepoint += (WCHAR) wParam - 0xdc00;
+                        codepoint += 0x10000;
+                    }
+                }
+                else
+                    codepoint = (WCHAR) wParam;
+
+                window->win32.highSurrogate = 0;
+                _glfwInputChar(window, codepoint, getKeyMods(), uMsg != WM_SYSCHAR);
+            }
+
+            return 0;
+        }
+
         case WM_UNICHAR:
         {
-            const GLFWbool plain = (uMsg != WM_SYSCHAR);
-
-            if (uMsg == WM_UNICHAR && wParam == UNICODE_NOCHAR)
+            if (wParam == UNICODE_NOCHAR)
             {
                 // WM_UNICHAR is not sent by Windows, but is sent by some
                 // third-party input method engine
@@ -657,7 +681,7 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
                 return TRUE;
             }
 
-            _glfwInputChar(window, (unsigned int) wParam, getKeyMods(), plain);
+            _glfwInputChar(window, (unsigned int) wParam, getKeyMods(), GLFW_TRUE);
             return 0;
         }
 
@@ -2053,14 +2077,25 @@ int _glfwPlatformCreateStandardCursor(_GLFWcursor* cursor, int shape)
         id = OCR_IBEAM;
     else if (shape == GLFW_CROSSHAIR_CURSOR)
         id = OCR_CROSS;
-    else if (shape == GLFW_HAND_CURSOR)
+    else if (shape == GLFW_POINTING_HAND_CURSOR)
         id = OCR_HAND;
-    else if (shape == GLFW_HRESIZE_CURSOR)
+    else if (shape == GLFW_RESIZE_EW_CURSOR)
         id = OCR_SIZEWE;
-    else if (shape == GLFW_VRESIZE_CURSOR)
+    else if (shape == GLFW_RESIZE_NS_CURSOR)
         id = OCR_SIZENS;
+    else if (shape == GLFW_RESIZE_NWSE_CURSOR)
+        id = OCR_SIZENWSE;
+    else if (shape == GLFW_RESIZE_NESW_CURSOR)
+        id = OCR_SIZENESW;
+    else if (shape == GLFW_RESIZE_ALL_CURSOR)
+        id = OCR_SIZEALL;
+    else if (shape == GLFW_NOT_ALLOWED_CURSOR)
+        id = OCR_NO;
     else
+    {
+        _glfwInputError(GLFW_PLATFORM_ERROR, "Win32: Unknown standard cursor");
         return GLFW_FALSE;
+    }
 
     cursor->win32.handle = LoadImageW(NULL,
                                       MAKEINTRESOURCEW(id), IMAGE_CURSOR, 0, 0,

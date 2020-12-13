@@ -165,6 +165,9 @@ proc main() =
 
   win.keyCb = keyCb
 
+  let c = createStandardCursor(csResizeNESW)
+  win.cursor = c
+
   if not gladLoadGL(getProcAddress):
     quit "Error initialising OpenGL"
 

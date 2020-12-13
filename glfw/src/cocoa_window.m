@@ -322,6 +322,14 @@ static const NSRange kEmptyRange = { NSNotFound, 0 };
     _glfwInputWindowFocus(window, GLFW_FALSE);
 }
 
+- (void)windowDidChangeOcclusionState:(NSNotification* )notification
+{
+    if ([window->ns.object occlusionState] & NSWindowOcclusionStateVisible)
+        window->ns.occluded = GLFW_FALSE;
+    else
+        window->ns.occluded = GLFW_TRUE;
+}
+
 @end
 
 
@@ -723,14 +731,24 @@ static const NSRange kEmptyRange = { NSNotFound, 0 };
     else
         characters = (NSString*) string;
 
-    const NSUInteger length = [characters length];
-    for (NSUInteger i = 0;  i < length;  i++)
+    NSRange range = NSMakeRange(0, [characters length]);
+    while (range.length)
     {
-        const unichar codepoint = [characters characterAtIndex:i];
-        if ((codepoint & 0xff00) == 0xf700)
-            continue;
+        uint32_t codepoint = 0;
 
-        _glfwInputChar(window, codepoint, mods, plain);
+        if ([characters getBytes:&codepoint
+                       maxLength:sizeof(codepoint)
+                      usedLength:NULL
+                        encoding:NSUTF32StringEncoding
+                         options:0
+                           range:range
+                  remainingRange:&range])
+        {
+            if (codepoint >= 0xf700 && codepoint <= 0xf7ff)
+                continue;
+
+            _glfwInputChar(window, codepoint, mods, plain);
+        }
     }
 }
 
@@ -901,6 +919,11 @@ int _glfwPlatformCreateWindow(_GLFWwindow* window,
         }
         else if (ctxconfig->source == GLFW_EGL_CONTEXT_API)
         {
+            // EGL implementation on macOS use CALayer* EGLNativeWindowType so we
+            // need to get the layer for EGL window surface creation.
+            [window->ns.view setWantsLayer:YES];
+            window->ns.layer = [window->ns.view layer];
+
             if (!_glfwInitEGL())
                 return GLFW_FALSE;
             if (!_glfwCreateContextEGL(window, ctxconfig, fbconfig))
@@ -1614,23 +1637,49 @@ int _glfwPlatformCreateStandardCursor(_GLFWcursor* cursor, int shape)
 {
     @autoreleasepool {
 
-    if (shape == GLFW_ARROW_CURSOR)
-        cursor->ns.object = [NSCursor arrowCursor];
-    else if (shape == GLFW_IBEAM_CURSOR)
-        cursor->ns.object = [NSCursor IBeamCursor];
-    else if (shape == GLFW_CROSSHAIR_CURSOR)
-        cursor->ns.object = [NSCursor crosshairCursor];
-    else if (shape == GLFW_HAND_CURSOR)
-        cursor->ns.object = [NSCursor pointingHandCursor];
-    else if (shape == GLFW_HRESIZE_CURSOR)
-        cursor->ns.object = [NSCursor resizeLeftRightCursor];
-    else if (shape == GLFW_VRESIZE_CURSOR)
-        cursor->ns.object = [NSCursor resizeUpDownCursor];
+    SEL cursorSelector = NULL;
+
+    // HACK: Try to use a private message
+    if (shape == GLFW_RESIZE_EW_CURSOR)
+        cursorSelector = @selector(_windowResizeEastWestCursor);
+    else if (shape == GLFW_RESIZE_NS_CURSOR)
+        cursorSelector = @selector(_windowResizeNorthSouthCursor);
+    else if (shape == GLFW_RESIZE_NWSE_CURSOR)
+        cursorSelector = @selector(_windowResizeNorthWestSouthEastCursor);
+    else if (shape == GLFW_RESIZE_NESW_CURSOR)
+        cursorSelector = @selector(_windowResizeNorthEastSouthWestCursor);
+
+    if (cursorSelector && [NSCursor respondsToSelector:cursorSelector])
+    {
+        id object = [NSCursor performSelector:cursorSelector];
+        if ([object isKindOfClass:[NSCursor class]])
+            cursor->ns.object = object;
+    }
 
     if (!cursor->ns.object)
     {
-        _glfwInputError(GLFW_PLATFORM_ERROR,
-                        "Cocoa: Failed to retrieve standard cursor");
+        if (shape == GLFW_ARROW_CURSOR)
+            cursor->ns.object = [NSCursor arrowCursor];
+        else if (shape == GLFW_IBEAM_CURSOR)
+            cursor->ns.object = [NSCursor IBeamCursor];
+        else if (shape == GLFW_CROSSHAIR_CURSOR)
+            cursor->ns.object = [NSCursor crosshairCursor];
+        else if (shape == GLFW_POINTING_HAND_CURSOR)
+            cursor->ns.object = [NSCursor pointingHandCursor];
+        else if (shape == GLFW_RESIZE_EW_CURSOR)
+            cursor->ns.object = [NSCursor resizeLeftRightCursor];
+        else if (shape == GLFW_RESIZE_NS_CURSOR)
+            cursor->ns.object = [NSCursor resizeUpDownCursor];
+        else if (shape == GLFW_RESIZE_ALL_CURSOR)
+            cursor->ns.object = [NSCursor closedHandCursor];
+        else if (shape == GLFW_NOT_ALLOWED_CURSOR)
+            cursor->ns.object = [NSCursor operationNotAllowedCursor];
+    }
+
+    if (!cursor->ns.object)
+    {
+        _glfwInputError(GLFW_CURSOR_UNAVAILABLE,
+                        "Cocoa: Standard cursor shape unavailable");
         return GLFW_FALSE;
     }
 
