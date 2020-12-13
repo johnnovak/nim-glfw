@@ -869,6 +869,10 @@ extern "C" {
  */
 #define GLFW_FOCUS_ON_SHOW          0x0002000C
 
+#define GLFW_HIDE_FROM_TASKBAR      0x0002000D
+#define GLFW_MOUSE_PASSTHRU         0x0002000E
+
+
 /*! @brief Framebuffer bit depth hint.
  *
  *  Framebuffer bit depth [hint](@ref GLFW_RED_BITS).

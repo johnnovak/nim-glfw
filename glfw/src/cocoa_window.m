@@ -867,6 +867,11 @@ static GLFWbool createNativeWindow(_GLFWwindow* window,
     [window->ns.object setAcceptsMouseMovedEvents:YES];
     [window->ns.object setRestorable:NO];
 
+    if (wndconfig->hideFromTaskbar)
+        [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory];
+    else
+        [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
+
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= 101200
     if ([window->ns.object respondsToSelector:@selector(setTabbingMode:)])
         [window->ns.object setTabbingMode:NSWindowTabbingModeDisallowed];
@@ -1371,6 +1376,14 @@ void _glfwPlatformSetWindowFloating(_GLFWwindow* window, GLFWbool enabled)
     else
         [window->ns.object setLevel:NSNormalWindowLevel];
     } // autoreleasepool
+}
+
+void _glfwPlatformSetWindowMousePassthru(_GLFWwindow* window, GLFWbool enabled)
+{
+    window->mousePassthru = enabled;
+    @autoreleasepool {
+    [window->ns.object setIgnoresMouseEvents:enabled];
+    }
 }
 
 float _glfwPlatformGetWindowOpacity(_GLFWwindow* window)

@@ -267,6 +267,8 @@ struct _GLFWwndconfig
     GLFWbool      centerCursor;
     GLFWbool      focusOnShow;
     GLFWbool      scaleToMonitor;
+    GLFWbool      hideFromTaskbar;
+    GLFWbool      mousePassthru;
     struct {
         GLFWbool  retina;
         char      frameName[256];
@@ -373,6 +375,8 @@ struct _GLFWwindow
     GLFWbool            autoIconify;
     GLFWbool            floating;
     GLFWbool            focusOnShow;
+    GLFWbool            hideFromTaskbar;
+    GLFWbool            mousePassthru;
     GLFWbool            shouldClose;
     void*               userPointer;
     GLFWbool            doublebuffer;
@@ -672,6 +676,8 @@ float _glfwPlatformGetWindowOpacity(_GLFWwindow* window);
 void _glfwPlatformSetWindowResizable(_GLFWwindow* window, GLFWbool enabled);
 void _glfwPlatformSetWindowDecorated(_GLFWwindow* window, GLFWbool enabled);
 void _glfwPlatformSetWindowFloating(_GLFWwindow* window, GLFWbool enabled);
+void _glfwPlatformSetWindowHideFromTaskbar(_GLFWwindow* window, GLFWbool enabled);
+void _glfwPlatformSetWindowMousePassthru(_GLFWwindow* window, GLFWbool enabled);
 void _glfwPlatformSetWindowOpacity(_GLFWwindow* window, float opacity);
 
 void _glfwPlatformPollEvents(void);
