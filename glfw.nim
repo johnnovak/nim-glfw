@@ -7,6 +7,7 @@ export options
 export unicode.Rune
 export wrapper.pollEvents
 export wrapper.waitEvents
+export wrapper.waitEventsTimeout
 export wrapper.postEmptyEvent
 export wrapper.createCursor
 export wrapper.createStandardCursor
@@ -839,7 +840,7 @@ proc timerValue*: uint64 =
 proc timerFrequency*: uint64 =
   wrapper.getTimerFrequency()
 
-proc `icon=`*(w: Window, images: openarray[wrapper.IconImageObj]) =
+proc `icons=`*(w: Window, images: openarray[wrapper.IconImageObj]) =
   wrapper.setWindowIcon(w, images.len.int32, images[0].unsafeAddr)
 
 proc keyName*(key: Key): cstring =
