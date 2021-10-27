@@ -1,6 +1,12 @@
 static:
   assert cshort.sizeof == int16.sizeof and cint.sizeof == int32.sizeof,
-    "not binary compatible with GLFW. Please report this"
+    "Not binary compatible with GLFW. Please report this."
+
+import os
+import strformat
+
+const BaseDir = currentSourcePath.parentDir()
+const SrcDir = BaseDir / "src"
 
 when defined(glfwJustCdecl):
   {.pragma: glfwImport, cdecl.}
@@ -15,71 +21,71 @@ elif not defined(glfwStaticLib):
   {.deadCodeElim: on.}
 else:
   when defined(windows):
-    {.passC: "-D_GLFW_WIN32", passL: "-lopengl32 -lgdi32",
-      compile: "glfw/src/win32_init.c",
-      compile: "glfw/src/win32_joystick.c",
-      compile: "glfw/src/win32_monitor.c",
-      compile: "glfw/src/win32_time.c",
-      compile: "glfw/src/win32_thread.c",
-      compile: "glfw/src/win32_window.c",
-      compile: "glfw/src/wgl_context.c",
-      compile: "glfw/src/egl_context.c",
-      compile: "glfw/src/osmesa_context.c".}
+    {.passC: fmt"-D_GLFW_WIN32 -I {BaseDir}/deps/mingw", passL: "-lopengl32 -lgdi32",
+      compile: SrcDir / "win32_init.c",
+      compile: SrcDir / "win32_joystick.c",
+      compile: SrcDir / "win32_monitor.c",
+      compile: SrcDir / "win32_time.c",
+      compile: SrcDir / "win32_thread.c",
+      compile: SrcDir / "win32_window.c",
+      compile: SrcDir / "wgl_context.c",
+      compile: SrcDir / "egl_context.c",
+      compile: SrcDir / "osmesa_context.c".}
   elif defined(macosx):
     {.passC: "-D_GLFW_COCOA",
       passL: "-framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo",
-      compile: "glfw/src/cocoa_init.m",
-      compile: "glfw/src/cocoa_joystick.m",
-      compile: "glfw/src/cocoa_monitor.m",
-      compile: "glfw/src/cocoa_window.m",
-      compile: "glfw/src/cocoa_time.c",
-      compile: "glfw/src/posix_thread.c",
-      compile: "glfw/src/nsgl_context.m",
-      compile: "glfw/src/egl_context.c",
-      compile: "glfw/src/osmesa_context.c".}
+      compile: SrcDir / "cocoa_init.m",
+      compile: SrcDir / "cocoa_joystick.m",
+      compile: SrcDir / "cocoa_monitor.m",
+      compile: SrcDir / "cocoa_window.m",
+      compile: SrcDir / "cocoa_time.c",
+      compile: SrcDir / "posix_thread.c",
+      compile: SrcDir / "nsgl_context.m",
+      compile: SrcDir / "egl_context.c",
+      compile: SrcDir / "osmesa_context.c".}
   elif defined(linux):
     {.passL: "-pthread -lGL -lX11 -lXrandr -lXxf86vm -lXi -lXcursor -lm -lXinerama".}
 
     when defined(wayland):
       {.passC: "-D_GLFW_WAYLAND",
-      compile: "glfw/src/wl_init.c",
-      compile: "glfw/src/wl_monitor.c",
-      compile: "glfw/src/wl_window.c",
-      compile: "glfw/src/posix_time.c",
-      compile: "glfw/src/posix_thread.c",
-      compile: "glfw/src/xkb_unicode.c",
-      compile: "glfw/src/egl_context.c",
-      compile: "glfw/src/osmesa_context.c".}
+      compile: SrcDir / "wl_init.c",
+      compile: SrcDir / "wl_monitor.c",
+      compile: SrcDir / "wl_window.c",
+      compile: SrcDir / "posix_time.c",
+      compile: SrcDir / "posix_thread.c",
+      compile: SrcDir / "xkb_unicode.c",
+      compile: SrcDir / "egl_context.c",
+      compile: SrcDir / "osmesa_context.c".}
     else:
       {.passC: "-D_GLFW_X11",
-      compile: "glfw/src/x11_init.c",
-      compile: "glfw/src/x11_monitor.c",
-      compile: "glfw/src/x11_window.c",
-      compile: "glfw/src/xkb_unicode.c",
-      compile: "glfw/src/posix_time.c",
-      compile: "glfw/src/posix_thread.c",
-      compile: "glfw/src/glx_context.c",
-      compile: "glfw/src/egl_context.c",
-      compile: "glfw/src/osmesa_context.c".}
+      compile: SrcDir / "x11_init.c",
+      compile: SrcDir / "x11_monitor.c",
+      compile: SrcDir / "x11_window.c",
+      compile: SrcDir / "xkb_unicode.c",
+      compile: SrcDir / "posix_time.c",
+      compile: SrcDir / "posix_thread.c",
+      compile: SrcDir / "glx_context.c",
+      compile: SrcDir / "egl_context.c",
+      compile: SrcDir / "osmesa_context.c".}
 
-    {.compile: "glfw/src/linux_joystick.c".}
+    {.compile: SrcDir / "src/linux_joystick.c".}
   else:
     # If unsupported/unknown OS, use null system
-    {.compile: "glfw/src/null_init.c",
-      compile: "glfw/src/null_monitor.c",
-      compile: "glfw/src/null_window.c",
-      compile: "glfw/src/null_joystick.c",
-      compile: "glfw/src/posix_time.c",
-      compile: "glfw/src/posix_thread.c",
-      compile: "glfw/src/osmesa_context.c".}
+    {.compile: SrcDir / "null_init.c",
+      compile: SrcDir / "null_monitor.c",
+      compile: SrcDir / "null_window.c",
+      compile: SrcDir / "null_joystick.c",
+      compile: SrcDir / "posix_time.c",
+      compile: SrcDir / "posix_thread.c",
+      compile: SrcDir / "osmesa_context.c".}
 
   # Common
-  {.compile: "glfw/src/context.c",
-    compile: "glfw/src/init.c",
-    compile: "glfw/src/input.c",
-    compile: "glfw/src/monitor.c",
-    compile: "glfw/src/vulkan.c",
-    compile: "glfw/src/window.c".}
+  {.compile: SrcDir / "context.c",
+    compile: SrcDir / "init.c",
+    compile: SrcDir / "input.c",
+    compile: SrcDir / "monitor.c",
+    compile: SrcDir / "vulkan.c",
+    compile: SrcDir / "window.c".}
 
   {.pragma: glfwImport.}
 
@@ -291,7 +297,7 @@ const
 
 type
   GamepadState* = object
-    buttons: array[15, cuchar]
+    buttons: array[15, uint8]
     axes: array[6, float]
 
 const
@@ -428,7 +434,7 @@ type
   IconImageObj* {.bycopy.} = object
     width*: int32
     height*: int32
-    pixels*: ptr cuchar
+    pixels*: ptr uint8
   IconImage* = ptr IconImageObj
 
 type
@@ -572,8 +578,8 @@ macro generateProcs() =
     proc setDropCallback*(window: Window; cbfun: Dropfun): Dropfun
     proc joystickPresent*(joy: int32): int32
     proc getJoystickAxes*(joy: int32; count: ptr int32): ptr cfloat
-    proc getJoystickButtons*(joy: int32; count: ptr int32): ptr cuchar
-    proc getJoystickHats*(jid: int32, count: ptr int32): ptr cuchar
+    proc getJoystickButtons*(joy: int32; count: ptr int32): ptr uint8
+    proc getJoystickHats*(jid: int32, count: ptr int32): ptr uint8
     proc getJoystickName*(joy: int32): cstring
     proc getJoystickGUID*(jid: int32): cstring
     proc setJoystickUserPointer*(jid: int, pointerr: pointer)
