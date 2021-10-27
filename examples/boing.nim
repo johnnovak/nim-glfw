@@ -39,8 +39,8 @@
 import math
 import random
 
-import glm
 import glad/gl
+import glm
 import glfw
 
 

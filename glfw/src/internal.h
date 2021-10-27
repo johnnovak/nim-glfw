@@ -267,8 +267,6 @@ struct _GLFWwndconfig
     GLFWbool      centerCursor;
     GLFWbool      focusOnShow;
     GLFWbool      scaleToMonitor;
-    GLFWbool      hideFromTaskbar;
-    GLFWbool      mousePassthru;
     struct {
         GLFWbool  retina;
         char      frameName[256];
@@ -344,9 +342,9 @@ struct _GLFWcontext
     int                 robustness;
     int                 release;
 
-    PFNGLGETSTRINGIPROC GetStringi;
+    PFNGLGETSTRINGIPROC  GetStringi;
     PFNGLGETINTEGERVPROC GetIntegerv;
-    PFNGLGETSTRINGPROC  GetString;
+    PFNGLGETSTRINGPROC   GetString;
 
     _GLFWmakecontextcurrentfun  makeCurrent;
     _GLFWswapbuffersfun         swapBuffers;
@@ -375,10 +373,9 @@ struct _GLFWwindow
     GLFWbool            autoIconify;
     GLFWbool            floating;
     GLFWbool            focusOnShow;
-    GLFWbool            hideFromTaskbar;
-    GLFWbool            mousePassthru;
     GLFWbool            shouldClose;
     void*               userPointer;
+    GLFWbool            doublebuffer;
     GLFWvidmode         videoMode;
     _GLFWmonitor*       monitor;
     _GLFWcursor*        cursor;
@@ -400,23 +397,23 @@ struct _GLFWwindow
     _GLFWcontext        context;
 
     struct {
-        GLFWwindowposfun        pos;
-        GLFWwindowsizefun       size;
-        GLFWwindowclosefun      close;
-        GLFWwindowrefreshfun    refresh;
-        GLFWwindowfocusfun      focus;
-        GLFWwindowiconifyfun    iconify;
-        GLFWwindowmaximizefun   maximize;
-        GLFWframebuffersizefun  fbsize;
+        GLFWwindowposfun          pos;
+        GLFWwindowsizefun         size;
+        GLFWwindowclosefun        close;
+        GLFWwindowrefreshfun      refresh;
+        GLFWwindowfocusfun        focus;
+        GLFWwindowiconifyfun      iconify;
+        GLFWwindowmaximizefun     maximize;
+        GLFWframebuffersizefun    fbsize;
         GLFWwindowcontentscalefun scale;
-        GLFWmousebuttonfun      mouseButton;
-        GLFWcursorposfun        cursorPos;
-        GLFWcursorenterfun      cursorEnter;
-        GLFWscrollfun           scroll;
-        GLFWkeyfun              key;
-        GLFWcharfun             character;
-        GLFWcharmodsfun         charmods;
-        GLFWdropfun             drop;
+        GLFWmousebuttonfun        mouseButton;
+        GLFWcursorposfun          cursorPos;
+        GLFWcursorenterfun        cursorEnter;
+        GLFWscrollfun             scroll;
+        GLFWkeyfun                key;
+        GLFWcharfun               character;
+        GLFWcharmodsfun           charmods;
+        GLFWdropfun               drop;
     } callbacks;
 
     // This is defined in the window API's platform.h
@@ -427,7 +424,7 @@ struct _GLFWwindow
 //
 struct _GLFWmonitor
 {
-    char*           name;
+    char            name[128];
     void*           userPointer;
 
     // Physical dimensions in millimeters.
@@ -488,7 +485,7 @@ struct _GLFWjoystick
     int             buttonCount;
     unsigned char*  hats;
     int             hatCount;
-    char*           name;
+    char            name[128];
     void*           userPointer;
     char            guid[33];
     _GLFWmapping*   mapping;
@@ -675,8 +672,6 @@ float _glfwPlatformGetWindowOpacity(_GLFWwindow* window);
 void _glfwPlatformSetWindowResizable(_GLFWwindow* window, GLFWbool enabled);
 void _glfwPlatformSetWindowDecorated(_GLFWwindow* window, GLFWbool enabled);
 void _glfwPlatformSetWindowFloating(_GLFWwindow* window, GLFWbool enabled);
-void _glfwPlatformSetWindowHideFromTaskbar(_GLFWwindow* window, GLFWbool enabled);
-void _glfwPlatformSetWindowMousePassthru(_GLFWwindow* window, GLFWbool enabled);
 void _glfwPlatformSetWindowOpacity(_GLFWwindow* window, float opacity);
 
 void _glfwPlatformPollEvents(void);
@@ -766,6 +761,7 @@ void _glfwAllocGammaArrays(GLFWgammaramp* ramp, unsigned int size);
 void _glfwFreeGammaArrays(GLFWgammaramp* ramp);
 void _glfwSplitBPP(int bpp, int* red, int* green, int* blue);
 
+void _glfwInitGamepadMappings(void);
 _GLFWjoystick* _glfwAllocJoystick(const char* name,
                                   const char* guid,
                                   int axisCount,

@@ -32,8 +32,8 @@
 #
 #========================================================================
 
-import glm
 import glad/gl
+import glm
 import glfw
 
 type

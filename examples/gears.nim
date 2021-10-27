@@ -32,8 +32,8 @@
 
 import math
 
-import glm
 import glad/gl
+import glm
 import glfw
 
 #  Draw a gear wheel.  You'll probably want to call this function when

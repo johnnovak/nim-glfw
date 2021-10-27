@@ -19,8 +19,8 @@
 
 import math
 
-import glm
 import glad/gl
+import glm
 import glfw
 
 
