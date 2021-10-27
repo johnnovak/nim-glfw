@@ -3,7 +3,6 @@ static:
     "Not binary compatible with GLFW. Please report this."
 
 import os
-import strformat
 
 const BaseDir = currentSourcePath.parentDir()
 const SrcDir = BaseDir / "src"
@@ -19,18 +18,23 @@ elif not defined(glfwStaticLib):
     const GlfwDll = "libglfw.so.3"
   {.pragma: glfwImport, dynlib: GlfwDll.}
   {.deadCodeElim: on.}
+
 else:
   when defined(windows):
+    import strformat
+
     {.passC: fmt"-D_GLFW_WIN32 -I {BaseDir}/deps/mingw", passL: "-lopengl32 -lgdi32",
       compile: SrcDir / "win32_init.c",
       compile: SrcDir / "win32_joystick.c",
+      compile: SrcDir / "win32_module.c",
       compile: SrcDir / "win32_monitor.c",
-      compile: SrcDir / "win32_time.c",
       compile: SrcDir / "win32_thread.c",
+      compile: SrcDir / "win32_time.c",
       compile: SrcDir / "win32_window.c",
       compile: SrcDir / "wgl_context.c",
       compile: SrcDir / "egl_context.c",
       compile: SrcDir / "osmesa_context.c".}
+
   elif defined(macosx):
     {.passC: "-D_GLFW_COCOA",
       passL: "-framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo",
@@ -39,11 +43,14 @@ else:
       compile: SrcDir / "cocoa_monitor.m",
       compile: SrcDir / "cocoa_window.m",
       compile: SrcDir / "cocoa_time.c",
+      compile: SrcDir / "posix_module.c",
       compile: SrcDir / "posix_thread.c",
       compile: SrcDir / "nsgl_context.m",
       compile: SrcDir / "egl_context.c",
       compile: SrcDir / "osmesa_context.c".}
+
   elif defined(linux):
+    # TODO untested
     {.passL: "-pthread -lGL -lX11 -lXrandr -lXxf86vm -lXi -lXcursor -lm -lXinerama".}
 
     when defined(wayland):
@@ -51,6 +58,7 @@ else:
       compile: SrcDir / "wl_init.c",
       compile: SrcDir / "wl_monitor.c",
       compile: SrcDir / "wl_window.c",
+      compile: SrcDir / "posix_module.c",
       compile: SrcDir / "posix_time.c",
       compile: SrcDir / "posix_thread.c",
       compile: SrcDir / "xkb_unicode.c",
@@ -62,6 +70,7 @@ else:
       compile: SrcDir / "x11_monitor.c",
       compile: SrcDir / "x11_window.c",
       compile: SrcDir / "xkb_unicode.c",
+      compile: SrcDir / "posix_module.c",
       compile: SrcDir / "posix_time.c",
       compile: SrcDir / "posix_thread.c",
       compile: SrcDir / "glx_context.c",
@@ -69,21 +78,24 @@ else:
       compile: SrcDir / "osmesa_context.c".}
 
     {.compile: SrcDir / "src/linux_joystick.c".}
+
   else:
     # If unsupported/unknown OS, use null system
-    {.compile: SrcDir / "null_init.c",
-      compile: SrcDir / "null_monitor.c",
-      compile: SrcDir / "null_window.c",
-      compile: SrcDir / "null_joystick.c",
-      compile: SrcDir / "posix_time.c",
+    # TODO untested
+    {.compile: SrcDir / "posix_time.c",
       compile: SrcDir / "posix_thread.c",
       compile: SrcDir / "osmesa_context.c".}
 
   # Common
   {.compile: SrcDir / "context.c",
     compile: SrcDir / "init.c",
+    compile: SrcDir / "null_init.c",
+    compile: SrcDir / "null_monitor.c",
+    compile: SrcDir / "null_window.c",
+    compile: SrcDir / "null_joystick.c",
     compile: SrcDir / "input.c",
     compile: SrcDir / "monitor.c",
+    compile: SrcDir / "platform.c",
     compile: SrcDir / "vulkan.c",
     compile: SrcDir / "window.c".}
 

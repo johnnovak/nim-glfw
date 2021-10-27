@@ -1,13 +1,13 @@
 #[ Package ]#
 
-version     = "3.3.2.1"
+version     = "3.3.4.0"
 author      = "Erik Johansson Andersson"
 description = "GLFW 3 wrapper for Nim"
 license     = "MIT"
 
 skipDirs = @["examples"]
 
-requires "nim >= 1.4.0"
+requires "nim >= 1.6.0"
 
 task examples, "Compiles the examples with dynamic linking":
   exec "nim c examples/boing"
