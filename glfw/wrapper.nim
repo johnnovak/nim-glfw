@@ -3,7 +3,6 @@ static:
     "Not binary compatible with GLFW. Please report this."
 
 import os
-import strformat
 
 const BaseDir = currentSourcePath.parentDir()
 const SrcDir = BaseDir / "src"
@@ -21,6 +20,8 @@ elif not defined(glfwStaticLib):
   {.deadCodeElim: on.}
 else:
   when defined(windows):
+    import strformat
+
     {.passC: fmt"-D_GLFW_WIN32 -I {BaseDir}/deps/mingw", passL: "-lopengl32 -lgdi32",
       compile: SrcDir / "win32_init.c",
       compile: SrcDir / "win32_joystick.c",

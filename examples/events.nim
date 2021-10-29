@@ -12,10 +12,14 @@ proc formatFloat(f: float): string =
 proc windowPositionCb(w: Window, pos: tuple[x, y: int32]) =
   echo "Window position: ($1, $2)" % [$pos.x, $pos.y]
 
+{.push warning[HoleEnumConv]:off.}
+
 proc mouseButtonCb(
     w: Window, b: MouseButton, pressed: bool, mods: set[ModifierKey]) =
   let pressedStr = if pressed: "down" else: "up"
   echo "$1: $2 - modifiers: $3" % [$b, pressedStr, $mods]
+
+{.pop.}
 
 proc windowSizeCb(w: Window not nil, size: tuple[w, h: int32]) =
   echo "Window size: $1x$2" % [$size.w, $size.h]

@@ -31,6 +31,8 @@ export wrapper.swapBuffers
 export wrapper.getProcAddress
 export wrapper.CursorMode
 
+{.push warning[HoleEnumConv]:off.}
+
 converter toInt32Tuple*(t: tuple[w, h: int]): tuple[w, h: int32] =
   (t[0].int32, t[1].int32)
 
@@ -720,7 +722,7 @@ proc newWindow*(c = DefaultOpenglWindowConfig): Window =
                       else: c.shareResourcesWith.handle
 
   result.handle = wrapper.createWindow(
-    c.size.w, c.size.h, cast[cstring](c.title),
+    c.size.w, c.size.h, cstring(c.title),
     c.fullscreenMonitor, sharedMonitor
   ).failIf(nil)
 
@@ -861,3 +863,5 @@ proc setSizeLimits*(w: Window, minwidth, minheight, maxwidth, maxheight: int32) 
 
 proc setAspectRatio*(w: Window, numer, denom: int32) =
   wrapper.setWindowAspectRatio(w, numer, denom)
+
+{.pop.}
