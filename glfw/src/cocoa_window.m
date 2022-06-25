@@ -361,9 +361,7 @@ static const NSRange kEmptyRange = { NSNotFound, 0 };
         markedText = [[NSMutableAttributedString alloc] init];
 
         [self updateTrackingAreas];
-        // NOTE: kUTTypeURL corresponds to NSPasteboardTypeURL but is available
-        //       on 10.7 without having been deprecated yet
-        [self registerForDraggedTypes:@[(__bridge NSString*) kUTTypeURL]];
+        [self registerForDraggedTypes:@[NSPasteboardTypeURL]];
     }
 
     return self;
@@ -866,11 +864,6 @@ static GLFWbool createNativeWindow(_GLFWwindow* window,
     [window->ns.object setDelegate:window->ns.delegate];
     [window->ns.object setAcceptsMouseMovedEvents:YES];
     [window->ns.object setRestorable:NO];
-
-    if (wndconfig->hideFromTaskbar)
-        [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory];
-    else
-        [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
 
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= 101200
     if ([window->ns.object respondsToSelector:@selector(setTabbingMode:)])
@@ -1376,14 +1369,6 @@ void _glfwPlatformSetWindowFloating(_GLFWwindow* window, GLFWbool enabled)
     else
         [window->ns.object setLevel:NSNormalWindowLevel];
     } // autoreleasepool
-}
-
-void _glfwPlatformSetWindowMousePassthru(_GLFWwindow* window, GLFWbool enabled)
-{
-    window->mousePassthru = enabled;
-    @autoreleasepool {
-    [window->ns.object setIgnoresMouseEvents:enabled];
-    }
 }
 
 float _glfwPlatformGetWindowOpacity(_GLFWwindow* window)

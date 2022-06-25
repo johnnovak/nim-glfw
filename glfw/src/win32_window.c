@@ -67,10 +67,6 @@ static DWORD getWindowStyle(const _GLFWwindow* window)
 static DWORD getWindowExStyle(const _GLFWwindow* window)
 {
     DWORD style = WS_EX_APPWINDOW;
-    if (window->hideFromTaskbar)
-    {
-        style = WS_EX_NOACTIVATE;
-    }
 
     if (window->monitor || window->floating)
         style |= WS_EX_TOPMOST;
@@ -468,7 +464,7 @@ static void acquireMonitor(_GLFWwindow* window)
     if (!window->monitor->window)
         _glfw.win32.acquiredMonitorCount++;
 
-    _glfwSetVideoModeWin32(window->monitor, &window->videoMode, GLFW_FALSE);
+    _glfwSetVideoModeWin32(window->monitor, &window->videoMode);
     _glfwInputMonitorWindow(window->monitor, window);
 }
 
@@ -650,7 +646,7 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
                 window->win32.highSurrogate = (WCHAR) wParam;
             else
             {
-                unsigned int codepoint = 0;
+                uint32_t codepoint = 0;
 
                 if (wParam >= 0xdc00 && wParam <= 0xdfff)
                 {
@@ -681,7 +677,7 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
                 return TRUE;
             }
 
-            _glfwInputChar(window, (unsigned int) wParam, getKeyMods(), GLFW_TRUE);
+            _glfwInputChar(window, (uint32_t) wParam, getKeyMods(), GLFW_TRUE);
             return 0;
         }
 
@@ -1208,13 +1204,6 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
             DragFinish(drop);
             return 0;
         }
-
-        case WM_NCHITTEST:
-        {
-            if (window->mousePassthru)
-                return HTTRANSPARENT;
-            break;
-        }
     }
 
     return DefWindowProcW(hWnd, uMsg, wParam, lParam);
@@ -1308,8 +1297,12 @@ static int createNativeWindow(_GLFWwindow* window,
         {
             float xscale, yscale;
             _glfwPlatformGetWindowContentScale(window, &xscale, &yscale);
-            rect.right = (int) (rect.right * xscale);
-            rect.bottom = (int) (rect.bottom * yscale);
+
+            if (xscale > 0.f && yscale > 0.f)
+            {
+                rect.right = (int) (rect.right * xscale);
+                rect.bottom = (int) (rect.bottom * yscale);
+            }
         }
 
         ClientToScreen(window->win32.handle, (POINT*) &rect.left);
@@ -1881,11 +1874,6 @@ void _glfwPlatformSetWindowFloating(_GLFWwindow* window, GLFWbool enabled)
     const HWND after = enabled ? HWND_TOPMOST : HWND_NOTOPMOST;
     SetWindowPos(window->win32.handle, after, 0, 0, 0, 0,
                  SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
-}
-
-void _glfwPlatformSetWindowMousePassthru(_GLFWwindow* window, GLFWbool enabled)
-{
-    window->mousePassthru = enabled;
 }
 
 float _glfwPlatformGetWindowOpacity(_GLFWwindow* window)

@@ -203,7 +203,6 @@ GLFWAPI GLFWwindow* glfwCreateWindow(int width, int height,
     window->autoIconify = wndconfig.autoIconify;
     window->floating    = wndconfig.floating;
     window->focusOnShow = wndconfig.focusOnShow;
-    window->hideFromTaskbar = wndconfig.hideFromTaskbar;
     window->cursorMode  = GLFW_CURSOR_NORMAL;
 
     window->doublebuffer = fbconfig.doublebuffer;
@@ -246,7 +245,6 @@ GLFWAPI GLFWwindow* glfwCreateWindow(int width, int height,
         }
     }
 
-    _glfwPlatformSetWindowMousePassthru(window, wndconfig.mousePassthru);
     return (GLFWwindow*) window;
 }
 
@@ -270,7 +268,6 @@ void glfwDefaultWindowHints(void)
     _glfw.hints.window.autoIconify  = GLFW_TRUE;
     _glfw.hints.window.centerCursor = GLFW_TRUE;
     _glfw.hints.window.focusOnShow  = GLFW_TRUE;
-    _glfw.hints.window.hideFromTaskbar = GLFW_FALSE;
 
     // The default is 24 bits of color, 24 bits of depth and 8 bits of stencil,
     // double buffered
@@ -377,15 +374,9 @@ GLFWAPI void glfwWindowHint(int hint, int value)
         case GLFW_CENTER_CURSOR:
             _glfw.hints.window.centerCursor = value ? GLFW_TRUE : GLFW_FALSE;
             return;
-        case GLFW_HIDE_FROM_TASKBAR:
-            _glfw.hints.window.hideFromTaskbar = value ? GLFW_TRUE : GLFW_FALSE;
-            return;
         case GLFW_FOCUS_ON_SHOW:
             _glfw.hints.window.focusOnShow = value ? GLFW_TRUE : GLFW_FALSE;
             return;
-        case GLFW_MOUSE_PASSTHRU:
-             _glfw.hints.window.mousePassthru = value ? GLFW_TRUE : GLFW_FALSE;
-             return;
         case GLFW_CLIENT_API:
             _glfw.hints.context.client = value;
             return;
@@ -828,12 +819,8 @@ GLFWAPI int glfwGetWindowAttrib(GLFWwindow* handle, int attrib)
             return _glfwPlatformWindowMaximized(window);
         case GLFW_HOVERED:
             return _glfwPlatformWindowHovered(window);
-        case GLFW_HIDE_FROM_TASKBAR:
-            return window->hideFromTaskbar;
         case GLFW_FOCUS_ON_SHOW:
             return window->focusOnShow;
-        case GLFW_MOUSE_PASSTHRU:
-            return window->mousePassthru;
         case GLFW_TRANSPARENT_FRAMEBUFFER:
             return _glfwPlatformFramebufferTransparent(window);
         case GLFW_RESIZABLE:
@@ -912,8 +899,6 @@ GLFWAPI void glfwSetWindowAttrib(GLFWwindow* handle, int attrib, int value)
     }
     else if (attrib == GLFW_FOCUS_ON_SHOW)
         window->focusOnShow = value;
-    else if (attrib == GLFW_MOUSE_PASSTHRU)
-         _glfwPlatformSetWindowMousePassthru(window, value);
     else
         _glfwInputError(GLFW_INVALID_ENUM, "Invalid window attribute 0x%08X", attrib);
 }

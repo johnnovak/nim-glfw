@@ -189,10 +189,6 @@ void _glfwPlatformSetWindowFloating(_GLFWwindow* window, GLFWbool enabled)
 {
 }
 
-void _glfwPlatformSetWindowMousePassthru(_GLFWwindow* window, GLFWbool enabled)
-{
-}
-
 float _glfwPlatformGetWindowOpacity(_GLFWwindow* window)
 {
     return 1.f;

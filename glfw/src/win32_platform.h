@@ -218,10 +218,6 @@ typedef enum
  #define DIDFT_OPTIONAL 0x80000000
 #endif
 
-// winmm.dll function pointer typedefs
-typedef DWORD (WINAPI * PFN_timeGetTime)(void);
-#define timeGetTime _glfw.win32.winmm.GetTime
-
 // xinput.dll function pointer typedefs
 typedef DWORD (WINAPI * PFN_XInputGetCapabilities)(DWORD,DWORD,XINPUT_CAPABILITIES*);
 typedef DWORD (WINAPI * PFN_XInputGetState)(DWORD,XINPUT_STATE*);
@@ -320,7 +316,6 @@ typedef struct _GLFWwindowWin32
     // Whether to enable framebuffer transparency on DWM
     GLFWbool            transparent;
     GLFWbool            scaleToMonitor;
-    GLFWbool            hideFromTaskbar;
 
     // Cached size used to filter out duplicate events
     int                 width, height;
@@ -329,7 +324,6 @@ typedef struct _GLFWwindowWin32
     int                 lastCursorPosX, lastCursorPosY;
     // The last recevied high surrogate when decoding pairs of UTF-16 messages
     WCHAR               highSurrogate;
-
 } _GLFWwindowWin32;
 
 // Win32-specific global data
@@ -351,11 +345,6 @@ typedef struct _GLFWlibraryWin32
     RAWINPUT*           rawInput;
     int                 rawInputSize;
     UINT                mouseTrailSize;
-
-    struct {
-        HINSTANCE                       instance;
-        PFN_timeGetTime                 GetTime;
-    } winmm;
 
     struct {
         HINSTANCE                       instance;
@@ -397,7 +386,6 @@ typedef struct _GLFWlibraryWin32
         HINSTANCE                       instance;
         PFN_RtlVerifyVersionInfo        RtlVerifyVersionInfo_;
     } ntdll;
-
 } _GLFWlibraryWin32;
 
 // Win32-specific per-monitor data
@@ -412,7 +400,6 @@ typedef struct _GLFWmonitorWin32
     char                publicDisplayName[32];
     GLFWbool            modesPruned;
     GLFWbool            modeChanged;
-
 } _GLFWmonitorWin32;
 
 // Win32-specific per-cursor data
@@ -420,16 +407,13 @@ typedef struct _GLFWmonitorWin32
 typedef struct _GLFWcursorWin32
 {
     HCURSOR             handle;
-
 } _GLFWcursorWin32;
 
 // Win32-specific global timer data
 //
 typedef struct _GLFWtimerWin32
 {
-    GLFWbool            hasPC;
     uint64_t            frequency;
-
 } _GLFWtimerWin32;
 
 // Win32-specific thread local storage data
@@ -438,7 +422,6 @@ typedef struct _GLFWtlsWin32
 {
     GLFWbool            allocated;
     DWORD               index;
-
 } _GLFWtlsWin32;
 
 // Win32-specific mutex data
@@ -447,7 +430,6 @@ typedef struct _GLFWmutexWin32
 {
     GLFWbool            allocated;
     CRITICAL_SECTION    section;
-
 } _GLFWmutexWin32;
 
 
@@ -464,7 +446,7 @@ void _glfwUpdateKeyNamesWin32(void);
 void _glfwInitTimerWin32(void);
 
 void _glfwPollMonitorsWin32(void);
-void _glfwSetVideoModeWin32(_GLFWmonitor* monitor, const GLFWvidmode* desired, GLFWbool permanent);
+void _glfwSetVideoModeWin32(_GLFWmonitor* monitor, const GLFWvidmode* desired);
 void _glfwRestoreVideoModeWin32(_GLFWmonitor* monitor);
 void _glfwGetMonitorContentScaleWin32(HMONITOR handle, float* xscale, float* yscale);
 

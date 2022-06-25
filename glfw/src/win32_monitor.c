@@ -246,7 +246,7 @@ void _glfwPollMonitorsWin32(void)
 
 // Change the current video mode
 //
-void _glfwSetVideoModeWin32(_GLFWmonitor* monitor, const GLFWvidmode* desired, GLFWbool permanent)
+void _glfwSetVideoModeWin32(_GLFWmonitor* monitor, const GLFWvidmode* desired)
 {
     GLFWvidmode current;
     const GLFWvidmode* best;
@@ -273,7 +273,7 @@ void _glfwSetVideoModeWin32(_GLFWmonitor* monitor, const GLFWvidmode* desired, G
     result = ChangeDisplaySettingsExW(monitor->win32.adapterName,
                                       &dm,
                                       NULL,
-                                      ((permanent ? CDS_UPDATEREGISTRY : 0) | CDS_FULLSCREEN),
+                                      CDS_FULLSCREEN,
                                       NULL);
     if (result == DISP_CHANGE_SUCCESSFUL)
         monitor->win32.modeChanged = GLFW_TRUE;
@@ -318,8 +318,19 @@ void _glfwGetMonitorContentScaleWin32(HMONITOR handle, float* xscale, float* ysc
 {
     UINT xdpi, ydpi;
 
+    if (xscale)
+        *xscale = 0.f;
+    if (yscale)
+        *yscale = 0.f;
+
     if (IsWindows8Point1OrGreater())
-        GetDpiForMonitor(handle, MDT_EFFECTIVE_DPI, &xdpi, &ydpi);
+    {
+        if (GetDpiForMonitor(handle, MDT_EFFECTIVE_DPI, &xdpi, &ydpi) != S_OK)
+        {
+            _glfwInputError(GLFW_PLATFORM_ERROR, "Win32: Failed to query monitor DPI");
+            return;
+        }
+    }
     else
     {
         const HDC dc = GetDC(NULL);
