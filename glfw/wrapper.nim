@@ -77,7 +77,7 @@ else:
       compile: SrcDir / "egl_context.c",
       compile: SrcDir / "osmesa_context.c".}
 
-    {.compile: SrcDir / "src/linux_joystick.c".}
+    {.compile: SrcDir / "linux_joystick.c".}
 
   else:
     # If unsupported/unknown OS, use null system
