@@ -424,8 +424,14 @@ proc `monitor=`*(w: Window, args: tuple[monitor: Monitor;
 proc isKeyDown*(w: Window, key: Key): bool =
   wrapper.getKey(w, key.int32).KeyAction == kaDown
 
+proc isKeyUp*(w: Window, key: Key): bool =
+  wrapper.getKey(w, key.int32).KeyAction == kaUp
+
 proc mouseButtonDown*(w: Window, button: MouseButton): bool =
   wrapper.getMouseButton(w, button.int32).KeyAction == kaDown
+
+proc mouseButtonUp*(w: Window, button: MouseButton): bool =
+  wrapper.getMouseButton(w, button.int32).KeyAction == kaUp
 
 proc cursorPos*(w: Window): tuple[x, y: float64] =
   wrapper.getCursorPos(w, result.x.addr, result.y.addr)
