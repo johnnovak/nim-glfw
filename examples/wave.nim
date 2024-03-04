@@ -17,7 +17,7 @@
 # 2010-10-24: Formatting and cleanup - Camilla Berglund
 #****************************************************************************/
 
-import math
+import std/math
 
 import glm
 import glad/gl

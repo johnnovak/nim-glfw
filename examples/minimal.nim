@@ -1,4 +1,5 @@
-import os, glfw
+import std/os
+import glfw
 
 proc main =
   glfw.initialize()

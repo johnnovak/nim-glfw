@@ -19,7 +19,7 @@
 #  because I am not a friend of orthogonal projections)
 #========================================================================
 
-import math
+import std/math
 
 import glm
 import glad/gl
