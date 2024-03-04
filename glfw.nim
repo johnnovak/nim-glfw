@@ -1,7 +1,8 @@
+import std/tables
+import std/options
+from std/unicode import Rune
+
 import glfw/wrapper
-import tables
-import options
-from unicode import Rune
 
 export options
 export unicode.Rune
