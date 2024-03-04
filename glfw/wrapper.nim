@@ -2,14 +2,10 @@ static:
   assert cshort.sizeof == int16.sizeof and cint.sizeof == int32.sizeof,
     "Not binary compatible with GLFW. Please report this."
 
-import os
-
-const BaseDir = currentSourcePath.parentDir()
-const SrcDir = BaseDir / "src"
-
 when defined(glfwJustCdecl):
   {.pragma: glfwImport, cdecl.}
-elif not defined(glfwStaticLib):
+
+elif not defined(glfwStaticLib): # dynamic linking
   when defined(windows):
     const GlfwDll = "glfw3.dll"
   elif defined(macosx):
@@ -17,11 +13,15 @@ elif not defined(glfwStaticLib):
   else:
     const GlfwDll = "libglfw.so.3"
   {.pragma: glfwImport, dynlib: GlfwDll.}
-  {.deadCodeElim: on.}
 
-else:
+else: # static linking
+  import std/os
+
+  const BaseDir = currentSourcePath.parentDir()
+  const SrcDir = BaseDir / "src"
+
   when defined(windows):
-    import strformat
+    import std/strformat
 
     {.passC: fmt"-D_GLFW_WIN32 -I {BaseDir}/deps/mingw", passL: "-lopengl32 -lgdi32",
       compile: SrcDir / "win32_init.c",
@@ -64,7 +64,8 @@ else:
       compile: SrcDir / "xkb_unicode.c",
       compile: SrcDir / "egl_context.c",
       compile: SrcDir / "osmesa_context.c".}
-    else:
+
+    else: # x11
       {.passC: "-D_GLFW_X11",
       compile: SrcDir / "x11_init.c",
       compile: SrcDir / "x11_monitor.c",
@@ -79,7 +80,7 @@ else:
 
     {.compile: SrcDir / "linux_joystick.c".}
 
-  else:
+  else: # neither Windows, macOS, or Linux
     # If unsupported/unknown OS, use null system
     # TODO untested
     {.compile: SrcDir / "posix_time.c",
@@ -100,6 +101,7 @@ else:
     compile: SrcDir / "window.c".}
 
   {.pragma: glfwImport.}
+
 
 type
   MouseButton* {.size: int32.sizeof.} = enum
@@ -522,8 +524,8 @@ type
   Keyfun*  = proc (a2: Window; a3: int32; a4: int32; a5: int32;
                    a6: int32) {.cdecl.}
 
-import macros
-from strutils import toUpperAscii
+import std/macros
+from std/strutils import toUpperAscii
 
 proc renameProcs(n: NimNode) {.compileTime.} =
   template pragmas(n: string) = {.glfwImport, cdecl, importc: n.}
