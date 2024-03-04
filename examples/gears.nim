@@ -30,7 +30,7 @@
 #   - Enabled vsync
 #
 
-import math
+import std/math
 
 import glm
 import glad/gl

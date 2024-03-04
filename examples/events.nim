@@ -1,5 +1,6 @@
-from strutils import formatFloat, ffDecimal, `%`
-from unicode import toUtf8
+from std/strutils import formatFloat, ffDecimal, `%`
+from std/unicode import toUtf8
+
 import glfw
 
 {.experimental: "notnil".}

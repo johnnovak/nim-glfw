@@ -36,8 +36,8 @@
 #  a hidden computer or VCR.
 #*****************************************************************************
 
-import math
-import random
+import std/math
+import std/random
 
 import glm
 import glad/gl
