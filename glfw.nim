@@ -15,6 +15,7 @@ export wrapper.createStandardCursor
 export wrapper.setCursor
 export wrapper.destroyCursor
 export wrapper.Cursor
+export wrapper.CursorShape
 export wrapper.IconImage
 export wrapper.MouseButton
 export wrapper.mbLeft
