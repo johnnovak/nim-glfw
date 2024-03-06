@@ -24,8 +24,6 @@
 //    distribution.
 //
 //========================================================================
-// Please use C89 style variable declarations in this file because VS 2010
-//========================================================================
 
 #include "internal.h"
 
@@ -96,6 +94,10 @@ static GLFWbool refreshVideoModes(_GLFWmonitor* monitor)
 //
 void _glfwInputMonitor(_GLFWmonitor* monitor, int action, int placement)
 {
+    assert(monitor != NULL);
+    assert(action == GLFW_CONNECTED || action == GLFW_DISCONNECTED);
+    assert(placement == _GLFW_INSERT_FIRST || placement == _GLFW_INSERT_LAST);
+
     if (action == GLFW_CONNECTED)
     {
         _glfw.monitorCount++;
@@ -155,6 +157,7 @@ void _glfwInputMonitor(_GLFWmonitor* monitor, int action, int placement)
 //
 void _glfwInputMonitorWindow(_GLFWmonitor* monitor, _GLFWwindow* window)
 {
+    assert(monitor != NULL);
     monitor->window = window;
 }
 
@@ -419,7 +422,7 @@ GLFWAPI void* glfwGetMonitorUserPointer(GLFWmonitor* handle)
 GLFWAPI GLFWmonitorfun glfwSetMonitorCallback(GLFWmonitorfun cbfun)
 {
     _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
-    _GLFW_SWAP_POINTERS(_glfw.callbacks.monitor, cbfun);
+    _GLFW_SWAP(GLFWmonitorfun, _glfw.callbacks.monitor, cbfun);
     return cbfun;
 }
 
@@ -447,7 +450,9 @@ GLFWAPI const GLFWvidmode* glfwGetVideoMode(GLFWmonitor* handle)
 
     _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
 
-    _glfw.platform.getVideoMode(monitor, &monitor->currentMode);
+    if (!_glfw.platform.getVideoMode(monitor, &monitor->currentMode))
+        return NULL;
+
     return &monitor->currentMode;
 }
 
@@ -484,7 +489,7 @@ GLFWAPI void glfwSetGamma(GLFWmonitor* handle, float gamma)
         // Apply gamma curve
         value = powf(value, 1.f / gamma) * 65535.f + 0.5f;
         // Clamp to value range
-        value = _glfw_fminf(value, 65535.f);
+        value = fminf(value, 65535.f);
 
         values[i] = (unsigned short) value;
     }
@@ -522,6 +527,8 @@ GLFWAPI void glfwSetGammaRamp(GLFWmonitor* handle, const GLFWgammaramp* ramp)
     assert(ramp->green != NULL);
     assert(ramp->blue != NULL);
 
+    _GLFW_REQUIRE_INIT();
+
     if (ramp->size <= 0)
     {
         _glfwInputError(GLFW_INVALID_VALUE,
@@ -529,8 +536,6 @@ GLFWAPI void glfwSetGammaRamp(GLFWmonitor* handle, const GLFWgammaramp* ramp)
                         ramp->size);
         return;
     }
-
-    _GLFW_REQUIRE_INIT();
 
     if (!monitor->originalRamp.size)
     {

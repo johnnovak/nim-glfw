@@ -24,10 +24,10 @@
 //    distribution.
 //
 //========================================================================
-// It is fine to use C99 in this file because it will not be built with VS
-//========================================================================
 
 #include "internal.h"
+
+#if defined(_GLFW_X11)
 
 #include <stdlib.h>
 #include <string.h>
@@ -35,6 +35,9 @@
 #include <stdio.h>
 #include <locale.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <assert.h>
 
 
 // Translate the X11 KeySyms for a key to a GLFW key code
@@ -209,7 +212,7 @@ static int translateKeySyms(const KeySym* keysyms, int width)
 //
 static void createKeyTables(void)
 {
-    int scancode, scancodeMin, scancodeMax;
+    int scancodeMin, scancodeMax;
 
     memset(_glfw.x11.keycodes, -1, sizeof(_glfw.x11.keycodes));
     memset(_glfw.x11.scancodes, -1, sizeof(_glfw.x11.scancodes));
@@ -355,7 +358,7 @@ static void createKeyTables(void)
         };
 
         // Find the X11 key code -> GLFW key code mapping
-        for (scancode = scancodeMin;  scancode <= scancodeMax;  scancode++)
+        for (int scancode = scancodeMin;  scancode <= scancodeMax;  scancode++)
         {
             int key = GLFW_KEY_UNKNOWN;
 
@@ -414,7 +417,7 @@ static void createKeyTables(void)
                                           scancodeMax - scancodeMin + 1,
                                           &width);
 
-    for (scancode = scancodeMin;  scancode <= scancodeMax;  scancode++)
+    for (int scancode = scancodeMin;  scancode <= scancodeMax;  scancode++)
     {
         // Translate the un-translated key codes using traditional X11 KeySym
         // lookups
@@ -601,7 +604,11 @@ static void detectEWMH(void)
 //
 static GLFWbool initExtensions(void)
 {
+#if defined(__OpenBSD__) || defined(__NetBSD__)
+    _glfw.x11.vidmode.handle = _glfwPlatformLoadModule("libXxf86vm.so");
+#else
     _glfw.x11.vidmode.handle = _glfwPlatformLoadModule("libXxf86vm.so.1");
+#endif
     if (_glfw.x11.vidmode.handle)
     {
         _glfw.x11.vidmode.QueryExtension = (PFN_XF86VidModeQueryExtension)
@@ -621,6 +628,8 @@ static GLFWbool initExtensions(void)
 
 #if defined(__CYGWIN__)
     _glfw.x11.xi.handle = _glfwPlatformLoadModule("libXi-6.so");
+#elif defined(__OpenBSD__) || defined(__NetBSD__)
+    _glfw.x11.xi.handle = _glfwPlatformLoadModule("libXi.so");
 #else
     _glfw.x11.xi.handle = _glfwPlatformLoadModule("libXi.so.6");
 #endif
@@ -651,6 +660,8 @@ static GLFWbool initExtensions(void)
 
 #if defined(__CYGWIN__)
     _glfw.x11.randr.handle = _glfwPlatformLoadModule("libXrandr-2.so");
+#elif defined(__OpenBSD__) || defined(__NetBSD__)
+    _glfw.x11.randr.handle = _glfwPlatformLoadModule("libXrandr.so");
 #else
     _glfw.x11.randr.handle = _glfwPlatformLoadModule("libXrandr.so.2");
 #endif
@@ -743,6 +754,8 @@ static GLFWbool initExtensions(void)
 
 #if defined(__CYGWIN__)
     _glfw.x11.xcursor.handle = _glfwPlatformLoadModule("libXcursor-1.so");
+#elif defined(__OpenBSD__) || defined(__NetBSD__)
+    _glfw.x11.xcursor.handle = _glfwPlatformLoadModule("libXcursor.so");
 #else
     _glfw.x11.xcursor.handle = _glfwPlatformLoadModule("libXcursor.so.1");
 #endif
@@ -764,6 +777,8 @@ static GLFWbool initExtensions(void)
 
 #if defined(__CYGWIN__)
     _glfw.x11.xinerama.handle = _glfwPlatformLoadModule("libXinerama-1.so");
+#elif defined(__OpenBSD__) || defined(__NetBSD__)
+    _glfw.x11.xinerama.handle = _glfwPlatformLoadModule("libXinerama.so");
 #else
     _glfw.x11.xinerama.handle = _glfwPlatformLoadModule("libXinerama.so.1");
 #endif
@@ -817,6 +832,8 @@ static GLFWbool initExtensions(void)
     {
 #if defined(__CYGWIN__)
         _glfw.x11.x11xcb.handle = _glfwPlatformLoadModule("libX11-xcb-1.so");
+#elif defined(__OpenBSD__) || defined(__NetBSD__)
+        _glfw.x11.x11xcb.handle = _glfwPlatformLoadModule("libX11-xcb.so");
 #else
         _glfw.x11.x11xcb.handle = _glfwPlatformLoadModule("libX11-xcb.so.1");
 #endif
@@ -830,6 +847,8 @@ static GLFWbool initExtensions(void)
 
 #if defined(__CYGWIN__)
     _glfw.x11.xrender.handle = _glfwPlatformLoadModule("libXrender-1.so");
+#elif defined(__OpenBSD__) || defined(__NetBSD__)
+    _glfw.x11.xrender.handle = _glfwPlatformLoadModule("libXrender.so");
 #else
     _glfw.x11.xrender.handle = _glfwPlatformLoadModule("libXrender.so.1");
 #endif
@@ -857,6 +876,8 @@ static GLFWbool initExtensions(void)
 
 #if defined(__CYGWIN__)
     _glfw.x11.xshape.handle = _glfwPlatformLoadModule("libXext-6.so");
+#elif defined(__OpenBSD__) || defined(__NetBSD__)
+    _glfw.x11.xshape.handle = _glfwPlatformLoadModule("libXext.so");
 #else
     _glfw.x11.xshape.handle = _glfwPlatformLoadModule("libXext.so.6");
 #endif
@@ -1024,6 +1045,37 @@ static Window createHelperWindow(void)
                          CWEventMask, &wa);
 }
 
+// Create the pipe for empty events without assumuing the OS has pipe2(2)
+//
+static GLFWbool createEmptyEventPipe(void)
+{
+    if (pipe(_glfw.x11.emptyEventPipe) != 0)
+    {
+        _glfwInputError(GLFW_PLATFORM_ERROR,
+                        "X11: Failed to create empty event pipe: %s",
+                        strerror(errno));
+        return GLFW_FALSE;
+    }
+
+    for (int i = 0; i < 2; i++)
+    {
+        const int sf = fcntl(_glfw.x11.emptyEventPipe[i], F_GETFL, 0);
+        const int df = fcntl(_glfw.x11.emptyEventPipe[i], F_GETFD, 0);
+
+        if (sf == -1 || df == -1 ||
+            fcntl(_glfw.x11.emptyEventPipe[i], F_SETFL, sf | O_NONBLOCK) == -1 ||
+            fcntl(_glfw.x11.emptyEventPipe[i], F_SETFD, df | FD_CLOEXEC) == -1)
+        {
+            _glfwInputError(GLFW_PLATFORM_ERROR,
+                            "X11: Failed to set flags for empty event pipe: %s",
+                            strerror(errno));
+            return GLFW_FALSE;
+        }
+    }
+
+    return GLFW_TRUE;
+}
+
 // X error handler
 //
 static int errorHandler(Display *display, XErrorEvent* event)
@@ -1044,8 +1096,9 @@ static int errorHandler(Display *display, XErrorEvent* event)
 //
 void _glfwGrabErrorHandlerX11(void)
 {
+    assert(_glfw.x11.errorHandler == NULL);
     _glfw.x11.errorCode = Success;
-    XSetErrorHandler(errorHandler);
+    _glfw.x11.errorHandler = XSetErrorHandler(errorHandler);
 }
 
 // Clears the X error handler callback
@@ -1054,7 +1107,8 @@ void _glfwReleaseErrorHandlerX11(void)
 {
     // Synchronize to make sure all commands are processed
     XSync(_glfw.x11.display, False);
-    XSetErrorHandler(NULL);
+    XSetErrorHandler(_glfw.x11.errorHandler);
+    _glfw.x11.errorHandler = NULL;
 }
 
 // Reports the specified error, appending information about the last X error
@@ -1072,7 +1126,6 @@ void _glfwInputErrorX11(int error, const char* message)
 //
 Cursor _glfwCreateNativeCursorX11(const GLFWimage* image, int xhot, int yhot)
 {
-    int i;
     Cursor cursor;
 
     if (!_glfw.x11.xcursor.handle)
@@ -1088,7 +1141,7 @@ Cursor _glfwCreateNativeCursorX11(const GLFWimage* image, int xhot, int yhot)
     unsigned char* source = (unsigned char*) image->pixels;
     XcursorPixel* target = native->pixels;
 
-    for (i = 0;  i < image->width * image->height;  i++, target++, source += 4)
+    for (int i = 0;  i < image->width * image->height;  i++, target++, source += 4)
     {
         unsigned int alpha = source[3];
 
@@ -1113,86 +1166,86 @@ GLFWbool _glfwConnectX11(int platformID, _GLFWplatform* platform)
 {
     const _GLFWplatform x11 =
     {
-        GLFW_PLATFORM_X11,
-        _glfwInitX11,
-        _glfwTerminateX11,
-        _glfwGetCursorPosX11,
-        _glfwSetCursorPosX11,
-        _glfwSetCursorModeX11,
-        _glfwSetRawMouseMotionX11,
-        _glfwRawMouseMotionSupportedX11,
-        _glfwCreateCursorX11,
-        _glfwCreateStandardCursorX11,
-        _glfwDestroyCursorX11,
-        _glfwSetCursorX11,
-        _glfwGetScancodeNameX11,
-        _glfwGetKeyScancodeX11,
-        _glfwSetClipboardStringX11,
-        _glfwGetClipboardStringX11,
-#if defined(__linux__)
-        _glfwInitJoysticksLinux,
-        _glfwTerminateJoysticksLinux,
-        _glfwPollJoystickLinux,
-        _glfwGetMappingNameLinux,
-        _glfwUpdateGamepadGUIDLinux,
+        .platformID = GLFW_PLATFORM_X11,
+        .init = _glfwInitX11,
+        .terminate = _glfwTerminateX11,
+        .getCursorPos = _glfwGetCursorPosX11,
+        .setCursorPos = _glfwSetCursorPosX11,
+        .setCursorMode = _glfwSetCursorModeX11,
+        .setRawMouseMotion = _glfwSetRawMouseMotionX11,
+        .rawMouseMotionSupported = _glfwRawMouseMotionSupportedX11,
+        .createCursor = _glfwCreateCursorX11,
+        .createStandardCursor = _glfwCreateStandardCursorX11,
+        .destroyCursor = _glfwDestroyCursorX11,
+        .setCursor = _glfwSetCursorX11,
+        .getScancodeName = _glfwGetScancodeNameX11,
+        .getKeyScancode = _glfwGetKeyScancodeX11,
+        .setClipboardString = _glfwSetClipboardStringX11,
+        .getClipboardString = _glfwGetClipboardStringX11,
+#if defined(GLFW_BUILD_LINUX_JOYSTICK)
+        .initJoysticks = _glfwInitJoysticksLinux,
+        .terminateJoysticks = _glfwTerminateJoysticksLinux,
+        .pollJoystick = _glfwPollJoystickLinux,
+        .getMappingName = _glfwGetMappingNameLinux,
+        .updateGamepadGUID = _glfwUpdateGamepadGUIDLinux,
 #else
-        _glfwInitJoysticksNull,
-        _glfwTerminateJoysticksNull,
-        _glfwPollJoystickNull,
-        _glfwGetMappingNameNull,
-        _glfwUpdateGamepadGUIDNull,
+        .initJoysticks = _glfwInitJoysticksNull,
+        .terminateJoysticks = _glfwTerminateJoysticksNull,
+        .pollJoystick = _glfwPollJoystickNull,
+        .getMappingName = _glfwGetMappingNameNull,
+        .updateGamepadGUID = _glfwUpdateGamepadGUIDNull,
 #endif
-        _glfwFreeMonitorX11,
-        _glfwGetMonitorPosX11,
-        _glfwGetMonitorContentScaleX11,
-        _glfwGetMonitorWorkareaX11,
-        _glfwGetVideoModesX11,
-        _glfwGetVideoModeX11,
-        _glfwGetGammaRampX11,
-        _glfwSetGammaRampX11,
-        _glfwCreateWindowX11,
-        _glfwDestroyWindowX11,
-        _glfwSetWindowTitleX11,
-        _glfwSetWindowIconX11,
-        _glfwGetWindowPosX11,
-        _glfwSetWindowPosX11,
-        _glfwGetWindowSizeX11,
-        _glfwSetWindowSizeX11,
-        _glfwSetWindowSizeLimitsX11,
-        _glfwSetWindowAspectRatioX11,
-        _glfwGetFramebufferSizeX11,
-        _glfwGetWindowFrameSizeX11,
-        _glfwGetWindowContentScaleX11,
-        _glfwIconifyWindowX11,
-        _glfwRestoreWindowX11,
-        _glfwMaximizeWindowX11,
-        _glfwShowWindowX11,
-        _glfwHideWindowX11,
-        _glfwRequestWindowAttentionX11,
-        _glfwFocusWindowX11,
-        _glfwSetWindowMonitorX11,
-        _glfwWindowFocusedX11,
-        _glfwWindowIconifiedX11,
-        _glfwWindowVisibleX11,
-        _glfwWindowMaximizedX11,
-        _glfwWindowHoveredX11,
-        _glfwFramebufferTransparentX11,
-        _glfwGetWindowOpacityX11,
-        _glfwSetWindowResizableX11,
-        _glfwSetWindowDecoratedX11,
-        _glfwSetWindowFloatingX11,
-        _glfwSetWindowOpacityX11,
-        _glfwSetWindowMousePassthroughX11,
-        _glfwPollEventsX11,
-        _glfwWaitEventsX11,
-        _glfwWaitEventsTimeoutX11,
-        _glfwPostEmptyEventX11,
-        _glfwGetEGLPlatformX11,
-        _glfwGetEGLNativeDisplayX11,
-        _glfwGetEGLNativeWindowX11,
-        _glfwGetRequiredInstanceExtensionsX11,
-        _glfwGetPhysicalDevicePresentationSupportX11,
-        _glfwCreateWindowSurfaceX11,
+        .freeMonitor = _glfwFreeMonitorX11,
+        .getMonitorPos = _glfwGetMonitorPosX11,
+        .getMonitorContentScale = _glfwGetMonitorContentScaleX11,
+        .getMonitorWorkarea = _glfwGetMonitorWorkareaX11,
+        .getVideoModes = _glfwGetVideoModesX11,
+        .getVideoMode = _glfwGetVideoModeX11,
+        .getGammaRamp = _glfwGetGammaRampX11,
+        .setGammaRamp = _glfwSetGammaRampX11,
+        .createWindow = _glfwCreateWindowX11,
+        .destroyWindow = _glfwDestroyWindowX11,
+        .setWindowTitle = _glfwSetWindowTitleX11,
+        .setWindowIcon = _glfwSetWindowIconX11,
+        .getWindowPos = _glfwGetWindowPosX11,
+        .setWindowPos = _glfwSetWindowPosX11,
+        .getWindowSize = _glfwGetWindowSizeX11,
+        .setWindowSize = _glfwSetWindowSizeX11,
+        .setWindowSizeLimits = _glfwSetWindowSizeLimitsX11,
+        .setWindowAspectRatio = _glfwSetWindowAspectRatioX11,
+        .getFramebufferSize = _glfwGetFramebufferSizeX11,
+        .getWindowFrameSize = _glfwGetWindowFrameSizeX11,
+        .getWindowContentScale = _glfwGetWindowContentScaleX11,
+        .iconifyWindow = _glfwIconifyWindowX11,
+        .restoreWindow = _glfwRestoreWindowX11,
+        .maximizeWindow = _glfwMaximizeWindowX11,
+        .showWindow = _glfwShowWindowX11,
+        .hideWindow = _glfwHideWindowX11,
+        .requestWindowAttention = _glfwRequestWindowAttentionX11,
+        .focusWindow = _glfwFocusWindowX11,
+        .setWindowMonitor = _glfwSetWindowMonitorX11,
+        .windowFocused = _glfwWindowFocusedX11,
+        .windowIconified = _glfwWindowIconifiedX11,
+        .windowVisible = _glfwWindowVisibleX11,
+        .windowMaximized = _glfwWindowMaximizedX11,
+        .windowHovered = _glfwWindowHoveredX11,
+        .framebufferTransparent = _glfwFramebufferTransparentX11,
+        .getWindowOpacity = _glfwGetWindowOpacityX11,
+        .setWindowResizable = _glfwSetWindowResizableX11,
+        .setWindowDecorated = _glfwSetWindowDecoratedX11,
+        .setWindowFloating = _glfwSetWindowFloatingX11,
+        .setWindowOpacity = _glfwSetWindowOpacityX11,
+        .setWindowMousePassthrough = _glfwSetWindowMousePassthroughX11,
+        .pollEvents = _glfwPollEventsX11,
+        .waitEvents = _glfwWaitEventsX11,
+        .waitEventsTimeout = _glfwWaitEventsTimeoutX11,
+        .postEmptyEvent = _glfwPostEmptyEventX11,
+        .getEGLPlatform = _glfwGetEGLPlatformX11,
+        .getEGLNativeDisplay = _glfwGetEGLNativeDisplayX11,
+        .getEGLNativeWindow = _glfwGetEGLNativeWindowX11,
+        .getRequiredInstanceExtensions = _glfwGetRequiredInstanceExtensionsX11,
+        .getPhysicalDevicePresentationSupport = _glfwGetPhysicalDevicePresentationSupportX11,
+        .createWindowSurface = _glfwCreateWindowSurfaceX11
     };
 
     // HACK: If the application has left the locale as "C" then both wide
@@ -1204,6 +1257,8 @@ GLFWbool _glfwConnectX11(int platformID, _GLFWplatform* platform)
 
 #if defined(__CYGWIN__)
     void* module = _glfwPlatformLoadModule("libX11-6.so");
+#elif defined(__OpenBSD__) || defined(__NetBSD__)
+    void* module = _glfwPlatformLoadModule("libX11.so");
 #else
     void* module = _glfwPlatformLoadModule("libX11.so.6");
 #endif
@@ -1472,6 +1527,9 @@ int _glfwInitX11(void)
 
     getSystemContentScale(&_glfw.x11.contentScaleX, &_glfw.x11.contentScaleY);
 
+    if (!createEmptyEventPipe())
+        return GLFW_FALSE;
+
     if (!initExtensions())
         return GLFW_FALSE;
 
@@ -1575,6 +1633,7 @@ void _glfwTerminateX11(void)
         _glfw.x11.xi.handle = NULL;
     }
 
+    _glfwTerminateOSMesa();
     // NOTE: These need to be unloaded after XCloseDisplay, as they register
     //       cleanup callbacks that get called by that function
     _glfwTerminateEGL();
@@ -1585,5 +1644,13 @@ void _glfwTerminateX11(void)
         _glfwPlatformFreeModule(_glfw.x11.xlib.handle);
         _glfw.x11.xlib.handle = NULL;
     }
+
+    if (_glfw.x11.emptyEventPipe[0] || _glfw.x11.emptyEventPipe[1])
+    {
+        close(_glfw.x11.emptyEventPipe[0]);
+        close(_glfw.x11.emptyEventPipe[1]);
+    }
 }
+
+#endif // _GLFW_X11
 
