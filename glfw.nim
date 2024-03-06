@@ -464,6 +464,9 @@ proc cursorPos*(w: Window): tuple[x, y: float64] =
 proc `cursorPos=`*(w: Window, pos: tuple[x, y: float64]) =
   wrapper.setCursorPos(w, pos.x.cdouble, pos.y.cdouble)
 
+proc `cursor=`*(w: Window, c: Cursor) =
+  wrapper.setCursor(w, c)
+
 proc isJoystickPresent*(w: Window, joy: int32): bool =
   wrapper.joystickPresent(joy).bool
 
