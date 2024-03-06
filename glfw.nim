@@ -40,56 +40,77 @@ converter toInt32Tuple*(t: tuple[r, g, b, a: int]): tuple[r, g, b, a: Option[int
 
 converter toInt32Tuple*(t: tuple[r, g, b, a, stencil, depth: int]):
     tuple[r, g, b, a, stencil, depth: Option[int32]] =
-  (some(t[0].int32), some(t[1].int32), some(t[2].int32), some(t[3].int32), some(t[4].int32), some(t[5].int32))
+  (some(t[0].int32), some(t[1].int32), some(t[2].int32),
+   some(t[3].int32), some(t[4].int32), some(t[5].int32))
 
 converter toInt32(h: wrapper.Hint): int32 =
   h.int32
 
 type
   WindowHandle = wrapper.Window
-  WindowObj = object
-    handle: WindowHandle
 
-    windowPositionCb*: WindowPositionCb
-    windowSizeCb*: WindowSizeCb
-    windowCloseCb*: WindowCloseCb
-    windowRefreshCb*: WindowRefreshCb
-    windowFocusCb*: WindowFocusCb
-    windowMaximizeCb*: WindowMaximizeCb
-    windowIconifyCb*: WindowIconifyCb
+  WindowObj = object
+    handle:             WindowHandle
+    windowPositionCb*:  WindowPositionCb
+    windowSizeCb*:      WindowSizeCb
+    windowCloseCb*:     WindowCloseCb
+    windowRefreshCb*:   WindowRefreshCb
+    windowFocusCb*:     WindowFocusCb
+    windowMaximizeCb*:  WindowMaximizeCb
+    windowIconifyCb*:   WindowIconifyCb
     framebufferSizeCb*: FramebufferSizeCb
-    mouseButtonCb*: MouseButtonCb
-    cursorPositionCb*: CursorPositionCb
-    cursorEnterCb*: CursorEnterCb
-    scrollCb*: ScrollCb
-    keyCb*: KeyCb
-    charCb*: CharCb
-    charModsCb*: CharModsCb
-    dropCb*: DropCb
+    mouseButtonCb*:     MouseButtonCb
+    cursorPositionCb*:  CursorPositionCb
+    cursorEnterCb*:     CursorEnterCb
+    scrollCb*:          ScrollCb
+    keyCb*:             KeyCb
+    charCb*:            CharCb
+    charModsCb*:        CharModsCb
+    dropCb*:            DropCb
+
   Window* = ref WindowObj
-  WindowPositionCb* = proc(window: Window, pos: tuple[x, y: int32]) {.closure.}
+
+  WindowPositionCb* = proc(window: Window,
+                           pos: tuple[x, y: int32]) {.closure.}
+
   WindowSizeCb* = proc(window: Window, size: tuple[w, h: int32]) {.closure.}
-  WindowCloseCb* = proc(window: Window) {.closure.}
-  WindowRefreshCb* = proc(window: Window) {.closure.}
-  WindowFocusCb* = proc(window: Window, focus: bool) {.closure.}
+
+  WindowCloseCb*    = proc(window: Window) {.closure.}
+  WindowRefreshCb*  = proc(window: Window) {.closure.}
+  WindowFocusCb*    = proc(window: Window, focus: bool) {.closure.}
   WindowMaximizeCb* = proc(window: Window, iconified: bool)
-  WindowIconifyCb* = proc(window: Window, iconified: bool) {.closure.}
-  FramebufferSizeCb* = proc(window: Window, res: tuple[w, h: int32]) {.closure.}
+  WindowIconifyCb*  = proc(window: Window, iconified: bool) {.closure.}
+
+  FramebufferSizeCb* = proc(window: Window,
+                            res: tuple[w, h: int32]) {.closure.}
+
   WindowContentScaleCb* = proc(window: Window, width, height: float)
+
   MouseButtonCb* = proc(window: Window, button: MouseButton, pressed: bool,
-    modKeys: set[ModifierKey]) {.closure.}
-  CursorPositionCb* = proc(window: Window, pos: tuple[x, y: float64]) {.closure.}
+                        modKeys: set[ModifierKey]) {.closure.}
+
+  CursorPositionCb* = proc(window: Window,
+                           pos: tuple[x, y: float64]) {.closure.}
+
   CursorEnterCb* = proc(window: Window, entered: bool) {.closure.}
+
   ScrollCb* = proc(window: Window, offset: tuple[x, y: float64]) {.closure.}
+
   KeyCb* = proc(window: Window, key: Key, scanCode: int32, action: KeyAction,
-    modKeys: set[ModifierKey]) {.closure.}
+                modKeys: set[ModifierKey]) {.closure.}
+
   CharCb* = proc(window: Window, codePoint: Rune) {.closure.}
-  CharModsCb* = proc(
-    window: Window, codepoint: Rune, modkeys: set[ModifierKey]) {.closure.}
+
+  CharModsCb* = proc(window: Window, codepoint: Rune,
+                     modkeys: set[ModifierKey]) {.closure.}
+
   DropCb* = proc(window: Window, paths: PathDropInfo) {.closure.}
+
   MonitorHandle = wrapper.Monitor
+
   Monitor* = object
     handle: MonitorHandle
+
   PathDropInfo* = object
     paths: cstringArray
     len: int32
@@ -124,18 +145,22 @@ proc initModifierKeySet(bitfield: int): set[ModifierKey] =
 
 type
   ErrorType* {.size: int32.sizeof.} = enum
-    getNoError = (0, "no error")
-    getUnknownError = (1, "unknown error")
-    getNotInitialized = (0x00010001, "not initialized")
-    getNoCurrentContext = (0x00010002, "no current context")
-    getInvalidEnum = (0x00010003, "invalid enum")
-    getInvalidValue = (0x00010004, "invalid value")
-    getOutOfMemory = (0x00010005, "out of memory")
-    getApiUnavailable = (0x00010006, "API unavailable")
-    getVersionUnavailable = (0x00010007, "version unavailable")
-    getPlatformError = (0x00010008, "platform error")
-    getFormatUnavailable = (0x00010009, "format unavailable")
-    getNoWindowContext = (0x0001000A, "no window context")
+    getNoError              = (0x00000000, "no error")
+    getUnknownError         = (0x00000001, "unknown error")
+    getNotInitialized       = (0x00010001, "not initialized")
+    getNoCurrentContext     = (0x00010002, "no current context")
+    getInvalidEnum          = (0x00010003, "invalid enum")
+    getInvalidValue         = (0x00010004, "invalid value")
+    getOutOfMemory          = (0x00010005, "out of memory")
+    getApiUnavailable       = (0x00010006, "API unavailable")
+    getVersionUnavailable   = (0x00010007, "version unavailable")
+    getPlatformError        = (0x00010008, "platform error")
+    getFormatUnavailable    = (0x00010009, "format unavailable")
+    getNoWindowContext      = (0x0001000A, "no window context")
+    getCursorUnavailable    = (0x0001000B, "cursor unavailable")
+    getFeatureUnavailable   = (0x0001000C, "feature unavailable")
+    getFeatureUnimplemented = (0x0001000D, "feature unimplemented")
+    getPlatformUnavailable  = (0x0001000E, "platform unavailable ")
 
 var
   gErrorCode = getNoError
@@ -289,45 +314,45 @@ const NoMonitor* = Monitor()
 var gWindowTable = initTable[WindowHandle, Window]()
 
 var
-  windowPositionCb: wrapper.Windowposfun
-  windowSizeCb: wrapper.Windowsizefun
-  windowCloseCb: wrapper.Windowclosefun
-  windowRefreshCb: wrapper.Windowrefreshfun
-  windowFocusCb: wrapper.Windowfocusfun
-  windowMaximizeCb: wrapper.Windowmaximizefun
-  windowIconifyCb: wrapper.Windowiconifyfun
+  windowPositionCb:  wrapper.Windowposfun
+  windowSizeCb:      wrapper.Windowsizefun
+  windowCloseCb:     wrapper.Windowclosefun
+  windowRefreshCb:   wrapper.Windowrefreshfun
+  windowFocusCb:     wrapper.Windowfocusfun
+  windowMaximizeCb:  wrapper.Windowmaximizefun
+  windowIconifyCb:   wrapper.Windowiconifyfun
   framebufferSizeCb: wrapper.Framebuffersizefun
-  mouseButtonCb: wrapper.MouseButtonfun
-  cursorPositionCb: wrapper.Cursorposfun
-  cursorEnterCb: wrapper.Cursorenterfun
-  scrollCb: wrapper.Scrollfun
-  keyCb: wrapper.Keyfun
-  charCb: wrapper.Charfun
-  charModsCb: wrapper.Charmodsfun
-  dropCb: wrapper.Dropfun
+  mouseButtonCb:     wrapper.MouseButtonfun
+  cursorPositionCb:  wrapper.Cursorposfun
+  cursorEnterCb:     wrapper.Cursorenterfun
+  scrollCb:          wrapper.Scrollfun
+  keyCb:             wrapper.Keyfun
+  charCb:            wrapper.Charfun
+  charModsCb:        wrapper.Charmodsfun
+  dropCb:            wrapper.Dropfun
 
 type
   OpenglVersion* = enum
-    glv10 = (0x100, "OpenGL 1.0")
-    glv11 = (0x110, "OpenGL 1.1")
-    glv12 = (0x120, "OpenGL 1.2")
+    glv10  = (0x100, "OpenGL 1.0")
+    glv11  = (0x110, "OpenGL 1.1")
+    glv12  = (0x120, "OpenGL 1.2")
     glv121 = (0x121, "OpenGL 1.2.1")
-    glv13 = (0x130, "OpenGL 1.3")
-    glv14 = (0x140, "OpenGL 1.4")
-    glv15 = (0x150, "OpenGL 1.5")
-    glv20 = (0x200, "OpenGL 2.0")
-    glv21 = (0x210, "OpenGL 2.1")
-    glv30 = (0x300, "OpenGL 3.0")
-    glv31 = (0x310, "OpenGL 3.1")
-    glv32 = (0x320, "OpenGL 3.2")
-    glv33 = (0x330, "OpenGL 3.3")
-    glv40 = (0x400, "OpenGL 4.0")
-    glv41 = (0x410, "OpenGL 4.1")
-    glv42 = (0x420, "OpenGL 4.2")
-    glv43 = (0x430, "OpenGL 4.3")
-    glv44 = (0x440, "OpenGL 4.4")
-    glv45 = (0x450, "OpenGL 4.5")
-    glv46 = (0x460, "OpenGL 4.6")
+    glv13  = (0x130, "OpenGL 1.3")
+    glv14  = (0x140, "OpenGL 1.4")
+    glv15  = (0x150, "OpenGL 1.5")
+    glv20  = (0x200, "OpenGL 2.0")
+    glv21  = (0x210, "OpenGL 2.1")
+    glv30  = (0x300, "OpenGL 3.0")
+    glv31  = (0x310, "OpenGL 3.1")
+    glv32  = (0x320, "OpenGL 3.2")
+    glv33  = (0x330, "OpenGL 3.3")
+    glv40  = (0x400, "OpenGL 4.0")
+    glv41  = (0x410, "OpenGL 4.1")
+    glv42  = (0x420, "OpenGL 4.2")
+    glv43  = (0x430, "OpenGL 4.3")
+    glv44  = (0x440, "OpenGL 4.4")
+    glv45  = (0x450, "OpenGL 4.5")
+    glv46  = (0x460, "OpenGL 4.6")
 
   OpenglEsVersion* = enum
     glesv10 = (0x100, "OpenGL ES 1.0")
@@ -380,24 +405,24 @@ template defWindowAttrib(name: untyped, id: int32, T: typedesc) =
   proc name*(w: Window): T =
     wrapper.getWindowAttrib(w, id).T
 
-defWindowAttrib(visible, hVisible, bool)
-defWindowAttrib(focused, hFocused, bool)
-defWindowAttrib(iconified, Iconified, bool)
-defWindowAttrib(maximized, hMaximized, bool)
-defWindowAttrib(hovered, hHovered, bool)
-defWindowAttrib(focusOnShow, hFocusOnShow, bool)
-defWindowAttrib(resizable, hResizable, bool)
-defWindowAttrib(decorated, hDecorated, bool)
-defWindowAttrib(floating, hFloating, bool)
-defWindowAttrib(clientApi, hClientApi, ClientApi)
-defWindowAttrib(contextCreationApi, hContextCreationApi, ContextCreationApi)
+defWindowAttrib(visible,             hVisible,             bool)
+defWindowAttrib(focused,             hFocused,             bool)
+defWindowAttrib(iconified,           Iconified,            bool)
+defWindowAttrib(maximized,           hMaximized,           bool)
+defWindowAttrib(hovered,             hHovered,             bool)
+defWindowAttrib(focusOnShow,         hFocusOnShow,         bool)
+defWindowAttrib(resizable,           hResizable,           bool)
+defWindowAttrib(decorated,           hDecorated,           bool)
+defWindowAttrib(floating,            hFloating,            bool)
+defWindowAttrib(clientApi,           hClientApi,           ClientApi)
+defWindowAttrib(contextCreationApi,  hContextCreationApi,  ContextCreationApi)
 defWindowAttrib(contextVersionMajor, hContextVersionMajor, int)
 defWindowAttrib(contextVersionMinor, hContextVersionMinor, int)
-defWindowAttrib(contextRevision, hContextRevision, int)
+defWindowAttrib(contextRevision,     hContextRevision,     int)
 defWindowAttrib(openglForwardCompat, hOpenglForwardCompat, bool)
-defWindowAttrib(openglDebugContext, hOpenglDebugContext, bool)
-defWindowAttrib(openglProfile, hOpenglProfile, OpenglProfile)
-defWindowAttrib(contextRobustness, hContextRobustness, ContextRobustness)
+defWindowAttrib(openglDebugContext,  hOpenglDebugContext,  bool)
+defWindowAttrib(openglProfile,       hOpenglProfile,       OpenglProfile)
+defWindowAttrib(contextRobustness,   hContextRobustness,   ContextRobustness)
 
 template defInputMode(name: untyped, id: int32, T: typedesc) =
   proc name*(w: Window): T =
@@ -406,11 +431,12 @@ template defInputMode(name: untyped, id: int32, T: typedesc) =
   proc `name=`*(w: Window, v: T) =
     wrapper.setInputMode(w, id, v.int32)
 
-defInputMode(stickyKeys, wrapper.StickyKeys, bool)
+defInputMode(stickyKeys,         wrapper.StickyKeys,      bool)
 defInputMode(stickyMouseButtons, wrapper.StickyMouseButtons, bool)
-defInputMode(cursorMode, wrapper.CursorModeConst, wrapper.CursorMode)
-defInputMode(lockKeyMods, wrapper.LockKeyMods, bool)
-defInputMode(rawMouseMotion, wrapper.RawMouseMotion, bool)
+defInputMode(cursorMode,         wrapper.CursorModeConst, wrapper.CursorMode)
+defInputMode(lockKeyMods,        wrapper.LockKeyMods,     bool)
+defInputMode(rawMouseMotion,     wrapper.RawMouseMotion,  bool)
+defInputMode(anyPosition,        wrapper.AnyPosition,     bool)
 
 proc monitor*(w: Window): Monitor =
   newMonitor(wrapper.getWindowMonitor(w))
@@ -436,6 +462,7 @@ proc `cursorPos=`*(w: Window, pos: tuple[x, y: float64]) =
 proc isJoystickPresent*(w: Window, joy: int32): bool =
   wrapper.joystickPresent(joy).bool
 
+
 iterator joystickAxes*(joy: int32): float32 =
   var count: int32
   var axesPtr = wrapper.getJoystickAxes(joy, count.addr)
@@ -444,6 +471,7 @@ iterator joystickAxes*(joy: int32): float32 =
 
   for i in 0 .. count - 1:
     yield axes[i]
+
 
 iterator getJoystickButtons*(joy: int32): cstring =
   var count: int32
@@ -454,6 +482,7 @@ iterator getJoystickButtons*(joy: int32): cstring =
   for i in 0 .. count - 1:
     yield buttons[i]
 
+
 iterator joystickHats*(jid: int32): cstring =
   var count: int32
   var hatPtr = wrapper.getJoystickHats(jid, count.addr)
@@ -462,6 +491,7 @@ iterator joystickHats*(jid: int32): cstring =
 
   for i in 0 .. count - 1:
     yield hats[i]
+
 
 proc joystickName*(joy: int32): cstring =
   wrapper.getJoystickName(joy)
@@ -483,188 +513,266 @@ proc revision*(ver: OpenglVersion|OpenglEsVersion): int =
 
 type
   OpenglWindowConfig* = object
-    size*: tuple[w, h: int32]
-    title*: string
-    fullscreenMonitor*: Monitor
-    shareResourcesWith*: Window
-    visible*, focused*, decorated*, resizable*, stereo*,
-      srgbCapableFramebuffer*, floating*, maximized*, centerCursor*,
-      transparentFramebuffer*, focusOnShow*, scaleToMonitor*, autoIconify*,
-      doubleBuffer*, forwardCompat*, debugContext*, makeContextCurrent*: bool
-    bits*: tuple[r, g, b, a, stencil, depth: Option[int32]]
-    accumBufferBits*: tuple[r, g, b, a: Option[int32]]
-    nAuxBuffers*, nMultiSamples*: int32
-    refreshRate*: Option[int32]
+    size*:                   tuple[w, h: int32]
+    title*:                  string
+    fullscreenMonitor*:      Monitor
+    shareResourcesWith*:     Window
+
+    focused*:                bool
+    iconified*:              bool
+    resizable*:              bool
+    visible*:                bool
+    decorated*:              bool
+    autoIconify*:            bool
+    floating*:               bool
+    maximized*:              bool
+    centerCursor*:           bool
+    transparentFramebuffer*: bool
+    hovered*:                bool
+    focusOnShow*:            bool
+    mousePassthrough*:       bool
+    stereo*:                 bool
+    srgbCapableFramebuffer*: bool
+    doubleBuffer*:           bool
+    scaleToMonitor*:         bool
+    scaleFramebuffer*:       bool
+    forwardCompat*:          bool
+    debugContext*:           bool
+    makeContextCurrent*:     bool
+
+    bits*:                   tuple[r, g, b, a, stencil, depth: Option[int32]]
+    accumBufferBits*:        tuple[r, g, b, a: Option[int32]]
+    nAuxBuffers*,            nMultiSamples*: int32
+    refreshRate*:            Option[int32]
     contextReleaseBehavior*: ContextReleaseBehavior
-    contextRobustness*: ContextRobustness
-    contextCreationApi*: ContextCreationApi
-    version*: OpenglVersion
-    profile*: OpenglProfile
-    contextNoError*: bool
+    contextRobustness*:      ContextRobustness
+    contextCreationApi*:     ContextCreationApi
+    version*:                OpenglVersion
+    profile*:                OpenglProfile
+    contextNoError*:         bool
+
   OpenglEsWindowConfig* = object
-    size*: tuple[w, h: int32]
-    title*: string
-    fullscreenMonitor*: Monitor
-    shareResourcesWith*: Window
-    visible*, focused*, decorated*, resizable*, stereo*,
-      srgbCapableFramebuffer*, floating*, maximized*, autoIconify*,
-      doubleBuffer*, openglVersion*, makeContextCurrent*: bool
-    bits*: tuple[r, g, b, a, stencil, depth: Option[int32]]
-    accumBufferBits*: tuple[r, g, b, a: Option[int32]]
-    nAuxBuffers*, nMultiSamples*: int32
-    refreshRate*: Option[int32]
+    size*:                   tuple[w, h: int32]
+    title*:                  string
+    fullscreenMonitor*:      Monitor
+    shareResourcesWith*:     Window
+
+    focused*:                bool
+    iconified*:              bool
+    resizable*:              bool
+    visible*:                bool
+    decorated*:              bool
+    autoIconify*:            bool
+    floating*:               bool
+    maximized*:              bool
+    stereo*:                 bool
+    srgbCapableFramebuffer*: bool
+    doubleBuffer*:           bool
+    openglVersion*:          bool
+    makeContextCurrent*:     bool
+
+    bits*:                   tuple[r, g, b, a, stencil, depth: Option[int32]]
+    accumBufferBits*:        tuple[r, g, b, a: Option[int32]]
+    nAuxBuffers*,            nMultiSamples*: int32
+    refreshRate*:            Option[int32]
     contextReleaseBehavior*: ContextReleaseBehavior
-    contextRobustness*: ContextRobustness
-    contextCreationApi*: ContextCreationApi
-    version*: OpenglEsVersion
-    contextNoError*: bool
+    contextRobustness*:      ContextRobustness
+    contextCreationApi*:     ContextCreationApi
+    version*:                OpenglEsVersion
+    contextNoError*:         bool
+
   SomeOpenglWindowConfigType* = OpenglWindowConfig|OpenglEsWindowConfig
 
 # XXX: Can this be a constant?
 let DefaultOpenglWindowConfig* = OpenglWindowConfig(
-  size: (w: 640, h: 480),
-  title: "Nim-GLFW window",
-  fullscreenMonitor: NoMonitor,
-  shareResourcesWith: nil.Window,
-  resizable: true,
-  visible: true,
-  decorated: true,
-  focused: true,
-  autoIconify: true,
-  floating: false,
-  maximized: false,
-  centerCursor: true,
-  transparentFramebuffer: false,
-  focusOnShow: true,
-  scaleToMonitor: false,
-  stereo: false,
-  srgbCapableFramebuffer: false,
-  bits: (some(8i32), some(8i32), some(8i32), some(8i32), some(8i32), some(24i32)),
-  accumBufferBits: (some(0i32), some(0i32), some(0i32), some(0i32)),
-  nAuxBuffers: 0,
-  nMultiSamples: 0,
-  refreshRate: some(0i32),
-  contextRobustness: crNoRobustness,
-  contextCreationApi: ccaNativeContextApi,
-  contextReleaseBehavior: crbAnyReleaseBehavior,
-  version: glv10,
-  forwardCompat: false,
-  debugContext: false,
-  contextNoError: false,
-  makeContextCurrent: true,
-  doubleBuffer: true,
+  size:                    (w: 640, h: 480),
+  title:                   "Nim-GLFW window",
+  fullscreenMonitor:       NoMonitor,
+  shareResourcesWith:      nil.Window,
+
+  focused:                 true,
+  iconified:               false,
+  resizable:               true,
+  visible:                 true,
+  decorated:               true,
+  autoIconify:             true,
+  floating:                false,
+  maximized:               false,
+  centerCursor:            true,
+  transparentFramebuffer:  false,
+  hovered:                 false,
+  focusOnShow:             true,
+  mousePassthrough:        false,
+  stereo:                  false,
+  srgbCapableFramebuffer:  false,
+  doubleBuffer:            true,
+  scaleToMonitor:          false,
+  scaleFramebuffer:        true,
+  forwardCompat:           false,
+  debugContext:            false,
+  makeContextCurrent:      true,
+
+  bits:                    (some(8'i32), some(8'i32), some(8'i32), some(8'i32),
+                           some(8'i32), some(24'i32)),
+
+  accumBufferBits:         (some(0'i32), some(0'i32), some(0'i32), some(0'i32)),
+  nAuxBuffers:             0,
+  nMultiSamples:           0,
+  refreshRate:             some(0'i32),
+  contextRobustness:       crNoRobustness,
+  contextCreationApi:      ccaNativeContextApi,
+  contextReleaseBehavior:  crbAnyReleaseBehavior,
+  version:                 glv10,
 )
 
 # XXX: Can this be a constant?
 let DefaultOpenglEsWindowConfig* = OpenglEsWindowConfig(
-  size: (w: 640i32, h: 480i32),
-  title: "Nim-GLFW window",
-  fullscreenMonitor: NoMonitor,
-  shareResourcesWith: nil,
-  visible: true,
-  focused: true,
-  decorated: true,
-  resizable: false,
-  stereo: false,
+  size:                   (w: 640'i32, h: 480'i32),
+  title:                  "Nim-GLFW window",
+  fullscreenMonitor:      NoMonitor,
+  shareResourcesWith:     nil,
+  visible:                true,
+  focused:                true,
+  decorated:              true,
+  resizable:              false,
+  stereo:                 false,
   srgbCapableFramebuffer: false,
-  bits: (some(8i32), some(8i32), some(8i32), some(8i32), some(8i32), some(24i32)),
-  accumBufferBits: (some(0i32), some(0i32), some(0i32), some(0i32)),
-  nAuxBuffers: 0,
-  nMultiSamples: 0,
-  refreshRate: some(0i32),
-  contextRobustness: crNoRobustness,
-  contextCreationApi: ccaNativeContextApi,
+  contextNoError:         false,
+  makeContextCurrent:     true,
+  doubleBuffer:           true,
+
+  bits:                   (some(8'i32), some(8'i32), some(8'i32), some(8'i32),
+                           some(8'i32), some(24'i32)),
+
+  accumBufferBits:        (some(0'i32), some(0'i32), some(0'i32), some(0'i32)),
+  nAuxBuffers:            0,
+  nMultiSamples:          0,
+  refreshRate:            some(0'i32),
+  contextRobustness:      crNoRobustness,
+  contextCreationApi:     ccaNativeContextApi,
   contextReleaseBehavior: crbAnyReleaseBehavior,
-  version: glesv10,
-  contextNoError: false,
-  makeContextCurrent: true,
-  doubleBuffer: true,
+  version:                glesv10,
 )
 
 proc setHints(c: SomeOpenglWindowConfigType) =
   template h(name, val: untyped) = wrapper.windowHint(name, val.int32)
 
   for k, v in c.fieldPairs:
-    when k == "resizable":
+    when k == "focused":
+      h(wrapper.hFocused, v)
+
+    elif k == "iconified":
+      h(wrapper.hIconified, v)
+
+    elif k == "resizable":
       h(wrapper.hResizable, v)
+
     elif k == "visible":
       h(wrapper.hVisible, v)
+
     elif k == "decorated":
       h(wrapper.hDecorated, v)
+
+    elif k == "autoIconify":
+      h(wrapper.hAutoIconify, v)
+
+    elif k == "floating":
+      h(wrapper.hFloating, v)
+
+    elif k == "maximized":
+      h(wrapper.hMaximized, v)
+
+    elif k == "centerCursor":
+      h(wrapper.hCenterCursor, v)
+
+    elif k == "transparentFramebuffer":
+      h(wrapper.hTransparentFramebuffer, v)
+
+    elif k == "hovered":
+      h(wrapper.hHovered, v)
+
+    elif k == "focusOnShow":
+      h(wrapper.hFocusOnShow, v)
+
+    elif k == "mousePassthrough":
+      h(wrapper.hMousePassthrough, v)
+
     elif k == "bits":
       template t(hint: Hint, field: untyped) =
         const E = "An explicitly requested bit depth must be >= 0"
         assert field.get(0) >= 0, E
         h(hint, field.get(wrapper.DontCare))
 
-      t(wrapper.hRedBits, v.r)
-      t(wrapper.hGreenBits, v.r)
-      t(wrapper.hBlueBits, v.r)
-      t(wrapper.hAlphaBits, v.r)
-      t(wrapper.hDepthBits, v.r)
+      t(wrapper.hRedBits,     v.r)
+      t(wrapper.hGreenBits,   v.r)
+      t(wrapper.hBlueBits,    v.r)
+      t(wrapper.hAlphaBits,   v.r)
+      t(wrapper.hDepthBits,   v.r)
       t(wrapper.hStencilBits, v.r)
+
     elif k == "accumBufferBits":
       template t(hint: Hint, field: untyped) =
         const E = "An explicitly requested bit depth must be >= 0"
         assert field.get(0) >= 0, E
         h(hint, field.get(wrapper.DontCare))
 
-      t(wrapper.hAccumRedBits, v.r)
+      t(wrapper.hAccumRedBits,   v.r)
       t(wrapper.hAccumGreenBits, v.g)
-      t(wrapper.hAccumBlueBits, v.b)
+      t(wrapper.hAccumBlueBits,  v.b)
       t(wrapper.hAccumAlphaBits, v.a)
+
     elif k == "nAuxBuffers":
       h(wrapper.hAuxBuffers, v)
+
     elif k == "stereo":
       h(wrapper.hStereo, v)
+
     elif k == "nMultiSamples":
       h(wrapper.hSamples, v)
+
     elif k == "srgbCapableFramebuffer":
       h(wrapper.hSrgbCapable, v)
+
     elif k == "refreshRate":
       assert v.get(0) >= 0,
         "An explicitly requested refresh rate must be >= 0"
       h(wrapper.hRefreshRate, v.get(DontCare))
+
+    elif k == "doubleBuffer":
+      h(wrapper.hDoubleBuffer, v)
+
     elif k == "version":
       h(wrapper.hContextVersionMajor, v.major)
       h(wrapper.hContextVersionMinor, v.minor)
-      h(wrapper.hContextRevision, v.revision)
-    elif k == "hOpenglForwardCompat":
-      h(wrapper.hOpenglForwardCompat, v)
-    elif k == "hOpenglDebugContext":
-      h(wrapper.hOpenglDebugContext, v)
-    elif k == "focused":
-      h(wrapper.hFocused, v)
-    elif k == "floating":
-      h(wrapper.hFloating, v)
-    elif k == "maximized":
-      h(wrapper.hMaximized, v)
-    elif k == "centerCursor":
-      h(wrapper.hCenterCursor, v)
-    elif k == "transparentFramebuffer":
-      h(wrapper.hTransparentFramebuffer, v)
-    elif k == "focusOnShow":
-      h(wrapper.hFocusOnShow, v)
-    elif k == "scaleToMonitor":
-      h(wrapper.hScaleToMonitor, v)
-    elif k == "autoIconify":
-      h(wrapper.hAutoIconify, v)
-    elif k == "doubleBuffer":
-      h(wrapper.hDoubleBuffer, v)
-    elif k == "contextReleaseBehavior":
-      h(wrapper.hContextReleaseBehavior, v)
-    elif k == "profile":
-      h(wrapper.hOpenglProfile, v)
+      h(wrapper.hContextRevision,     v.revision)
+
     elif k == "contextRobustness":
       h(wrapper.hContextRobustness, v)
-    elif k == "contextCreationApi":
-      h(wrapper.hContextCreationApi, v)
+
     elif k == "forwardCompat":
       h(wrapper.hOpenglForwardCompat, v)
+
     elif k == "debugContext":
       h(wrapper.hOpenglDebugContext, v)
+
+    elif k == "profile":
+      h(wrapper.hOpenglProfile, v)
+
+    elif k == "contextReleaseBehavior":
+      h(wrapper.hContextReleaseBehavior, v)
+
     elif k == "contextNoError":
       h(wrapper.hContextNoError, v)
+
+    elif k == "contextCreationApi":
+      h(wrapper.hContextCreationApi, v)
+
+    elif k == "scaleToMonitor":
+      h(wrapper.hScaleToMonitor, v)
+
+    elif k == "scaleFramebuffer":
+      h(wrapper.hScaleFramebuffer, v)
+
     elif k in ["size", "title", "fullscreenMonitor", "shareResourcesWith",
         "makeContextCurrent"]:
       discard
@@ -698,6 +806,7 @@ proc currentContext*(): Window =
   else:
     newWindow(handle)
 
+
 # XXX: the template below breaks if 'c' is typed as 'SomeOpenglWindowConfigType'
 proc newWindow*(c = DefaultOpenglWindowConfig): Window =
   new(result)
@@ -706,8 +815,10 @@ proc newWindow*(c = DefaultOpenglWindowConfig): Window =
 
   let sharedMonitor = if c.shareResourcesWith.isNil: nil
                       else: c.shareResourcesWith.handle
+
   result.handle = wrapper.createWindow(c.size.w, c.size.h, c.title,
     c.fullscreenMonitor, sharedMonitor).failIf(nil)
+
   gWindowTable[result.handle] = result
 
   if c.makeContextCurrent:
@@ -716,7 +827,6 @@ proc newWindow*(c = DefaultOpenglWindowConfig): Window =
   template get(f: untyped): bool {.dirty.} =
     var win {.inject.} = gWindowTable.getOrDefault(handle)
     var cb {.inject.} = if not win.isNil: win.f else: nil
-
     not cb.isNil
 
   windowPositionCb = proc(handle: WindowHandle, x, y: int32) {.cdecl.} =
@@ -840,7 +950,8 @@ proc keyName*(scanCode: int32): cstring =
 proc scanCode*(key: Key): int32 =
   wrapper.getKeyScancode(key.int32)
 
-proc setSizeLimits*(w: Window, minwidth, minheight, maxwidth, maxheight: int32) =
+proc setSizeLimits*(w: Window, minwidth, minheight,
+                    maxwidth, maxheight: int32) =
   wrapper.setWindowSizeLimits(w, minwidth, minheight, maxwidth, maxheight)
 
 proc setAspectRatio*(w: Window, numer, denom: int32) =
