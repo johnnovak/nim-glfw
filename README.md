@@ -3,17 +3,17 @@
 **nim-glfw** provides a nice idiomatic Nim API to [GLFW](https://www.glfw.org/),
 the cross-platform OpenGL, OpenGL ES & Vulkan library.
 
-Not all functionality is available through the Nim API yet; in those cases you
+Not all functionality is available through the Nim API yet; in those cases, you
 can just use the native C bindings directly (by importing `glfw/wrapper`).
-Please also raise a ticket about the missing functionality so we can add it,
+Please raise a ticket about such the missing functionality so we can add it,
 or even better yet, give a shot at implementing it yourself and raise a PR!
-:smile:
+:sunglasses:
 
 ## Versioning
 
 Versioning follows the `x.y.z.w` scheme, where `x.y.z` corresponds to the GLFW
-version being wrapped (e.g. `3.3.0`) and `w` to the patch version of the Nim
-wrapper (e.g.  `3.3.0.2`).
+version being wrapped (e.g. `3.4.0`) and `w` to the patch version of the Nim
+wrapper (e.g.  `3.4.0.2`).
 
 ## Installation
 
@@ -53,7 +53,8 @@ A [minimal example](/examples/minimal.nim) to display a window for one second
 and then terminate:
 
 ```nim
-import os, glfw
+import std/os
+import glfw
 
 proc main =
   glfw.initialize()
@@ -76,7 +77,7 @@ Check out the [examples](/examples) directory for more complex examples!
 
 ### Statically linking to GLFW
 
-To link statically against GLFW (the C sources are bundled within the module),
+To link statically against GLFW (the C sources are bundled with the module),
 define the conditional symbol `glfwStaticLib` (`-d:glfwStaticLib` or
 `--define:glfwStaticLib`).
 
