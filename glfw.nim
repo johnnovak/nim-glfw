@@ -973,4 +973,12 @@ proc setSizeLimits*(w: Window, minwidth, minheight,
 proc setAspectRatio*(w: Window, numer, denom: int32) =
   wrapper.setWindowAspectRatio(w, numer, denom)
 
+proc getCocoaOpenedFilenames*(): seq[string] =
+  let s = wrapper.getCocoaOpenedFilenames()
+  if s == nil:
+    result = @[]
+  else:
+    result = cstringArrayToSeq(s)
+    wrapper.freeCocoaOpenedFilenames()
+
 {.pop.}

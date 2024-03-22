@@ -448,6 +448,20 @@ static GLFWbool initializeTIS(void)
         _glfwRestoreVideoModeCocoa(_glfw.monitors[i]);
 }
 
+- (void)application:(NSApplication *)sender openFiles:(NSArray<NSString *> *)filenames
+{
+    int len = [filenames count];
+    // Last entry is nil
+    _glfw.ns.openedFilenames = calloc(len + 1, sizeof(char*));
+
+    for (int i = 0; i < len; i++)
+    {
+        NSString* filename = [filenames objectAtIndex:i];
+        const char* filenameStr = [filename UTF8String];
+        _glfw.ns.openedFilenames[i] = _glfw_strdup(filenameStr);
+    }
+}
+
 @end // GLFWApplicationDelegate
 
 
@@ -682,6 +696,8 @@ void _glfwTerminateCocoa(void)
     if (_glfw.ns.keyUpMonitor)
         [NSEvent removeMonitor:_glfw.ns.keyUpMonitor];
 
+	glfwFreeCocoaOpenedFilenames();
+
     _glfw_free(_glfw.ns.clipboardString);
 
     _glfwTerminateNSGL();
@@ -689,6 +705,28 @@ void _glfwTerminateCocoa(void)
     _glfwTerminateOSMesa();
 
     } // autoreleasepool
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////                        GLFW native API                       //////
+//////////////////////////////////////////////////////////////////////////
+
+const char** glfwGetCocoaOpenedFilenames(void)
+{
+    return (const char**) _glfw.ns.openedFilenames;
+}
+
+void glfwFreeCocoaOpenedFilenames(void)
+{
+    if (_glfw.ns.openedFilenames)
+    {
+        for (char** p = _glfw.ns.openedFilenames; *p; p++)
+        {
+            free(*p);
+        }
+        free(_glfw.ns.openedFilenames);
+        _glfw.ns.openedFilenames = nil;
+    }
 }
 
 #endif // _GLFW_COCOA

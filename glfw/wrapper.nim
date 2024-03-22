@@ -705,6 +705,8 @@ macro generateProcs() =
     proc getProcAddress*(procname: cstring): OpenGlProc
     proc vulkanSupported*(): int32
     proc getRequiredInstanceExtensions*(count: ptr uint32): cstringArray
+    proc getCocoaOpenedFilenames*(): cstringArray
+    proc freeCocoaOpenedFilenames*()
 
     when defined(VK_VERSION_1_0):
       proc getInstanceProcAddress*(instance: VkInstance;

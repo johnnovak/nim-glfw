@@ -303,6 +303,30 @@ GLFWAPI id glfwGetCocoaWindow(GLFWwindow* window);
  *  @ingroup native
  */
 GLFWAPI id glfwGetCocoaView(GLFWwindow* window);
+
+/*! @brief Returns the list of filenames that opened the application,
+ *  such as by dragging files to the app bundle or through file associations.
+ *
+ *  @return A list of strings, null terminated.
+ *
+ *  @thread_safety This function may be called from any thread.  Access is not
+ *  synchronized.
+ *
+ *  @ingroup native
+ */
+GLFWAPI const char** glfwGetCocoaOpenedFilenames(void);
+
+/*! @brief Frees the list of filenames created by glfwGetCocoaOpenedFilenames().
+ *  The client should call this whenever glfwGetCocoaOpenedFilenames()
+ *  returned a non-NULL pointer.
+ *
+ *  @thread_safety This function may be called from any thread.  Access is not
+ *  synchronized.
+ *
+ *  @ingroup native
+ */
+GLFWAPI void glfwFreeCocoaOpenedFilenames(void);
+
 #endif
 
 #if defined(GLFW_EXPOSE_NATIVE_NSGL)
