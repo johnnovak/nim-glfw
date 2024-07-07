@@ -4,33 +4,32 @@ from std/unicode import Rune
 
 import glfw/wrapper
 
-export options
-export unicode.Rune
-export wrapper.pollEvents
-export wrapper.waitEvents
-export wrapper.waitEventsTimeout
-export wrapper.postEmptyEvent
-export wrapper.createCursor
-export wrapper.createStandardCursor
-export wrapper.setCursor
-export wrapper.destroyCursor
+export wrapper.ContextCreationApi
+export wrapper.ContextReleaseBehavior
+export wrapper.ContextRobustness
 export wrapper.Cursor
+export wrapper.CursorMode
 export wrapper.CursorShape
 export wrapper.IconImage
-export wrapper.MouseButton
-export wrapper.mbLeft
-export wrapper.mbRight
-export wrapper.mbMiddle
-export wrapper.ModifierKey
+export wrapper.IconImageObj
 export wrapper.Key
 export wrapper.KeyAction
+export wrapper.ModifierKey
+export wrapper.MouseButton
 export wrapper.OpenglProfile
-export wrapper.ContextReleaseBehavior
-export wrapper.ContextCreationApi
-export wrapper.ContextRobustness
-export wrapper.swapBuffers
+export wrapper.createCursor
+export wrapper.createStandardCursor
+export wrapper.destroyCursor
 export wrapper.getProcAddress
-export wrapper.CursorMode
+export wrapper.mbLeft
+export wrapper.mbMiddle
+export wrapper.mbRight
+export wrapper.pollEvents
+export wrapper.postEmptyEvent
+export wrapper.setCursor
+export wrapper.swapBuffers
+export wrapper.waitEvents
+export wrapper.waitEventsTimeout
 
 {.push warning[HoleEnumConv]:off.}
 
