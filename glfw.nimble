@@ -1,6 +1,6 @@
 #[ Package ]#
 
-version     = "3.4.0.0"
+version     = "3.4.0.2"
 author      = "Erik Johansson Andersson, John Novak"
 description = "GLFW 3 wrapper for Nim"
 license     = "MIT"
