@@ -7,7 +7,7 @@ license     = "MIT"
 
 skipDirs = @["examples"]
 
-requires "nim >= 2.0.2"
+requires "nim >= 2.0.6"
 
 task examples, "Compiles the examples with dynamic linking":
   exec "nim c examples/boing"
