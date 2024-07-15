@@ -79,6 +79,7 @@ else: # static linking
       compile: SrcDir / "osmesa_context.c".}
 
     {.compile: SrcDir / "linux_joystick.c".}
+    {.compile: SrcDir / "posix_poll.c".}
 
   else: # neither Windows, macOS, or Linux
     # If unsupported/unknown OS, use null system
@@ -304,7 +305,7 @@ type
     jhLeftUp    = (9, "left up")     # jhLeft or jhUp
     jhLeftDown  = (12, "left down")  # jhLeft or jhDown
 
-const 
+const
   buttonLast*   = gbDpadLeft
   joystickLast* = joystick16
 
