@@ -1,5 +1,6 @@
+import std/options
 from std/strutils import formatFloat, ffDecimal, `%`
-from std/unicode import toUtf8
+from std/unicode import Rune, toUtf8
 
 import glfw
 
@@ -88,7 +89,7 @@ proc registerWindowCallbacks(w: Window) =
 proc registerGlobalCallbacks =
   glfw.setMonitorCb(proc(m: Monitor, connected: bool) =
     let connectedStr = if connected: "connected" else: "disconnected"
-    echo "A monitor (", m.name, ") has been", connectedStr 
+    echo "A monitor (", m.name, ") has been", connectedStr
   )
   glfw.setJoystickCb(proc(joy: int32, connected: bool) =
     let connectedStr = if connected: "connected" else: "disconnected"
