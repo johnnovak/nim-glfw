@@ -32,6 +32,8 @@
 #
 #========================================================================
 
+import std/strformat
+
 import glm
 import glad/gl
 import glfw
@@ -171,6 +173,13 @@ proc main() =
   glfw.swapInterval(1)
 
   init()
+
+  win.pos = (150, 100)
+  win.aspectRatio = (3, 2)
+  win.sizeLimits = (300, 200, 1200, 800)
+
+  echo fmt"Winfow frame size:    {win.frameSize}"
+  echo fmt"Window content scale: {win.contentScale}"
 
   while not win.shouldClose:
     draw(win)

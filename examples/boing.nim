@@ -91,7 +91,6 @@ type
 
 # Global vars
 var
-  windowedXPos, windowedYPos, windowedWidth, windowedHeight: int32
   width, height: int
 
   degRotY     = 0.0
@@ -219,25 +218,26 @@ proc keyCb(win: Window, key: Key, scanCode: int32, action: KeyAction,
       let monitor = getPrimaryMonitor()
       if monitor != NoMonitor:
           let mode = monitor.videoMode
-          (windowedXPos, windowedYPos) = win.pos
-          (windowedWidth, windowedHeight) = win.size
-
           win.monitor = (
             monitor:     monitor,
-            xpos:        0'i32,
-            ypos:        0'i32,
+            xpos:        0,
+            ypos:        0,
             width:       mode.size.w,
             height:      mode.size.h,
             refreshRate: mode.refreshRate
           )
     else:
+      let
+        (windowedXPos,  windowedYPos)   = win.pos
+        (windowedWidth, windowedHeight) = win.size
+
       win.monitor = (
         monitor:     NoMonitor,
         xpos:        windowedXPos,
         ypos:        windowedYPos,
         width:       windowedWidth,
         height:      windowedHeight,
-        refreshRate: 0'i32
+        refreshRate: 0
       )
 
 
@@ -509,8 +509,6 @@ proc main() =
   cfg.version = glv20
 
   let win = newWindow(cfg)
-
-  win.setAspectRatio(1, 1)
 
   win.framebufferSizeCb = reshape
   win.keyCb = keyCb
