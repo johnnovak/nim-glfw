@@ -620,7 +620,7 @@ macro generateProcs() =
     proc windowShouldClose*(window: Window): int32
     proc setWindowShouldClose*(window: Window; value: int32)
 
-    # TODO const char* glfwGetWindowTitle(GLFWwindow* window);
+    proc getWindowTitle*(window: Window): cstring
     proc setWindowTitle*(window: Window; title: cstring)
     proc setWindowIcon*(window: Window; count: int32; images: IconImage)
     proc getWindowPos*(window: Window; xpos: ptr int32; ypos: ptr int32)
@@ -749,8 +749,9 @@ macro generateProcs() =
     proc getJoystickGUID*(jid: int32): cstring
     proc setJoystickUserPointer*(jid: int, pointerr: pointer)
     proc getJoystickUserPointer*(jid: int32): pointer
-    proc joystickIsGamepad*(jid: int32): int32
     proc setJoystickCallback*(cbfun: Joystickfun): Joystickfun
+
+    proc joystickIsGamepad*(jid: int32): int32
     proc updateGamepadMappings*(str: cstring): int32
     proc getGamepadName*(jid: int32): cstring
     proc getGamepadState*(jid: int32, state: ptr GamepadState): int32

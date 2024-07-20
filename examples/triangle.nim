@@ -178,7 +178,8 @@ proc main() =
   win.aspectRatio = (3, 2)
   win.sizeLimits = (300, 200, 1200, 800)
 
-  echo fmt"Winfow frame size:    {win.frameSize}"
+  echo fmt"Window title:         {win.title}"
+  echo fmt"Window frame size:    {win.frameSize}"
   echo fmt"Window content scale: {win.contentScale}"
 
   while not win.shouldClose:

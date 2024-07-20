@@ -387,6 +387,9 @@ proc shouldClose*(w: Window): bool =
 proc `shouldClose=`*(w: Window, val: bool) =
   wrapper.setWindowShouldClose(w, val.int32)
 
+proc title*(w: Window): cstring =
+  wrapper.getWindowTitle(w)
+
 proc `title=`*(w: Window, val: string) =
   wrapper.setWindowTitle(w, val)
 
