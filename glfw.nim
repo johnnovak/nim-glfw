@@ -1006,6 +1006,12 @@ proc `aspectRatio=`*(w: Window, ratio: tuple[numer, denom: int]) =
 proc contentScale*(w: Window): tuple[xscale, yscale: float] =
   wrapper.getWindowContentScale(w, result[0].addr, result[1].addr)
 
+proc opacity*(w: Window): float =
+  wrapper.getWindowOpacity(w)
+
+proc `opacity=`*(w: Window, opacity: float) =
+  wrapper.setWindowOpacity(w, opacity)
+
 proc getCocoaOpenedFilenames*(): seq[string] =
   let s = wrapper.getCocoaOpenedFilenames()
   if s == nil:
