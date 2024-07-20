@@ -593,7 +593,7 @@ macro generateProcs() =
     proc getMonitorPhysicalSize*(monitor: Monitor; widthMM: ptr int32;
                                  heightMM: ptr int32)
 
-    proc getMonitorContentScale*()
+    proc getMonitorContentScale*(monitor: Monitor, xscale, yscale: ptr float)
     proc getMonitorName*(monitor: Monitor): cstring
     proc setMonitorUserPointer*(monitor: Monitor, pointerr: pointer)
     proc getMonitorUserPointer*(monitor: Monitor): pointer
