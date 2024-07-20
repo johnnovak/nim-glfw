@@ -258,6 +258,7 @@ type
     kaDown   = (1, "down")
     kaRepeat = (2, "repeat")
 
+type
   GamepadButton* {.size: int32.sizeof.} = enum
     gbA           = (0, "A")
     gbB           = (1, "B")
@@ -275,6 +276,22 @@ type
     gbDpadDown    = (13, "dpad down")
     gbDpadLeft    = (14, "dpad left")
 
+const
+  gbCross*    = gbA
+  gbCircle*   = gbB
+  gbSquare*   = gbX
+  gbTriangle* = gbY
+
+type
+  GamepadAxis* {.size: int32.sizeof.} = enum
+    gaLeftX        = (0, "left x")
+    gaLeftY        = (1, "lefy y")
+    gaRightX       = (2, "right x")
+    gaRightY       = (3, "right y")
+    gaLeftTrigger  = (4, "left trigger")
+    gaRightTrigger = (5, "right trigger")
+
+type
   Joystick* {.size: int32.sizeof} = enum
     joystick1  = (0, "joystick 0")
     joystick2  = (1, "joystick 1")
