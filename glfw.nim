@@ -58,23 +58,24 @@ type
   WindowHandle = wrapper.Window
 
   WindowObj = object
-    handle:             WindowHandle
-    windowPositionCb*:  WindowPositionCb
-    windowSizeCb*:      WindowSizeCb
-    windowCloseCb*:     WindowCloseCb
-    windowRefreshCb*:   WindowRefreshCb
-    windowFocusCb*:     WindowFocusCb
-    windowMaximizeCb*:  WindowMaximizeCb
-    windowIconifyCb*:   WindowIconifyCb
-    framebufferSizeCb*: FramebufferSizeCb
-    mouseButtonCb*:     MouseButtonCb
-    cursorPositionCb*:  CursorPositionCb
-    cursorEnterCb*:     CursorEnterCb
-    scrollCb*:          ScrollCb
-    keyCb*:             KeyCb
-    charCb*:            CharCb
-    charModsCb*:        CharModsCb
-    dropCb*:            DropCb
+    handle:                WindowHandle
+    windowPositionCb*:     WindowPositionCb
+    windowSizeCb*:         WindowSizeCb
+    windowCloseCb*:        WindowCloseCb
+    windowRefreshCb*:      WindowRefreshCb
+    windowFocusCb*:        WindowFocusCb
+    windowMaximizeCb*:     WindowMaximizeCb
+    windowIconifyCb*:      WindowIconifyCb
+    windowContentScaleCb*: WindowContentScaleCb
+    framebufferSizeCb*:    FramebufferSizeCb
+    mouseButtonCb*:        MouseButtonCb
+    cursorPositionCb*:     CursorPositionCb
+    cursorEnterCb*:        CursorEnterCb
+    scrollCb*:             ScrollCb
+    keyCb*:                KeyCb
+    charCb*:               CharCb
+    charModsCb*:           CharModsCb
+    dropCb*:               DropCb
 
   Window* = ref WindowObj
 
@@ -83,16 +84,15 @@ type
 
   WindowSizeCb* = proc(window: Window, size: tuple[w,h: int32]) {.closure.}
 
-  WindowCloseCb*    = proc(window: Window) {.closure.}
-  WindowRefreshCb*  = proc(window: Window) {.closure.}
-  WindowFocusCb*    = proc(window: Window, focus: bool) {.closure.}
-  WindowMaximizeCb* = proc(window: Window, iconified: bool)
-  WindowIconifyCb*  = proc(window: Window, iconified: bool) {.closure.}
+  WindowCloseCb*        = proc(window: Window) {.closure.}
+  WindowRefreshCb*      = proc(window: Window) {.closure.}
+  WindowFocusCb*        = proc(window: Window, focus: bool) {.closure.}
+  WindowMaximizeCb*     = proc(window: Window, iconified: bool)
+  WindowIconifyCb*      = proc(window: Window, iconified: bool) {.closure.}
+  WindowContentScaleCb* = proc(window: Window, width, height: float) {.closure.}
 
   FramebufferSizeCb* = proc(window: Window,
                             res: tuple[w,h: int32]) {.closure.}
-
-  WindowContentScaleCb* = proc(window: Window, width, height: float)
 
   MouseButtonCb* = proc(window: Window, button: MouseButton, pressed: bool,
                         modKeys: set[ModifierKey]) {.closure.}
@@ -335,22 +335,23 @@ const NoMonitor* = Monitor()
 var gWindowTable = initTable[WindowHandle, Window]()
 
 var
-  windowPositionCb:  wrapper.Windowposfun
-  windowSizeCb:      wrapper.Windowsizefun
-  windowCloseCb:     wrapper.Windowclosefun
-  windowRefreshCb:   wrapper.Windowrefreshfun
-  windowFocusCb:     wrapper.Windowfocusfun
-  windowMaximizeCb:  wrapper.Windowmaximizefun
-  windowIconifyCb:   wrapper.Windowiconifyfun
-  framebufferSizeCb: wrapper.Framebuffersizefun
-  mouseButtonCb:     wrapper.MouseButtonfun
-  cursorPositionCb:  wrapper.Cursorposfun
-  cursorEnterCb:     wrapper.Cursorenterfun
-  scrollCb:          wrapper.Scrollfun
-  keyCb:             wrapper.Keyfun
-  charCb:            wrapper.Charfun
-  charModsCb:        wrapper.Charmodsfun
-  dropCb:            wrapper.Dropfun
+  windowPositionCb:     wrapper.Windowposfun
+  windowSizeCb:         wrapper.Windowsizefun
+  windowCloseCb:        wrapper.Windowclosefun
+  windowRefreshCb:      wrapper.Windowrefreshfun
+  windowFocusCb:        wrapper.Windowfocusfun
+  windowMaximizeCb:     wrapper.Windowmaximizefun
+  windowIconifyCb:      wrapper.Windowiconifyfun
+  windowContentScaleCb: wrapper.Windowcontentscalefun
+  framebufferSizeCb:    wrapper.Framebuffersizefun
+  mouseButtonCb:        wrapper.MouseButtonfun
+  cursorPositionCb:     wrapper.Cursorposfun
+  cursorEnterCb:        wrapper.Cursorenterfun
+  scrollCb:             wrapper.Scrollfun
+  keyCb:                wrapper.Keyfun
+  charCb:               wrapper.Charfun
+  charModsCb:           wrapper.Charmodsfun
+  dropCb:               wrapper.Dropfun
 
 type
   OpenglVersion* = enum
@@ -911,6 +912,11 @@ proc newWindow*(c = DefaultOpenglWindowConfig): Window =
     if get(windowIconifyCb):
       cb(win, iconify.bool)
   discard wrapper.setWindowIconifyCallback(result, windowIconifyCb)
+
+  windowContentScaleCb = proc(handle: WindowHandle, xscale, yscale: cfloat) {.cdecl.} =
+    if get(windowContentScaleCb):
+      cb(win, xscale.float, yscale.float)
+  discard wrapper.setWindowContentScaleCallback(result, windowContentScaleCb)
 
   framebufferSizeCb = proc(handle: WindowHandle, w, h: int32) {.cdecl.} =
     if get(framebufferSizeCb):

@@ -527,7 +527,7 @@ type
   Windowmaximizefun*     = proc (a2: Window, a3: int32) {.cdecl.}
   Windowiconifyfun*      = proc (a2: Window; a3: int32) {.cdecl.}
   Framebuffersizefun*    = proc (a2: Window; a3: int32; a4: int32) {.cdecl.}
-  Windowcontentscalefun* = proc (a2: Window, a3, a4: cfloat)
+  Windowcontentscalefun* = proc (a2: Window, a3, a4: cfloat) {.cdecl.}
 
   Cursorposfun*   = proc (a2: Window; a3: cdouble; a4: cdouble) {.cdecl.}
   Cursorenterfun* = proc (a2: Window; a3: int32) {.cdecl.}
