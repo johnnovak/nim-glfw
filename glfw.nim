@@ -946,7 +946,7 @@ proc versionString*: cstring =
 proc swapInterval*(interval: Natural) =
   wrapper.swapInterval(interval.int32)
 
-proc getTime*(): float64 =
+proc getTime*: float64 =
   wrapper.getTime()
 
 proc setTime*(time: float64) =
