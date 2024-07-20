@@ -566,6 +566,9 @@ macro generateProcs() =
     # ------------------------------------------------------------------------
     proc init*(): int32
     proc initHint*(hint, value: int32)
+    # TODO void glfwInitAllocator(const GLFWallocator* allocator);
+    # TODO void glfwInitVulkanLoader(PFN_vkGetInstanceProcAddr loader);
+    #
     proc terminate*()
 
     proc getVersion*(major: ptr int32; minor: ptr int32; rev: ptr int32)
@@ -616,6 +619,8 @@ macro generateProcs() =
     proc destroyWindow*(window: Window)
     proc windowShouldClose*(window: Window): int32
     proc setWindowShouldClose*(window: Window; value: int32)
+
+    # TODO const char* glfwGetWindowTitle(GLFWwindow* window);
     proc setWindowTitle*(window: Window; title: cstring)
     proc setWindowIcon*(window: Window; count: int32; images: IconImage)
     proc getWindowPos*(window: Window; xpos: ptr int32; ypos: ptr int32)
