@@ -1003,6 +1003,10 @@ proc `sizeLimits=`*(w: Window, limits: tuple[minWidth, minHeight,
 proc `aspectRatio=`*(w: Window, ratio: tuple[numer, denom: int]) =
   wrapper.setWindowAspectRatio(w, ratio.numer.int32, ratio.denom.int32)
 
+proc frameSize*(w: Window): tuple[left, top, right, bottom: int32] =
+  wrapper.getWindowFrameSize(w, result[0].addr, result[1].addr,
+                                result[2].addr, result[3].addr)
+
 proc contentScale*(w: Window): tuple[xscale, yscale: float] =
   wrapper.getWindowContentScale(w, result[0].addr, result[1].addr)
 
@@ -1015,7 +1019,7 @@ proc `opacity=`*(w: Window, opacity: float) =
 proc requestAttention*(w: Window) =
   wrapper.requestWindowAttention(w)
 
-proc getCocoaOpenedFilenames*(): seq[string] =
+proc getCocoaOpenedFilenames*: seq[string] =
   let s = wrapper.getCocoaOpenedFilenames()
   if s == nil:
     result = @[]
