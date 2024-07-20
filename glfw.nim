@@ -285,7 +285,9 @@ proc physicalSizeMM*(m: Monitor): tuple[w,h: int] =
   (w.int, h.int)
 
 proc contentScale*(m: Monitor): tuple[xscale, yscale: float] =
-  wrapper.getMonitorContentScale(m, result[0].addr, result[1].addr)
+  var x,y: cfloat
+  wrapper.getMonitorContentScale(m, x.addr, y.addr)
+  (x.float, y.float)
 
 proc name*(m: Monitor): cstring =
   wrapper.getMonitorName(m).failIf(nil)
@@ -1011,7 +1013,9 @@ proc frameSize*(w: Window): tuple[left, top, right, bottom: int32] =
                                 result[2].addr, result[3].addr)
 
 proc contentScale*(w: Window): tuple[xscale, yscale: float] =
-  wrapper.getWindowContentScale(w, result[0].addr, result[1].addr)
+  var x, y: cfloat
+  wrapper.getWindowContentScale(w, x.addr, y.addr)
+  (x.float, y.float)
 
 proc opacity*(w: Window): float =
   wrapper.getWindowOpacity(w)

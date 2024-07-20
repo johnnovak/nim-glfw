@@ -331,7 +331,7 @@ const
 type
   GamepadState* = object
     buttons: array[15, uint8]
-    axes:    array[6, float]
+    axes:    array[6, cfloat]
 
 const
   Iconified* = 0x00020002
@@ -527,7 +527,7 @@ type
   Windowmaximizefun*     = proc (a2: Window, a3: int32) {.cdecl.}
   Windowiconifyfun*      = proc (a2: Window; a3: int32) {.cdecl.}
   Framebuffersizefun*    = proc (a2: Window; a3: int32; a4: int32) {.cdecl.}
-  Windowcontentscalefun* = proc (a2: Window, a3, a4: float)
+  Windowcontentscalefun* = proc (a2: Window, a3, a4: cfloat)
 
   Cursorposfun*   = proc (a2: Window; a3: cdouble; a4: cdouble) {.cdecl.}
   Cursorenterfun* = proc (a2: Window; a3: int32) {.cdecl.}
@@ -593,7 +593,7 @@ macro generateProcs() =
     proc getMonitorPhysicalSize*(monitor: Monitor; widthMM: ptr int32;
                                  heightMM: ptr int32)
 
-    proc getMonitorContentScale*(monitor: Monitor, xscale, yscale: ptr float)
+    proc getMonitorContentScale*(monitor: Monitor, xscale, yscale: ptr cfloat)
     proc getMonitorName*(monitor: Monitor): cstring
     proc setMonitorUserPointer*(monitor: Monitor, pointerr: pointer)
     proc getMonitorUserPointer*(monitor: Monitor): pointer
@@ -640,10 +640,10 @@ macro generateProcs() =
     proc getWindowFrameSize*(window: Window; left: ptr int32; top: ptr int32;
                              right: ptr int32; bottom: ptr int32)
 
-    proc getWindowContentScale*(window: Window, xscale, yscale: ptr float)
+    proc getWindowContentScale*(window: Window, xscale, yscale: ptr cfloat)
 
-    proc getWindowOpacity*(window: Window): float
-    proc setWindowOpacity*(window: Window, opacity: float)
+    proc getWindowOpacity*(window: Window): cfloat
+    proc setWindowOpacity*(window: Window, opacity: cfloat)
 
     proc iconifyWindow*(window: Window)
     proc restoreWindow*(window: Window)
