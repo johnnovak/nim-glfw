@@ -33,22 +33,26 @@ export wrapper.waitEventsTimeout
 
 {.push warning[HoleEnumConv]:off.}
 
-converter toInt32Tuple*(t: tuple[w, h: int]): tuple[w, h: int32] =
+converter toInt32Tuple*(t: tuple[w,h: int]): tuple[w,h: int32] =
   (t[0].int32, t[1].int32)
 
-converter toInt32Tuple*(t: tuple[x, y: int]): tuple[x, y: int32] =
+converter toInt32Tuple*(t: tuple[x,y: int]): tuple[x,y: int32] =
   (t[0].int32, t[1].int32)
 
-converter toInt32Tuple*(t: tuple[r, g, b, a: int]): tuple[r, g, b, a: Option[int32]] =
+converter toInt32Tuple*(t: tuple[r,g,b,a: int]): tuple[r,g,b,a: Option[int32]] =
   (some(t[0].int32), some(t[1].int32), some(t[2].int32), some(t[3].int32))
 
-converter toInt32Tuple*(t: tuple[r, g, b, a, stencil, depth: int]):
-    tuple[r, g, b, a, stencil, depth: Option[int32]] =
+converter toInt32Tuple*(t: tuple[r,g,b,a, stencil, depth: int]):
+    tuple[r,g,b,a, stencil, depth: Option[int32]] =
   (some(t[0].int32), some(t[1].int32), some(t[2].int32),
    some(t[3].int32), some(t[4].int32), some(t[5].int32))
 
 converter toInt32(h: wrapper.Hint): int32 =
   h.int32
+
+converter toOptionInt32*(v: Option[int]): Option[int32] =
+  if v.isSome: v.get.int32.some
+  else:        int32.none
 
 type
   WindowHandle = wrapper.Window
@@ -75,9 +79,9 @@ type
   Window* = ref WindowObj
 
   WindowPositionCb* = proc(window: Window,
-                           pos: tuple[x, y: int32]) {.closure.}
+                           pos: tuple[x,y: int32]) {.closure.}
 
-  WindowSizeCb* = proc(window: Window, size: tuple[w, h: int32]) {.closure.}
+  WindowSizeCb* = proc(window: Window, size: tuple[w,h: int32]) {.closure.}
 
   WindowCloseCb*    = proc(window: Window) {.closure.}
   WindowRefreshCb*  = proc(window: Window) {.closure.}
@@ -86,7 +90,7 @@ type
   WindowIconifyCb*  = proc(window: Window, iconified: bool) {.closure.}
 
   FramebufferSizeCb* = proc(window: Window,
-                            res: tuple[w, h: int32]) {.closure.}
+                            res: tuple[w,h: int32]) {.closure.}
 
   WindowContentScaleCb* = proc(window: Window, width, height: float)
 
@@ -94,11 +98,11 @@ type
                         modKeys: set[ModifierKey]) {.closure.}
 
   CursorPositionCb* = proc(window: Window,
-                           pos: tuple[x, y: float64]) {.closure.}
+                           pos: tuple[x,y: float64]) {.closure.}
 
   CursorEnterCb* = proc(window: Window, entered: bool) {.closure.}
 
-  ScrollCb* = proc(window: Window, offset: tuple[x, y: float64]) {.closure.}
+  ScrollCb* = proc(window: Window, offset: tuple[x,y: float64]) {.closure.}
 
   KeyCb* = proc(window: Window, key: Key, scanCode: int32, action: KeyAction,
                 modKeys: set[ModifierKey]) {.closure.}
@@ -265,28 +269,39 @@ iterator monitors*: Monitor =
 proc getPrimaryMonitor*: Monitor =
   newMonitor(wrapper.getPrimaryMonitor().failIf(nil))
 
-proc pos*(m: Monitor): tuple[x, y: int32] =
-  wrapper.getMonitorPos(m, result[0].addr, result[1].addr)
+proc pos*(m: Monitor): tuple[x,y: int] =
+  var x,y: int32
+  wrapper.getMonitorPos(m, x.addr, y.addr)
+  (x.int, y.int)
 
-proc workArea*(m: Monitor): tuple[x, y, w, h: int32] =
-  wrapper.getMonitorWorkarea(m, result[0].addr, result[1].addr,
-                                result[2].addr, result[3].addr)
+proc workArea*(m: Monitor): tuple[x,y,w,h: int] =
+  var x,y,w,h: int32
+  wrapper.getMonitorWorkarea(m, x.addr, y.addr, w.addr, h.addr)
+  (x.int, y.int, w.int, h.int)
 
-proc physicalSizeMM*(m: Monitor): tuple[w, h: int32] =
-  wrapper.getMonitorPhysicalSize(m, result[0].addr, result[1].addr)
+proc physicalSizeMM*(m: Monitor): tuple[w,h: int] =
+  var w,h: int32
+  wrapper.getMonitorPhysicalSize(m, w.addr, h.addr)
+  (w.int, h.int)
+
+proc monitorContentScale*(m: Monitor): tuple[xscale, yscale: float] =
+  wrapper.getMonitorContentScale(m, result[0].addr, result[1].addr)
 
 proc name*(m: Monitor): cstring =
   wrapper.getMonitorName(m).failIf(nil)
 
 type
-  VideoModeObj* = object
-    size*: tuple[w, h: int32]
-    bits*: tuple[r, g, b: int32]
-    refreshRate*: int32
-  VideoMode* = ptr VideoModeObj
+  VideoMode* = object
+    size*: tuple[w,h: int]
+    bits*: tuple[r,g,b: int]
+    refreshRate*: int
 
-# XXX: should be evaluated at compile time
-assert VideoModeObj.sizeof == wrapper.VideoModeObj.sizeof
+converter toVideoMode(vm: wrapper.VideoMode): VideoMode =
+  VideoMode(
+    size:        (vm.width.int, vm.height.int),
+    bits:        (vm.redBits.int, vm.greenBits.int, vm.blueBits.int),
+    refreshRate: vm.refreshRate
+  )
 
 iterator videoModes*(m: Monitor): VideoMode =
   var n: int32
@@ -300,11 +315,11 @@ iterator videoModes*(m: Monitor): VideoMode =
 proc videoMode*(m: Monitor): VideoMode =
   cast[VideoMode](wrapper.getVideoMode(m).failIf(nil))
 
-proc `gamma=`*(m: Monitor, val: float32) =
-  wrapper.setGamma(m, val.cfloat)
+proc `gamma=`*(m: Monitor, gamma: float32) =
+  wrapper.setGamma(m, gamma.cfloat)
 
 type
-  GammaRamp* = tuple[r, g, b: seq[uint16], size: int32]
+  GammaRamp* = tuple[r,g,b: seq[uint16], size: int32]
   GammaRampPtr* = ptr GammaRamp
 
 proc `gammaRamp=`*(m: Monitor, ramp: GammaRamp) =
@@ -375,24 +390,31 @@ proc `shouldClose=`*(w: Window, val: bool) =
 proc `title=`*(w: Window, val: string) =
   wrapper.setWindowTitle(w, val)
 
-proc pos*(w: Window): tuple[x, y: int32] =
-  wrapper.getWindowPos(w, result.x.addr, result.y.addr)
+proc pos*(w: Window): tuple[x,y: int] =
+  var x,y: int32
+  wrapper.getWindowPos(w, x.addr, y.addr)
+  (x.int, y.int)
 
-proc `pos=`*(w: Window, pos: tuple[x, y: int32]) =
-  wrapper.setWindowPos(w, pos.x, pos.y)
+proc `pos=`*(w: Window, pos: tuple[x,y: int]) =
+  wrapper.setWindowPos(w, pos.x.int32, pos.y.int32)
 
-proc size*(w: Window): tuple[w, h: int32] =
-  wrapper.getWindowSize(w, result.w.addr, result.h.addr)
+proc size*(w: Window): tuple[w,h: int] =
+  var width, height: int32
+  wrapper.getWindowSize(w, width.addr, height.addr)
+  (width.int, height.int)
 
-proc `size=`*(w: Window, size: tuple[w, h: int32]) =
-  wrapper.setWindowSize(w, size.w, size.h)
+proc `size=`*(w: Window, size: tuple[w,h: int]) =
+  wrapper.setWindowSize(w, size.w.int32, size.h.int32)
 
-proc framebufferSize*(w: Window): tuple[w, h: int32] =
-  wrapper.getframebufferSize(w, result.w.addr, result.h.addr)
+proc framebufferSize*(w: Window): tuple[w,h: int] =
+  var width, height: int32
+  wrapper.getframebufferSize(w, width.addr, height.addr)
+  (width.int, height.int)
 
-proc windowFrameSize*(w: Window): tuple[left, top, right, bottom: int32] =
-  wrapper.getWindowFrameSize(w, result.left.addr, result.top.addr,
-    result.right.addr, result.bottom.addr)
+proc windowFrameSize*(w: Window): tuple[left, top, right, bottom: int] =
+  var left, top, right, bottom: int32
+  wrapper.getWindowFrameSize(w, left.addr, top.addr, right.addr, bottom.addr)
+  (left.int, top.int, right.int, bottom.int)
 
 template windowOp(name: untyped) =
   proc name*(w: Window) =
@@ -446,10 +468,11 @@ proc monitor*(w: Window): Monitor =
   newMonitor(wrapper.getWindowMonitor(w))
 
 proc `monitor=`*(w: Window, args: tuple[monitor: Monitor;
-                                        xpos, ypos, width, height: int32;
-                                        refreshRate: int32]) =
-  wrapper.setWindowMonitor(w, args.monitor, args.xpos, args.ypos,
-                           args.width, args.height, args.refreshRate)
+                                        xpos, ypos, width, height: int;
+                                        refreshRate: int]) =
+  wrapper.setWindowMonitor(w, args.monitor, args.xpos.int32, args.ypos.int32,
+                           args.width.int32, args.height.int32,
+                           args.refreshRate.int32)
 
 proc isKeyDown*(w: Window, key: Key): bool =
   wrapper.getKey(w, key.int32).KeyAction == kaDown
@@ -472,13 +495,13 @@ proc `cursorPos=`*(w: Window, pos: tuple[x, y: float64]) =
 proc `cursor=`*(w: Window, c: Cursor) =
   wrapper.setCursor(w, c)
 
-proc isJoystickPresent*(w: Window, joy: int32): bool =
-  wrapper.joystickPresent(joy).bool
+proc isJoystickPresent*(w: Window, joy: int): bool =
+  wrapper.joystickPresent(joy.int32).bool
 
 
-iterator joystickAxes*(joy: int32): float32 =
+iterator joystickAxes*(joy: int): float =
   var count: int32
-  var axesPtr = wrapper.getJoystickAxes(joy, count.addr)
+  var axesPtr = wrapper.getJoystickAxes(joy.int32, count.addr)
   fail(iff = count <= 0)
   var axes = cast[ptr array[10_000, float32]](axesPtr)
 
@@ -486,9 +509,9 @@ iterator joystickAxes*(joy: int32): float32 =
     yield axes[i]
 
 
-iterator getJoystickButtons*(joy: int32): cstring =
+iterator getJoystickButtons*(joy: int): cstring =
   var count: int32
-  var buttonPtr = wrapper.getJoystickButtons(joy, count.addr)
+  var buttonPtr = wrapper.getJoystickButtons(joy.int32, count.addr)
   fail(iff = count <= 0)
   var buttons = cast[ptr array[10_000, cstring]](buttonPtr)
 
@@ -496,9 +519,9 @@ iterator getJoystickButtons*(joy: int32): cstring =
     yield buttons[i]
 
 
-iterator joystickHats*(jid: int32): cstring =
+iterator joystickHats*(joy: int): cstring =
   var count: int32
-  var hatPtr = wrapper.getJoystickHats(jid, count.addr)
+  var hatPtr = wrapper.getJoystickHats(joy.int32, count.addr)
   fail(iff = count <= 0)
   var hats = cast[ptr array[10_000, cstring]](hatPtr)
 
@@ -506,8 +529,8 @@ iterator joystickHats*(jid: int32): cstring =
     yield hats[i]
 
 
-proc joystickName*(joy: int32): cstring =
-  wrapper.getJoystickName(joy)
+proc joystickName*(joy: int): cstring =
+  wrapper.getJoystickName(joy.int32)
 
 proc `clipboardString=`*(w: Window, str: string) =
   wrapper.setClipboardString(w, str)
@@ -556,7 +579,7 @@ type
 
     bits*:                   tuple[r, g, b, a, stencil, depth: Option[int32]]
     accumBufferBits*:        tuple[r, g, b, a: Option[int32]]
-    nAuxBuffers*,            nMultiSamples*: int32
+    nAuxBuffers*,            nMultiSamples*: int
     refreshRate*:            Option[int32]
     contextReleaseBehavior*: ContextReleaseBehavior
     contextRobustness*:      ContextRobustness
@@ -937,8 +960,10 @@ proc newWindow*(c = DefaultOpenglWindowConfig): Window =
 proc swapBuffers*(w: Window) =
   wrapper.swapBuffers(w)
 
-proc version*: tuple[major, minor, rev: int32] =
-  wrapper.getVersion(result[0].addr, result[1].addr, result[2].addr)
+proc version*: tuple[major, minor, rev: int] =
+  var major, minor, rev: int32
+  wrapper.getVersion(major.addr, minor.addr, rev.addr)
+  (major.int, minor.int, rev.int)
 
 proc versionString*: cstring =
   wrapper.getVersionString()
@@ -958,24 +983,25 @@ proc timerValue*: uint64 =
 proc timerFrequency*: uint64 =
   wrapper.getTimerFrequency()
 
-proc `icons=`*(w: Window, images: openarray[wrapper.IconImageObj]) =
+proc `icons=`*(w: Window, images: openArray[wrapper.IconImageObj]) =
   wrapper.setWindowIcon(w, images.len.int32, images[0].unsafeAddr)
 
 proc keyName*(key: Key): cstring =
   wrapper.getKeyName(key.int32, 0)
 
-proc keyName*(scanCode: int32): cstring =
-  wrapper.getKeyName(keyUnknown.int32, scanCode)
+proc keyName*(scanCode: int): cstring =
+  wrapper.getKeyName(keyUnknown.int32, scanCode.int32)
 
-proc scanCode*(key: Key): int32 =
+proc scanCode*(key: Key): int =
   wrapper.getKeyScancode(key.int32)
 
-proc setSizeLimits*(w: Window, minwidth, minheight,
-                    maxwidth, maxheight: int32) =
-  wrapper.setWindowSizeLimits(w, minwidth, minheight, maxwidth, maxheight)
+proc `sizeLimits=`*(w: Window, limits: tuple[minWidth, minHeight,
+                                             maxWidth, maxHeight: int]) =
+  wrapper.setWindowSizeLimits(w, limits.minWidth.int32, limits.minheight.int32,
+                                 limits.maxWidth.int32, limits.maxHeight.int32)
 
-proc setAspectRatio*(w: Window, numer, denom: int32) =
-  wrapper.setWindowAspectRatio(w, numer, denom)
+proc `aspectRatio=`*(w: Window, ratio: tuple[numer, denom: int]) =
+  wrapper.setWindowAspectRatio(w, ratio.numer.int32, ratio.denom.int32)
 
 proc getCocoaOpenedFilenames*(): seq[string] =
   let s = wrapper.getCocoaOpenedFilenames()
