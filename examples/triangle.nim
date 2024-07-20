@@ -187,6 +187,7 @@ proc main() =
   echo fmt"Window title:          {win.title}"
   echo fmt"Window frame size:     {win.frameSize}"
   echo fmt"Window content scale:  {win.contentScale}"
+  echo fmt"Window opacity:        {win.opacity}"
 
   while not win.shouldClose:
     draw(win)
