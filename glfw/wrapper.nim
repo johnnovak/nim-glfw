@@ -115,9 +115,10 @@ type
     mb7 = (6, "mouse button 7")
     mb8 = (7, "mouse button 8")
 
-const mbLeft* = mb1
-const mbRight* = mb2
-const mbMiddle* = mb3
+const
+  mbLeft*   = mb1
+  mbRight*  = mb2
+  mbMiddle* = mb3
 
 type
   ModifierKey* {.size: int32.sizeof.} = enum
@@ -542,13 +543,26 @@ proc renameProcs(n: NimNode) {.compileTime.} =
 
 macro generateProcs() =
   template getProcs {.dirty.} =
+
+    # ------------------------------------------------------------------------
+    # Initialisation
+    # ------------------------------------------------------------------------
     proc init*(): int32
-    proc terminate*()
     proc initHint*(hint, value: int32)
+    proc terminate*()
+
     proc getVersion*(major: ptr int32; minor: ptr int32; rev: ptr int32)
     proc getVersionString*(): cstring
+
     proc getError*(description: cstringArray): int32
     proc setErrorCallback*(cbfun: Errorfun): Errorfun
+
+    # TODO int glfwGetPlatform(void);
+    # TODO int glfwPlatformSupported(int platform);
+
+    # ------------------------------------------------------------------------
+    # Monitor handling
+    # ------------------------------------------------------------------------
     proc getMonitors*(count: ptr int32): Monitor
     proc getPrimaryMonitor*(): Monitor
     proc getMonitorPos*(monitor: Monitor; xpos: ptr int32; ypos: ptr int32)
@@ -564,11 +578,17 @@ macro generateProcs() =
     proc setMonitorUserPointer*(monitor: Monitor, pointerr: pointer)
     proc getMonitorUserPointer*(monitor: Monitor): pointer
     proc setMonitorCallback*(cbfun: Monitorfun): Monitorfun
+
     proc getVideoModes*(monitor: Monitor; count: ptr int32): VideoMode
     proc getVideoMode*(monitor: Monitor): VideoMode
+
     proc setGamma*(monitor: Monitor; gamma: cfloat)
     proc getGammaRamp*(monitor: Monitor): Gammaramp
     proc setGammaRamp*(monitor: Monitor; ramp: Gammaramp)
+
+    # ------------------------------------------------------------------------
+    # Window handling
+    # ------------------------------------------------------------------------
     proc defaultWindowHints*()
     proc windowHint*(hint: int32; value: int32)
     proc windowHintString*(hint: int32, value: cstring)
@@ -599,8 +619,10 @@ macro generateProcs() =
                              right: ptr int32; bottom: ptr int32)
 
     proc getWindowContentScale*(window: Window, xscale, yscale: ptr float)
+
     proc getWindowOpacity*(window: Window): float
     proc setWindowOpacity*(window: Window, opacity: float)
+
     proc iconifyWindow*(window: Window)
     proc restoreWindow*(window: Window)
     proc maximizeWindow*(window: Window)
@@ -608,6 +630,7 @@ macro generateProcs() =
     proc hideWindow*(window: Window)
     proc focusWindow*(window: Window)
     proc requestWindowAttention*(window: Window)
+
     proc getWindowMonitor*(window: Window): Monitor
 
     proc setWindowMonitor*(window: Window; monitor: Monitor;
@@ -620,6 +643,7 @@ macro generateProcs() =
     proc setWindowUserPointer*(window: Window; pointer: pointer)
     proc getWindowUserPointer*(window: Window): pointer
 
+    # Window callbacks
     proc setWindowPosCallback*(window: Window;
                                cbfun: Windowposfun): Windowposfun
 
@@ -635,11 +659,11 @@ macro generateProcs() =
     proc setWindowFocusCallback*(window: Window;
                                  cbfun: Windowfocusfun): Windowfocusfun
 
-    proc setWindowMaximizeCallback*(window: Window;
-      cbfun: Windowmaximizefun): Windowmaximizefun
-
     proc setWindowIconifyCallback*(window: Window;
       cbfun: Windowiconifyfun): Windowiconifyfun
+
+    proc setWindowMaximizeCallback*(window: Window;
+      cbfun: Windowmaximizefun): Windowmaximizefun
 
     proc setFramebufferSizeCallback*(window: Window;
       cbfun: Framebuffersizefun): Framebuffersizefun
@@ -647,23 +671,36 @@ macro generateProcs() =
     proc setWindowContentScaleCallback*(window: Window,
       cbfun: Windowcontentscalefun): Windowcontentscalefun
 
+    # ------------------------------------------------------------------------
+    # Event handling
+    # ------------------------------------------------------------------------
     proc pollEvents*()
     proc waitEvents*()
     proc waitEventsTimeout*(timeout: cdouble)
     proc postEmptyEvent*()
+
+    # ------------------------------------------------------------------------
+    # Input handling
+    # ------------------------------------------------------------------------
     proc getInputMode*(window: Window; mode: int32): int32
     proc setInputMode*(window: Window; mode: int32; value: int32)
+
     proc rawMouseMotionSupported*(): int32
+
     proc getKeyName*(key: int32; scancode: int32): cstring
     proc getKeyScancode*(key: int32): int32
     proc getKey*(window: Window; key: int32): int32
+
     proc getMouseButton*(window: Window; button: int32): int32
+
     proc getCursorPos*(window: Window; xpos: ptr cdouble; ypos: ptr cdouble)
     proc setCursorPos*(window: Window; xpos: cdouble; ypos: cdouble)
     proc createCursor*(image: IconImage; xhot: int32; yhot: int32): Cursor
     proc createStandardCursor*(shape: CursorShape): Cursor
     proc destroyCursor*(cursor: Cursor)
     proc setCursor*(window: Window; cursor: Cursor)
+
+    # Keyboard & mouse callbacks
     proc setKeyCallback*(window: Window; cbfun: Keyfun): Keyfun
     proc setCharCallback*(window: Window; cbfun: Charfun): Charfun
     proc setCharModsCallback*(window: Window; cbfun: Charmodsfun): Charmodsfun
@@ -680,6 +717,8 @@ macro generateProcs() =
     proc setScrollCallback*(window: Window; cbfun: Scrollfun): Scrollfun
 
     proc setDropCallback*(window: Window; cbfun: Dropfun): Dropfun
+
+    # Joystick functions
     proc joystickPresent*(joy: int32): int32
     proc getJoystickAxes*(joy: int32; count: ptr int32): ptr cfloat
     proc getJoystickButtons*(joy: int32; count: ptr int32): ptr uint8
@@ -693,22 +732,32 @@ macro generateProcs() =
     proc updateGamepadMappings*(str: cstring): int32
     proc getGamepadName*(jid: int32): cstring
     proc getGamepadState*(jid: int32, state: ptr GamepadState): int32
+
+    # Clipboard functions
     proc setClipboardString*(window: Window; string: cstring)
     proc getClipboardString*(window: Window): cstring
+
+    # ------------------------------------------------------------------------
+    # Timer functions
+    # ------------------------------------------------------------------------
     proc getTime*(): cdouble
     proc setTime*(time: cdouble)
     proc getTimerValue*(): uint64
     proc getTimerFrequency*(): uint64
+
+    # ------------------------------------------------------------------------
+    # Context & OS integration functions
+    # ------------------------------------------------------------------------
     proc makeContextCurrent*(window: Window)
     proc getCurrentContext*(): Window
+
     proc swapBuffers*(window: Window)
     proc swapInterval*(interval: int32)
+
     proc extensionSupported*(extension: cstring): int32
     proc getProcAddress*(procname: cstring): OpenGlProc
     proc vulkanSupported*(): int32
     proc getRequiredInstanceExtensions*(count: ptr uint32): cstringArray
-    proc getCocoaOpenedFilenames*(): cstringArray
-    proc freeCocoaOpenedFilenames*()
 
     when defined(VK_VERSION_1_0):
       proc getInstanceProcAddress*(instance: VkInstance;
@@ -720,6 +769,14 @@ macro generateProcs() =
       proc createWindowSurface*(instance: VkInstance; window: Window;
         allocator: ptr VkAllocationCallbacks;
         surface: ptr VkSurfaceKHR): VkResult
+
+    # ------------------------------------------------------------------------
+    # Extra nim-glfw helper functions
+    # ------------------------------------------------------------------------
+    when defined(macosx):
+      proc getCocoaOpenedFilenames*(): cstringArray
+      proc freeCocoaOpenedFilenames*()
+
 
   result = getAst(getProcs())
   renameProcs(result)
