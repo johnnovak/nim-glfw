@@ -1026,12 +1026,13 @@ proc `opacity=`*(w: Window, opacity: float) =
 proc requestAttention*(w: Window) =
   wrapper.requestWindowAttention(w)
 
-proc getCocoaOpenedFilenames*: seq[string] =
-  let s = wrapper.getCocoaOpenedFilenames()
-  if s == nil:
-    result = @[]
-  else:
-    result = cstringArrayToSeq(s)
-    wrapper.freeCocoaOpenedFilenames()
+when defined(macosx):
+  proc getCocoaOpenedFilenames*: seq[string] =
+    let s = wrapper.getCocoaOpenedFilenames()
+    if s == nil:
+      result = @[]
+    else:
+      result = cstringArrayToSeq(s)
+      wrapper.freeCocoaOpenedFilenames()
 
 {.pop.}
