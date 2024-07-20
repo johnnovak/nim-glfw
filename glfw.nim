@@ -284,7 +284,7 @@ proc physicalSizeMM*(m: Monitor): tuple[w,h: int] =
   wrapper.getMonitorPhysicalSize(m, w.addr, h.addr)
   (w.int, h.int)
 
-proc monitorContentScale*(m: Monitor): tuple[xscale, yscale: float] =
+proc contentScale*(m: Monitor): tuple[xscale, yscale: float] =
   wrapper.getMonitorContentScale(m, result[0].addr, result[1].addr)
 
 proc name*(m: Monitor): cstring =

@@ -178,9 +178,15 @@ proc main() =
   win.aspectRatio = (3, 2)
   win.sizeLimits = (300, 200, 1200, 800)
 
-  echo fmt"Window title:         {win.title}"
-  echo fmt"Window frame size:    {win.frameSize}"
-  echo fmt"Window content scale: {win.contentScale}"
+  let m = getPrimaryMonitor()
+
+  echo ""
+  echo fmt"Monitor name:          {m.name}"
+  echo fmt"Monitor content scale: {m.contentScale}"
+  echo ""
+  echo fmt"Window title:          {win.title}"
+  echo fmt"Window frame size:     {win.frameSize}"
+  echo fmt"Window content scale:  {win.contentScale}"
 
   while not win.shouldClose:
     draw(win)
