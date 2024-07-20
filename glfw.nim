@@ -1012,6 +1012,9 @@ proc opacity*(w: Window): float =
 proc `opacity=`*(w: Window, opacity: float) =
   wrapper.setWindowOpacity(w, opacity)
 
+proc requestAttention*(w: Window) =
+  wrapper.requestWindowAttention(w)
+
 proc getCocoaOpenedFilenames*(): seq[string] =
   let s = wrapper.getCocoaOpenedFilenames()
   if s == nil:
