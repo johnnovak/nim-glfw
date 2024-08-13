@@ -509,7 +509,7 @@ iterator joystickAxes*(joy: int): float =
   var count: int32
   var axesPtr = wrapper.getJoystickAxes(joy.int32, count.addr)
   fail(iff = count <= 0)
-  var axes = cast[ptr array[10_000, float32]](axesPtr)
+  var axes = cast[ptr UncheckedArray[float32]](axesPtr)
 
   for i in 0 .. count - 1:
     yield axes[i]
@@ -519,7 +519,7 @@ iterator getJoystickButtons*(joy: int): cstring =
   var count: int32
   var buttonPtr = wrapper.getJoystickButtons(joy.int32, count.addr)
   fail(iff = count <= 0)
-  var buttons = cast[ptr array[10_000, cstring]](buttonPtr)
+  var buttons = cast[ptr UncheckedArray[cstring]](buttonPtr)
 
   for i in 0 .. count - 1:
     yield buttons[i]
@@ -529,7 +529,7 @@ iterator joystickHats*(joy: int): cstring =
   var count: int32
   var hatPtr = wrapper.getJoystickHats(joy.int32, count.addr)
   fail(iff = count <= 0)
-  var hats = cast[ptr array[10_000, cstring]](hatPtr)
+  var hats = cast[ptr UncheckedArray[cstring]](hatPtr)
 
   for i in 0 .. count - 1:
     yield hats[i]
