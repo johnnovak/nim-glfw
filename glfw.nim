@@ -306,13 +306,13 @@ converter toVideoMode(vm: wrapper.VideoMode): VideoMode =
   )
 
 iterator videoModes*(m: Monitor): VideoMode =
-  var n: int32
-  var modesPtr = wrapper.getVideoModes(m, n.addr).failIf(nil)
-  fail(iff = n <= 0)
+  var count: int32
+  var modesPtr = wrapper.getVideoModes(m, count.addr).failIf(nil)
 
-  var modes = cast[ptr array[10_000, wrapper.VideoMode]](modesPtr)
-  for i in 0 .. n - 1:
-    yield cast[VideoMode](modes[i])
+  if count >= 0:
+    var modes = cast[ptr UncheckedArray[wrapper.VideoMode]](modesPtr)
+    for i in 0..<count:
+      yield cast[VideoMode](modes[i])
 
 proc videoMode*(m: Monitor): VideoMode =
   cast[VideoMode](wrapper.getVideoMode(m).failIf(nil))
