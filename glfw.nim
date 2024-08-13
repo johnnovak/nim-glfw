@@ -260,11 +260,11 @@ proc newMonitor*(handle: MonitorHandle): Monitor =
 iterator monitors*: Monitor =
   var count: int32
   var handlesPtr = wrapper.getMonitors(count.addr).failIf(nil)
-  fail(iff = count <= 0)
-  var handles = cast[ptr array[10_000, MonitorHandle]](handlesPtr)
 
-  for i in 0 .. count - 1:
-    yield newMonitor(handles[i])
+  if count >= 0:
+    var handles = cast[ptr UncheckedArray[MonitorHandle]](handlesPtr)
+    for i in 0..<count:
+      yield newMonitor(handles[i])
 
 proc getPrimaryMonitor*: Monitor =
   newMonitor(wrapper.getPrimaryMonitor().failIf(nil))
