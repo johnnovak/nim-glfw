@@ -130,11 +130,11 @@ proc len*(p: PathDropInfo): cint =
   p.len
 
 iterator items*(p: PathDropInfo): cstring =
-  for i in 0 .. p.len - 1:
+  for i in 0..<p.len:
     yield p.paths[i]
 
 iterator pairs*(p: PathDropInfo): (int32, cstring) =
-  for i in 0 .. p.len - 1:
+  for i in 0..<p.len:
     yield (i, p.paths[i])
 
 converter toHandle(m: Monitor): MonitorHandle = m.handle
@@ -511,7 +511,7 @@ iterator joystickAxes*(joy: int): float =
   fail(iff = count <= 0)
   var axes = cast[ptr UncheckedArray[float32]](axesPtr)
 
-  for i in 0 .. count - 1:
+  for i in 0..<count:
     yield axes[i]
 
 
@@ -521,7 +521,7 @@ iterator getJoystickButtons*(joy: int): cstring =
   fail(iff = count <= 0)
   var buttons = cast[ptr UncheckedArray[cstring]](buttonPtr)
 
-  for i in 0 .. count - 1:
+  for i in 0..<count:
     yield buttons[i]
 
 
@@ -531,7 +531,7 @@ iterator joystickHats*(joy: int): cstring =
   fail(iff = count <= 0)
   var hats = cast[ptr UncheckedArray[cstring]](hatPtr)
 
-  for i in 0 .. count - 1:
+  for i in 0..<count:
     yield hats[i]
 
 
