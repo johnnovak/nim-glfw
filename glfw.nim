@@ -951,13 +951,13 @@ proc newWindow*(c = DefaultOpenglWindowConfig): Window =
         initModifierKeySet(modKeys))
   discard wrapper.setKeyCallback(result, keyCb)
 
-  charCb = proc(handle: WindowHandle, codePoint: uint32) {.cdecl.} =
+  charCb = proc(handle: WindowHandle, codePoint: cuint) {.cdecl.} =
     if get(charCb):
       cb(win, codePoint.Rune)
   discard wrapper.setCharCallback(result, charCb)
 
   charModsCb = proc(
-      handle: WindowHandle, codePoint: uint32, modKeys: int32) {.cdecl.} =
+      handle: WindowHandle, codePoint: cuint, modKeys: int32) {.cdecl.} =
     if get(charModsCb):
       cb(win, codePoint.Rune, initModifierKeySet(modKeys))
   discard wrapper.setCharModsCallback(result, charModsCb)
